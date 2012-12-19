@@ -1,0 +1,203 @@
+<project name="ZimbraAdminVersionCheck" default="jar">
+
+    <import file="../ant-global.xml" />
+
+	<!-- Properties -->
+	
+	<property name="jar.file" value="zimbraadminversioncheck.jar" />
+	<property name="versioncheck.deploy.dir" location="${zimbra.home.dir}/lib/ext/zimbraadminversioncheck" />
+	<property name="versioncheck.jar.name" value="zimbraadminversioncheck.jar" />
+        <property name="webapp.dir" value="/opt/zimbra/jetty/webapps/zimbra"/>
+
+	<path id="all.java.path">
+		<pathelement location="${src.java.dir}" />
+	</path>
+
+	<path id="class.path">
+		<pathelement location="${common.classes.dir}" />
+		<pathelement location="${build.classes.dir}" />
+		<pathelement location="${server.classes.dir}" />
+		<pathelement location="${soap.classes.dir}" />
+                <pathelement location="${client.classes.dir}" />
+		<fileset dir="${common.jars.dir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<!-- Targets -->
+	<target name="build-init">
+		<mkdir dir="${build.classes.dir}" />
+		<mkdir dir="${build.zimlet.dir}" />
+	</target>
+
+	<target name="compile" depends="build-init" description="Compiles the source code">
+		<ant dir="${common.dir}" target="jar" inheritAll="false" />
+                <ant dir="${client.dir}" target="jar" inheritAll="false" />
+		<javac destdir="${build.classes.dir}" debug="true" classpathref="class.path">
+			<src refid="all.java.path" />
+		</javac>
+	</target>
+	<target name="package-zimlet" depends="build-init" description="put zimlet files into zip archive for deployment">
+		<zip destfile="${build.zimlet.dir}/com_zimbra_adminversioncheck.zip" update="true">
+			<fileset dir="${src.zimlet.dir}" includes="*"/>
+		</zip>
+	</target>
+	<target name="deploy-zimlet" depends='package-zimlet' description="install files, deploy to LDAP">
+		<echo>Deploying zimlet: com_zimbra_adminversioncheck</echo>
+		<java classname="com.zimbra.cs.zimlet.ZimletUtil" fork="true" classpathref="class.path" failonerror="true">
+			<arg line="-q" />
+			<arg line="deploy" />
+			<arg file="${build.zimlet.dir}/com_zimbra_adminversioncheck.zip" />
+		</java>
+	</target>
+	
+	<target name="deploy-cli">
+		<copy todir="${zimbra.home.dir}/libexec">
+			<fileset dir="${src.libexec.dir}" includes="*"/>
+		</copy>		
+	</target>
+	<target name="jar" depends="compile" description="Creates the jar file">
+		<jar manifest="conf/MANIFEST.MF" destfile="${build.dir}/${jar.file}" basedir="${build.classes.dir}" />
+	</target>
+
+	<target name="clean" description="Removes build files and undeploys extension">
+		<delete dir="${build.dir}" />
+	</target>
+	
+	<target name="deploy" depends="stop-webserver,deploy-jar,start-webserver,deploy-cli,deploy-zimlet" description="Deploys the extension"/>
+
+	<!--<target name="deploy-test" depends="generate-buildinfo">
+		<copy file="${build.dir}/buildinfo/testversion.xml" tofile="${webapp.dir}/test/testversion.xml"/>
+	</target>-->
+	<target name="deploy-jar" depends="jar" description="Copies the jar file into the extension directory">
+		<copy todir="${versioncheck.deploy.dir}">
+			<fileset dir="${build.dir}" includes="${versioncheck.jar.name}" />
+		</copy>
+	</target>
+
+    <target name="set-buildinfo-vars">
+        <tstamp/>
+            <condition property="native.os" value="MacOSX">
+                <os name="Mac OS X"/>
+            </condition>
+            <condition property="native.os" value="Linux">
+                <os name="Linux"/>
+            </condition>
+            <condition property="native.so" value="jnilib">
+                <os name="Mac OS X"/>
+            </condition>
+            <condition property="native.so" value="so">
+                <not><os name="Mac OS X"/></not>
+            </condition>
+            <condition property="native.arch" value="">
+                <os name="Mac OS X"/>
+            </condition>
+            <condition property="native.arch" value=".${os.arch}">
+                <not>
+                    <os name="Mac OS X"/>
+                </not>
+            </condition>    	
+        <condition property="zimbra.buildinfo.platform" value="${native.os}">
+            <not><isset property="${zimbra.buildinfo.platform}"/></not>
+        </condition>             
+        <condition property="zimbra.buildinfo.version" value="6.0.2_BETA1_1111.${native.os}">
+            <not><isset property="${zimbra.buildinfo.version}"/></not>
+        </condition>
+    	  <propertyregex property="zimbra.buildinfo.majorversion"
+    	              input="${zimbra.buildinfo.version}"
+    	              regexp="([0-9]+)\.([0-9]+)\.([0-9]+)"
+    	              select="\1"
+    	              casesensitive="false" />
+
+      	  <propertyregex property="zimbra.buildinfo.minorversion"
+      	              input="${zimbra.buildinfo.version}"
+      	              regexp="([0-9]+)\.([0-9]+)\.([0-9]+)"
+      	              select="\2"
+      	              casesensitive="false" />
+
+    	  <propertyregex property="zimbra.buildinfo.microversion"
+    	              input="${zimbra.buildinfo.version}"
+    	              regexp="([0-9]+)\.([0-9]+)\.([0-9]+)"
+    	              select="\3"
+    	              casesensitive="false" />
+  	  <propertyregex property="zimbra.buildinfo.relclass"
+  	              input="${zimbra.buildinfo.version}"
+  	              regexp="([0-9]+)\.([0-9]+)\.([0-9]+)_([A-Z]+)"
+  	              select="\4"
+  	              casesensitive="false" />
+    	  <propertyregex property="zimbra.buildinfo.relnum"
+    	              input="${zimbra.buildinfo.version}"
+    	              regexp="([0-9]+)\.([0-9]+)\.([0-9]+)_([A-Z]+)([0-9]+)(\.|_)?"
+    	              select="\5"
+    	              casesensitive="false" />
+    	
+  	  <propertyregex property="zimbra.buildinfo.buildnum"
+  	              input="${zimbra.buildinfo.version}"
+  	              regexp="([0-9]+)\.([0-9]+)\.([0-9]+)_([A-Z0-9]+)(\.|_)?([0-9]+)?"
+  	              select="\6"
+  	              casesensitive="false" />
+    	
+        <condition property="zimbra.buildinfo.type" value="FOSS">
+            <not><isset property="${zimbra.buildinfo.type}"/></not>
+        </condition>
+        <condition property="zimbra.buildinfo.release" value="${user.name}">
+            <not><isset property="${zimbra.buildinfo.release}"/></not>
+        </condition>
+        <condition property="zimbra.buildinfo.date" value="${DSTAMP}-${TSTAMP}">
+            <not><isset property="${zimbra.buildinfo.date}"/></not>
+        </condition>
+        <condition property="zimbra.buildinfo.host" value="${zimbra.server.hostname}">
+            <not><isset property="${zimbra.buildinfo.host}"/></not>
+        </condition>
+    </target>
+    <taskdef resource="net/sf/antcontrib/antlib.xml">
+        <classpath>
+            <pathelement location="${common.jars.dir}/ant-contrib-1.0b1.jar"/>
+        </classpath>
+    </taskdef>
+
+	 <target name="generate-buildinfo" depends="set-buildinfo-vars">
+	 	<mkdir dir="${build.dir}/buildinfo"/>
+		<!--<copy todir="${build.dir}/buildinfo">
+			<fileset dir="${src.dir}/testdata" includes="testversion.xml" />
+		</copy>-->
+		<math result="futuremajorversion" operand1="${zimbra.buildinfo.majorversion}" operation="+" operand2="1" datatype="int"/>
+	 	<math result="futureminorversion" operand1="${zimbra.buildinfo.minorversion}" operation="+" operand2="1" datatype="int"/>
+		<math result="futuremicroversion" operand1="${zimbra.buildinfo.microversion}" operation="+" operand2="1" datatype="int"/>
+	 	<math result="futuremicroversion2" operand1="${zimbra.buildinfo.microversion}" operation="+" operand2="2" datatype="int"/>
+	 	
+        <if>
+            <isset property="zimbra.buildinfo.relnum"/>
+            <then>
+            	<math result="futurerelnum" operand1="${zimbra.buildinfo.relnum}" operation="+" operand2="1" datatype="int"/>
+            </then>
+            <else>
+            	 <property name="futurerelnum" value=""/>
+            </else>
+        </if>
+ 	
+	 	<math result="futurebuildnum" operand1="${zimbra.buildinfo.buildnum}" operation="+" operand2="1" datatype="int"/>
+	 	<!--<replace file="${build.dir}/buildinfo/testversion.xml">
+	 		<replacefilter token="%MAJOR_VERSION%" value="${zimbra.buildinfo.majorversion}"/>
+	 		<replacefilter token="%FUTURE_MAJOR_VERSION%" value="${futuremajorversion}"/>
+	 		<replacefilter token="%MINOR_VERSION%" value="${zimbra.buildinfo.minorversion}"/>
+	 		<replacefilter token="%FUTURE_MINOR_VERSION%" value="${futureminorversion}"/>
+	 		<replacefilter token="%MICRO_VERSION%" value="${zimbra.buildinfo.microversion}"/>
+	 		<replacefilter token="%FUTURE_MICRO_VERSION%" value="${futuremicroversion}"/>
+	 		<replacefilter token="%FUTURE_MICRO_VERSION2%" value="${futuremicroversion2}"/>	 		
+	 		<replacefilter token="%PLATFORM%" value="${zimbra.buildinfo.platform}"/>
+	 		<replacefilter token="%TYPE%" value="${zimbra.buildinfo.type}"/>
+	 		<replacefilter token="%FUTURE_BUILD_NUM%" value="${futurebuildnum}"/>
+	 		<replacefilter token="%FUTURE_RELNUM%" value="${futurerelnum}"/>
+	 		<replacefilter token="%RELNUM%" value="${zimbra.buildinfo.relnum}"/>
+	 		<replacefilter token="%RELCLASS%" value="${zimbra.buildinfo.relclass}"/>
+	 	</replace>-->
+    </target>
+
+	<target name="start-webserver">
+		<ant dir="../ZimbraServer" target="start-webserver" inheritAll="false"/>
+	</target>
+	<target name="stop-webserver">
+		<ant dir="../ZimbraServer" target="stop-webserver" inheritAll="false"/>
+	</target>
+</project>

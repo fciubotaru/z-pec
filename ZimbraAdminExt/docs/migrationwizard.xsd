@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.zimbra.com/migrationwizard/" targetNamespace="http://www.zimbra.com/migrationwizard/">
+
+    <include schemaLocation=""></include>
+    <simpleType name="Bit">
+        <annotation>
+        	<documentation>true/false flag</documentation>
+        </annotation>
+        <restriction base="int">
+    		<minInclusive value="0"></minInclusive>
+    		<maxInclusive value="1"></maxInclusive>
+    	</restriction>
+    </simpleType>
+
+    <simpleType name="EmailAddress">
+    	<restriction base="string">
+    		<pattern value="^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$"></pattern>
+    	</restriction>
+    </simpleType>
+    
+    <complexType name="Options">
+    	<sequence>
+    		<element name="importMails" type="tns:Bit" maxOccurs="1" minOccurs="1"></element>
+		    <element name="importContacts" type="tns:Bit" maxOccurs="1" minOccurs="1"></element>
+		    <element name="importCalendar" type="tns:Bit" maxOccurs="1" minOccurs="1"></element>
+		    <element name="importTasks" type="tns:Bit" maxOccurs="1" minOccurs="1"></element>
+		    <element name="importJunk" type="tns:Bit" maxOccurs="1" minOccurs="1"></element>
+		    <element name="importDeletedItems" type="tns:Bit" maxOccurs="1" minOccurs="1"></element>
+		    <element name="ignorePreviouslyImported" type="tns:Bit" maxOccurs="1" minOccurs="1"></element>
+		    <element name="InvalidSSLOk" type="tns:Bit" maxOccurs="1" minOccurs="1">
+		    	<annotation>
+		    		<documentation>This element controls weather Migration Wizard utility will proceed with migration in case  SSL certificate installed in the Appliance is invalid.
+Set this option value to 1 if you have not installed a valid commercial SSL certificate to Appliance at the time when you are running migration. </documentation>
+		    	</annotation></element>
+    	</sequence>
+    </complexType>
+	<complexType name="MapiProfile">
+		<sequence>
+		    <element name="profile" type="string" maxOccurs="1" minOccurs="1">
+		    	<annotation>
+		    		<documentation>Outlook profile name used to accessthe Exchange server for the migration.</documentation>
+		    	</annotation></element>
+		    <element name="server" type="string" maxOccurs="1" minOccurs="1">
+		    	<annotation>
+		    		<documentation>Exchange server for the migration.</documentation>
+		    	</annotation></element>
+		    <element name="logonUserDN" type="string" maxOccurs="1" minOccurs="1">
+		    	<annotation>
+		    		<documentation>Logon DN used to accessthe Exchange server for the migration.</documentation>
+		    	</annotation></element>
+		</sequence>
+	</complexType>
+	<complexType name="ZimbraServer">
+		<sequence>
+	        <element name="serverName" type="string" maxOccurs="1" minOccurs="1"></element>
+	        <element name="port" type="int" maxOccurs="1" minOccurs="0"></element>
+	        <element name="adminUserName" type="string" maxOccurs="1" minOccurs="1">
+	        	<annotation>
+	        		<documentation>Login name of your Appliance administrator user. This will be used by the Migration Wizard utility to log in to Zimbra Server on the Appliance and to execute provisioning tasks.</documentation>
+	        	</annotation></element> 
+			<element name="password" type="string" maxOccurs="1" minOccurs="0">
+				<annotation>
+					<documentation>Password of your Appliance administrator. This will be used by the Migration Wizard utility to log in to Zimbra Server on the Appliance and to execute provisioning tasks.</documentation>
+				</annotation></element>
+			<element name="adminSSLEnabled" type="tns:Bit" maxOccurs="1" minOccurs="0"></element>
+			<element name="domain" type="string" maxOccurs="1" minOccurs="0">
+				<annotation>
+					<documentation>This is the ZCS domain whereaccount migrate to. This domain must alreadyexist on the ZCS server.</documentation>
+				</annotation></element>
+		</sequence>    
+    </complexType>
+    <complexType name="User">
+    	<sequence>
+    		<element name="ExchangeMail" type="string" maxOccurs="1" minOccurs="1"></element>
+    		<element name="password" type="string" maxOccurs="1" minOccurs="0"></element>
+		    <element name="zimbraPasswordMustChange" maxOccurs="1" minOccurs="0">
+                <annotation>
+                	<documentation>Setting this to TRUE will force the user to change password after first login. This translates into setting zimbraPasswordMustChange attribute to TRUE on user account record in Zimbra LDAP.</documentation>
+                </annotation>
+                <simpleType>
+		    		<restriction base="boolean">
+		    			<enumeration value="TRUE"></enumeration>
+		    			<enumeration value="FALSE"></enumeration>
+		    		</restriction>
+		    	</simpleType>
+		    </element>
+    	</sequence>
+    </complexType>
+	<complexType name="ImportUsers">
+		<sequence>
+			<element name="User" type="tns:User" maxOccurs="unbounded" minOccurs="1"/>
+		</sequence>
+	</complexType>    
+	<complexType name="UserProvision">
+		<sequence>
+			<element name="provisionUsers" type="tns:Bit" maxOccurs="1" minOccurs="1"></element>
+			<element name="COS" type="string" maxOccurs="1" minOccurs="0"></element>
+			<element name="initialPassword" type="string" maxOccurs="1" minOccurs="0">
+				<annotation>
+					<documentation>Default value for passwords to be set for user accounts that are created by Migration Wizard utility.  This value will be used only when <User> element does not contain <password> element.
+For each account, if <User> element contains <password> element, the value of <password> element supercedes the value of this element.</documentation>
+				</annotation></element>
+		    <element name="zimbraPasswordMustChange" maxOccurs="1" minOccurs="0">
+		    	<annotation>
+                	<documentation>Setting this to TRUE will force the user to change password after first login. This translates into setting zimbraPasswordMustChange attribute to TRUE on user account record in Zimbra LDAP.</documentation>
+                </annotation>
+		    	<simpleType>
+		    		<restriction base="boolean">
+		    			<enumeration value="TRUE"></enumeration>
+		    			<enumeration value="FALSE"></enumeration>
+		    		</restriction>
+		    	</simpleType>
+		    </element>			
+		</sequence>
+	</complexType>
+	<complexType name="ZCSImport">
+		<sequence>
+			<element name="Options" type="tns:Options" maxOccurs="1" minOccurs="1"/>
+			<element name="ZimbraServer" type="tns:ZimbraServer" maxOccurs="1" minOccurs="1"/>
+			<element name="MapiProfile" type="tns:MapiProfile" maxOccurs="1" minOccurs="1"/>
+			<element name="ImportUsers" type="tns:ImportUsers" maxOccurs="1" minOccurs="1"/>
+			<element name="UserProvision" type="tns:UserProvision" maxOccurs="1" minOccurs="1"/>			
+		</sequence>   
+    </complexType>
+	
+</schema>
