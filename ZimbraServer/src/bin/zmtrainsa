@@ -1,0 +1,187 @@
+#!/bin/bash
+# 
+# ***** BEGIN LICENSE BLOCK *****
+# Zimbra Collaboration Suite Server
+# Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010 Zimbra, Inc.
+# 
+# The contents of this file are subject to the Zimbra Public License
+# Version 1.3 ("License"); you may not use this file except in
+# compliance with the License.  You may obtain a copy of the License at
+# http://www.zimbra.com/license.
+# 
+# Software distributed under the License is distributed on an "AS IS"
+# basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+# ***** END LICENSE BLOCK *****
+# 
+
+
+autoTrainSystem() {
+
+  timestampit "Starting spam/ham extraction from system accounts."
+  spamdir=`mktemp -d -t spam.XXXXXXX` || exit 1
+  hamdir=`mktemp -d -t ham.XXXXXXX` || exit 1
+  ${zimbra_home}/libexec/zmspamextract ${spam_account} -o ${spamdir}
+  ${zimbra_home}/libexec/zmspamextract ${ham_account} -o ${hamdir}
+  timestampit "Finished extracting spam/ham from system accounts."
+
+  timestampit "Starting spamassassin training."
+  ${zimbra_home}/libexec/sa-learn -p ${zimbra_home}/conf/sa/salocal.cf \
+    --dbpath ${db_path} -L --no-sync \
+    --siteconfigpath ${zimbra_home}/conf/spamassassin --spam ${spamdir}
+
+  ${zimbra_home}/libexec/sa-learn -p ${zimbra_home}/conf/sa/salocal.cf \
+    --dbpath ${db_path} -L --no-sync \
+    --siteconfigpath ${zimbra_home}/conf/spamassassin --ham ${hamdir}
+
+  ${zimbra_home}/libexec/sa-learn -p ${zimbra_home}/conf/sa/salocal.cf \
+    --siteconfigpath ${zimbra_home}/conf/spamassassin \
+    --dbpath ${db_path} --sync
+  timestampit "Finished spamassassin training."
+
+  if [ x"$amavis_dspam_enabled" = "xtrue" ]; then
+    timestampit "Starting dspam training"
+    ${zimbra_home}/dspam/bin/dspam_train zimbra ${spamdir} ${hamdir}
+    #for f in ${spamdir}/*; do
+      #test -f ${f} && ${zimbra_home}/dspam/bin/dspam_corpus --addspam zimbra ${f}
+    #done
+    #for f in ${hamdir}/*; do
+      #test -f ${f} && ${zimbra_home}/dspam/bin/dspam_corpus zimbra ${f}
+    #done
+
+    ${zimbra_home}/dspam/bin/dspam_clean -p0 $USER
+    timestampit "Finished dspam training"
+  fi
+
+  /bin/rm -rf ${spamdir} ${hamdir}
+}
+
+trainAccountFolder() {
+
+  if [ "x${MODE}" = "xspam" ]; then
+    tempdir=`mktemp -d -t spam.XXXXXX` || exit 1
+    FOLDER=${FOLDER:=junk}
+  elif [ "x${MODE}" = "xham" ]; then
+    tempdir=`mktemp -d -t ham.XXXXXX` || exit 1
+    FOLDER=${FOLDER:=inbox}
+  fi
+
+  timestampit  "Starting spamassassin $MODE training for $USER using folder $FOLDER"
+  ${zimbra_home}/libexec/zmspamextract -r -m $USER -o ${tempdir} -q in:${FOLDER}
+
+  ${zimbra_home}/libexec/sa-learn -p ${zimbra_home}/conf/sa/salocal.cf \
+    --dbpath ${db_path} -L --no-sync \
+    --siteconfigpath ${zimbra_home}/conf/spamassassin --${MODE} ${tempdir}
+
+  ${zimbra_home}/libexec/sa-learn -p ${zimbra_home}/conf/sa/salocal.cf \
+    --siteconfigpath ${zimbra_home}/conf/spamassassin \
+    --dbpath ${db_path} --sync
+  timestampit  "Finished spamassassin $MODE training for $USER using folder $FOLDER"
+
+  if [ x"$amavis_dspam_enabled" = "xtrue" ]; then
+    timestampit  "Starting dspam $MODE training for $USER using folder $FOLDER"
+    if [ $MODE == "ham" ]; then
+      MODE="innocent"
+    fi
+
+    ${zimbra_home}/dspam/bin/dspam --user zimbra --class=${MODE} --source=corpus --mode=teft \
+      --feature=chained,noise --stdout
+
+    ${zimbra_home}/dspam/bin/dspam_clean -p0 $USER
+    timestampit  "Finished dspam $MODE training for $USER using folder $FOLDER"
+  fi
+
+  /bin/rm -rf ${tempdir}
+
+}
+
+timestampit() {
+  SIMPLE_DATE=`date +%Y%m%d%H%M%S`
+  echo "$SIMPLE_DATE $1"
+}
+
+usage() {
+  echo "Usage: $0 <user> <spam|ham> [folder]"
+  exit 1
+}
+
+if [ x`whoami` != xzimbra ]; then
+    echo Error: must be run as zimbra user
+  exit 1
+fi
+
+if [ ! -h "/opt/zimbra/amavisd" ]; then
+    echo "Error: SpamAssassin not installed"
+    exit 1
+fi
+
+source `dirname $0`/zmshutil || exit 1
+zmsetvars \
+  zimbra_home \
+  zimbra_server_hostname \
+  amavis_dspam_enabled \
+  antispam_mysql_enabled \
+  zimbra_spam_externalIsSpamAccount \
+  zimbra_spam_externalIsNotSpamAccount \
+  zmtrainsa_cleanup_host 
+
+amavis_dspam_enabled=$(echo $amavis_dspam_enabled | tr A-Z a-z)
+antispam_mysql_enabled=$(echo $antispam_mysql_enabled | tr A-Z a-z)
+zmtrainsa_cleanup_host=$(echo $zmtrainsa_cleanup_host | tr A-Z a-z)
+
+if [ "x${zimbra_spam_externalIsSpamAccount}" = "x" ]; then
+  spam_account="-s"
+else 
+  spam_account="-m ${zimbra_spam_externalIsSpamAccount}"
+fi
+
+if [ "x${zimbra_spam_externalIsNotSpamAccount}" = "x" ]; then
+  ham_account="-n"
+else 
+  ham_account="-m ${zimbra_spam_externalIsNotSpamAccount}"
+fi
+
+# Set db_path
+if [ x"$antispam_mysql_enabled" = "xtrue" ]; then
+  db_path=${zimbra_home}/data/amavisd/mysql/data
+else
+  db_path=${zimbra_home}/data/amavisd/.spamassassin
+fi
+
+
+# No argument mode uses zmspamextract for auto-training.
+if [ x$1 = "x" ]; then
+  autoTrainSystem
+  exit
+fi
+
+if [ x$1 = "x--cleanup" ]; then
+  if [ x${zmtrainsa_cleanup_host} = "xtrue" ]; then
+    timestampit "Starting spam/ham cleanup"
+    mydir=`mktemp -d -t cleanup.XXXXXX` || exit 1
+    ${zimbra_home}/libexec/zmspamextract ${spam_account} -o ${mydir} -d
+    ${zimbra_home}/libexec/zmspamextract ${ham_account} -o ${mydir} -d
+    /bin/rm -rf ${mydir}
+    timestampit "Finished spam/ham cleanup"
+  else 
+    timestampit "Cleanup skipped: $zimbra_server_hostname is not a spam/ham cleanup host."
+  fi
+  exit
+fi
+
+
+USER=$1
+MODE=`echo $2 | tr A-Z a-z`
+FOLDER=$3
+
+if [ "x${MODE}" != "xspam" -a "x${MODE}" != "xham" ]; then
+  usage
+fi
+
+if [ "x${USER}" = "x" ]; then
+  usage
+fi
+
+trainAccountFolder
+
+exit 0
+

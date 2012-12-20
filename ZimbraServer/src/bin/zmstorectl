@@ -1,0 +1,121 @@
+#!/bin/bash
+# 
+# ***** BEGIN LICENSE BLOCK *****
+# Zimbra Collaboration Suite Server
+# Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010 Zimbra, Inc.
+# 
+# The contents of this file are subject to the Zimbra Public License
+# Version 1.3 ("License"); you may not use this file except in
+# compliance with the License.  You may obtain a copy of the License at
+# http://www.zimbra.com/license.
+# 
+# Software distributed under the License is distributed on an "AS IS"
+# basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+# ***** END LICENSE BLOCK *****
+# 
+
+source `dirname $0`/zmshutil || exit 1
+zmsetvars \
+  zimbra_home \
+  mailboxd_directory \
+  zimbra_mysql_password
+
+MYSQL="${zimbra_home}/bin/mysql -u zimbra --password=${zimbra_mysql_password}"
+
+START_ORDER="mysql.server zmmailboxdctl"
+STOP_ORDER="zmmailboxdctl mysql.server"
+
+STATUS=0
+
+flushDirtyPages() {
+  # make sure mysql is running
+  ${zimbra_home}/bin/mysql.server status > /dev/null 2>&1
+  if [ $? != 0 ]; then
+    return
+  fi
+
+  # make sure innodb is enabled
+  local innodb_status=$(echo "show engines;" | ${MYSQL} | grep InnoDB | cut -f2)
+  if [ "$innodb_status" = "DISABLED" ]; then
+    return
+  fi
+
+  # set max_dirty_pages=0 so mysql starts flushing dirty pages to disk.
+  ${MYSQL} -e "slave stop; set global innodb_max_dirty_pages_pct=0;"
+  if [ $? != 0 ]; then
+    return
+  fi
+
+  # wait for 600 seconds or until there are no more dirty pages
+  local i=0
+  while [ $i -lt 600 ]; do
+    local pages=$(${MYSQL} -e "show engine innodb status\G" | grep '^Modified db pages' | grep -Eo '[0-9]+$')
+    if [ "$pages" = "0" ]; then
+      break
+    fi
+    #echo -ne "$pages\r"
+    i=$((i+1))
+    sleep 1
+  done
+}
+
+case "$1" in 
+  start)
+    if [ x$2 = "x" ]; then
+	  # Call tlsctl to get all the mailbox config files
+      ${zimbra_home}/bin/zmtlsctl >/dev/null 2>&1
+    fi
+    for i in $START_ORDER; do
+      ${zimbra_home}/bin/$i start norewrite >/dev/null 2>&1
+      R=$?
+      if [ $R -ne "0" ]; then
+        STATUS=$R
+      fi
+    done
+    exit $STATUS
+  ;;
+  stop)
+    for i in $STOP_ORDER; do
+      if [ "$i" = "mysql.server" ]; then
+        flushDirtyPages
+      fi
+      ${zimbra_home}/bin/$i stop
+      R=$?
+      if [ $R -ne "0" ]; then
+        STATUS=$R
+      fi
+    done
+    exit $STATUS
+  ;;
+  restart|reload)
+    for i in $START_ORDER; do
+      ${zimbra_home}/bin/$i $1
+      R=$?
+      if [ $R -ne "0" ]; then
+        STATUS=$R
+      fi
+    done
+    exit $STATUS
+  ;;
+  status)
+    for i in $START_ORDER; do
+      if [ $i = "mysql.server" ]; then
+        ${zimbra_home}/bin/mysqladmin status > /dev/null 2>&1
+      else
+        ${zimbra_home}/bin/$i status > /dev/null 2>&1
+      fi
+      R=$?
+      if [ $R -ne "0" ]; then
+        echo "$i is not running."
+        if [ x"$i" != "xzmconfigdctl" ]; then
+          STATUS=$R
+        fi
+      fi
+    done
+    exit $STATUS
+  ;;
+  *)
+    echo "$0 start|stop|restart|reload|status"
+    exit 1
+  ;;
+esac

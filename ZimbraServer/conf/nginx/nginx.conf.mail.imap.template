@@ -1,0 +1,19 @@
+!{explode domain(vhn)}
+# IMAP proxy configuration
+# 
+server
+{
+    server_name             ${vhn}; 
+    ${core.ipboth.enabled}listen                  ${vip}:${mail.imap.port};
+    ${core.ipv4only.enabled}listen                  ${vip}:${mail.imap.port};
+    ${core.ipv6only.enabled}listen                  ${vip}:${mail.imap.port} ipv6only=on;
+    protocol                imap;
+    proxy                   on;
+    timeout                 ${mail.imap.timeout};
+    proxy_timeout           ${mail.imap.proxytimeout};
+    sasl_service_name       "imap";
+    starttls                ${mail.imap.tls};
+    ssl_certificate         ${ssl.crt};
+    ssl_certificate_key     ${ssl.key};
+}
+

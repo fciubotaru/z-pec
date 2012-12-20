@@ -1,0 +1,64 @@
+#!/bin/bash
+# 
+# ***** BEGIN LICENSE BLOCK *****
+# Zimbra Collaboration Suite Server
+# Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010 Zimbra, Inc.
+# 
+# The contents of this file are subject to the Zimbra Public License
+# Version 1.3 ("License"); you may not use this file except in
+# compliance with the License.  You may obtain a copy of the License at
+# http://www.zimbra.com/license.
+# 
+# Software distributed under the License is distributed on an "AS IS"
+# basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+# ***** END LICENSE BLOCK *****
+# 
+
+
+usage() {
+  echo "Usage: $0"
+  exit 1
+}
+
+if [ x`whoami` != xzimbra ]; then
+  echo Error: must be run as zimbra user
+  exit 1
+fi
+
+source `dirname $0`/../bin/zmshutil || exit 1
+zmsetvars \
+  zimbra_home \
+  zimbra_server_hostname
+
+download_dir=${mailboxd_directory}/webapps/zimbra/downloads
+index=${download_dir}/index.html
+
+admin_dir=${mailboxd_directory}/webapps/zimbraAdmin/WEB-INF/classes/messages
+zmsg=${admin_dir}/ZaMsg.properties
+
+if [ -d "${download_dir}" ]; then
+  ZCO_32BIT=$(cd ${download_dir}; ls -tr1 ZimbraConnectorOLK*x86.msi 2>/dev/null | head -1)
+  ZCO_64BIT=$(cd ${download_dir}; ls -tr1 ZimbraConnectorOLK*x64.msi 2>/dev/null | head -1)
+  PST_IMPORT=$(cd ${download_dir}; ls -tr1 ZCSPSTImportWizard* 2>/dev/null | head -1)
+  EXCHANGE_MIG_WIZARD=$(cd ${download_dir}; ls -tr1 ZCSExchangeMigrationWizard* 2>/dev/null | head -1)
+  DOMINO_MIG_WIZARD=$(cd ${download_dir}; ls -tr1 ZCSDominoMigrationWizard* 2>/dev/null | head -1)
+  GENERAL_MIG_WIZARD_32BIT=$(cd ${download_dir}; ls -tr1 ZimbraMigration_*_x86.zip 2>/dev/null | head -1)
+  GENERAL_MIG_WIZARD_64BIT=$(cd ${download_dir}; ls -tr1 ZimbraMigration_*_x64.zip 2>/dev/null | head -1)
+
+  cat ${index}.in | \
+    sed -e "s/@@ZCO_32BIT@@/${ZCO_32BIT}/" \
+    -e "s/@@ZCO_64BIT@@/${ZCO_64BIT}/" \
+    -e "s/@@PST_IMPORT@@/${PST_IMPORT}/" \
+    -e "s/@@EXCHANGE_MIG_WIZARD@@/${EXCHANGE_MIG_WIZARD}/" \
+    -e "s/@@GENERAL_MIG_WIZARD_32BIT@@/${GENERAL_MIG_WIZARD_32BIT}/" \
+    -e "s/@@GENERAL_MIG_WIZARD_64BIT@@/${GENERAL_MIG_WIZARD_64BIT}/" \
+    -e "s/@@DOMINO_MIG_WIZARD@@/${DOMINO_MIG_WIZARD}/" > ${index}
+
+  if [ -f "${zmsg}" ]; then
+    sed -i -e "s#ZimbraConnectorOLK_.*x86.msi#${ZCO_32BIT}#" \
+      -e "s#ZimbraConnectorOLK_.*x64.msi#${ZCO_64BIT}#" ${zmsg}
+  fi
+fi
+
+exit 0
+

@@ -1,0 +1,447 @@
+#!/usr/bin/perl
+# 
+# ***** BEGIN LICENSE BLOCK *****
+# Zimbra Collaboration Suite Server
+# Copyright (C) 2008, 2009, 2010 Zimbra, Inc.
+# 
+# The contents of this file are subject to the Zimbra Public License
+# Version 1.3 ("License"); you may not use this file except in
+# compliance with the License.  You may obtain a copy of the License at
+# http://www.zimbra.com/license.
+# 
+# Software distributed under the License is distributed on an "AS IS"
+# basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+# ***** END LICENSE BLOCK *****
+# 
+use strict;
+
+use lib "/opt/zimbra/zimbramon/lib";
+use  Zimbra::Util::Common;
+
+use Getopt::Std;
+use POSIX qw(strftime);
+use File::Spec;
+use File::Path;
+use Zimbra::Mon::Zmstat;
+
+use vars qw(
+    $VERSION $PID_FILE $DEFAULT_DEST $JMAP $JAVA $DEFAULT_TIMEOUT
+    $HAVE_GCORE $HAVE_PSTACK $HAVE_LSOF $HAVE_DMESG $LOG_FILE $ZMSTAT_CONF
+    $ZMDUMPENV $ZMLOCALCONFIG $ZMPROV $ZMHOSTNAME $SU $HAVE_NETSTAT $HAVE_MYSQL
+);
+
+my $isMac = isMac();
+
+chomp($ZMHOSTNAME = `/opt/zimbra/bin/zmhostname`);
+
+my $zimbra_tmp_directory = "/opt/zimbra/data/tmp";
+if (-f "/opt/zimbra/bin/zmlocalconfig") {
+  $zimbra_tmp_directory=`/opt/zimbra/bin/zmlocalconfig -x -s -m nokey zimbra_tmp_directory`;
+  chomp($zimbra_tmp_directory);
+}
+
+if (!-d $zimbra_tmp_directory) {
+  File::Path::mkpath("$zimbra_tmp_directory");
+}
+
+$DEFAULT_DEST = "$zimbra_tmp_directory/zmdiaglog-$ZMHOSTNAME." .
+        strftime("%Y%m%d-%H%M%S", localtime()) . "." . $$;
+$DEFAULT_TIMEOUT = 120;
+$PID_FILE = '/opt/zimbra/log/zmmailboxd_java.pid';
+$JMAP = '/opt/zimbra/java/bin/jmap';
+$JAVA = '/opt/zimbra/java/bin/java';
+$Getopt::Std::STANDARD_HELP_VERSION = 1;
+$VERSION = 0.1;
+$HAVE_GCORE = has_cmd('gcore');
+$HAVE_PSTACK = has_cmd('pstack');
+$HAVE_LSOF = has_cmd('lsof');
+$HAVE_DMESG = has_cmd('dmesg');
+$HAVE_NETSTAT = has_cmd('netstat');
+$HAVE_MYSQL = has_cmd('/opt/zimbra/mysql/bin/mysql');
+$LOG_FILE = 'zmdiag.log';
+$ZMSTAT_CONF = '/opt/zimbra/conf/zmstat-chart.xml';
+$ZMDUMPENV = '/opt/zimbra/bin/zmdumpenv';
+$ZMLOCALCONFIG = '/opt/zimbra/bin/zmlocalconfig';
+$ZMPROV = '/opt/zimbra/bin/zmprov -l';
+$SU = "su - zimbra -c ";
+$SU = "su - zimbra -c -l " if (isMac());
+
+
+sub logmsg($) {
+    my $msg = shift;
+    open(LOGFILE, ">>$LOG_FILE");
+    print LOGFILE $msg;
+    close(LOGFILE);
+    print $msg;
+}
+
+sub get_java_version() {
+	my $version = "UNKNOWN";
+	open(JAVA, "$JAVA -version 2>&1 |") || die "Cannot determine java version: $!";
+	my $version_line = <JAVA>;
+	if ($version_line =~ /"1\.7/) {
+		$version = "1.7";
+	} elsif ($version_line =~ /"1\.6/) {
+		$version = "1.6";
+	} elsif ($version_line =~ /"1\.5/) {
+		$version = "1.5";
+	} else {
+		die "Unknown java version: $version_line";
+	}
+	close(JAVA);
+	$version;
+}
+
+sub save_heap_info($$$$) {
+	my ($version,$destination,$pid,$timeout) = @_;
+	my $histo_cmd;
+	my $dump_cmd;
+	my $dump_file;
+	if ($version eq '1.6') {
+		$histo_cmd = "$JMAP -histo:live $pid";
+		$dump_cmd  = "$SU '$JMAP -dump:live,file=$destination/heapdump.live $pid'";
+		$dump_file = "$destination/heapdump.live";
+	} elsif ($version eq '1.5') {
+		$histo_cmd = "$JMAP -histo $pid";
+		$dump_cmd  = "$JMAP -heap:format=b $pid";
+		$dump_file = "$destination/heap.bin";
+	}
+    logmsg "Retrieving JVM heap histogram\n";
+    exec_with_timeout("$SU '$histo_cmd' > heap.histo 2>&1", $timeout);
+    logmsg "Saving JVM heapdump\n";
+    my $success = exec_with_timeout("$dump_cmd", $timeout);
+    my $dumped = -f "$dump_file";
+    if ((!$dumped || !$success) && $version eq '1.6') {
+        logmsg "Failed to save heapdump, attempting forced dump\n";
+        exec_with_timeout("$SU '$JMAP -F -dump:file=$destination/heapdump.snapshot $pid'", $timeout);
+        $dumped = -f 'heapdump.snapshot';
+    }
+    $dumped && $success;
+}
+
+sub save_jvm_core($$) {
+    my ($JAVA_VERSION, $mailboxd_pid) = @_;
+    if ($HAVE_GCORE) {
+        logmsg "Failed collecting heapdump.  Collecting JVM coredump\n";
+        # longer timeout for gcore because it can take a lot longer
+        my $got_core = exec_with_timeout("gcore $mailboxd_pid", 300);
+        logmsg "Converting coredump to heap snapshot\n";
+        if ($got_core) {
+            if ($JAVA_VERSION eq "1.6") {
+                qx($JMAP -dump:file=heapdump.snapshot $JAVA core.$mailboxd_pid);
+            } else {
+                qx($JMAP -heap:format=b $JAVA core.$mailboxd_pid);
+            }
+        }
+        unlink("core.$mailboxd_pid");
+    } elsif (!$HAVE_GCORE) {
+        logmsg "'gcore' (gdb) is not installed, will not collect JVM coredump\n";
+    }
+}
+
+sub has_cmd($) {
+    my $cmd = shift;
+    my $r = system("bash -c 'type -P $cmd' > /dev/null");
+    ($r >> 8) == 0;
+}
+
+sub get_pid() {
+    my $pid = 0;
+    if (-f $PID_FILE) {
+        eval {
+            open(PID_FILE, "<$PID_FILE") || die $!;
+            $pid = <PID_FILE>;
+            chomp($pid); chomp($pid);
+            close PID_FILE;
+        };
+        if ($@) {
+            logmsg "Unable to find pid file, falling back: $@\n";
+        }
+    }
+    if (!$pid) {
+        eval {
+            open(PS, "ps -ef | grep [j]etty.xml | awk '{ print \$2 }' |")
+                    || die $!;
+            $pid = <PS>;
+            chomp($pid); chomp($pid);
+            close(PS);
+        };
+        if ($@) {
+            logmsg "Unable to manually obtain mailboxd pid: $@\n";
+        } elsif (!$pid) {
+            logmsg "Unable to determine mailboxd pid\n";
+        }
+    }
+    return $pid;
+}
+sub invoke_thread_dump($$) {
+    my ($i, $ts) = @_;
+    system("/opt/zimbra/bin/zmthrdump -i > threaddump.$i.$ts 2>&1");
+}
+
+sub collect_thread_stats($) {
+    my $pid = shift;
+    return undef unless (-d "/proc");
+    open(STATS, "cat /proc/$pid/task/*/stat |");
+    my @stats = <STATS>;
+    close STATS;
+    return join("", @stats);
+}
+
+sub exec_with_timeout($$) {
+    my $cmd = shift;
+    my $timeout = shift;
+    my $result = 1;
+
+    my $r = fork();
+    if ($r) { # parent
+        my $reaped = 0;
+        local $SIG{'CHLD'} = sub {
+            waitpid($r, 0); # reap
+            $reaped = 1;
+        };
+        sleep($timeout);
+        if (!$reaped) {
+            logmsg "Timeout exceeded executing: '$cmd', killing\n";
+            kill('SIGKILL', $r);
+            $result = 0;
+        }
+    } else { # child
+        my @cmdary = ('/bin/sh', '-c', $cmd);
+        close(STDOUT);
+        close(STDERR);
+        open(STDOUT, ">>$LOG_FILE");
+        open(STDERR, ">>$LOG_FILE");
+        exec(@cmdary);
+        die "Unable to exec command: $!";
+    }
+    $result;
+}
+sub HELP_MESSAGE {
+    my $fd = shift;
+    print $fd <<"EOF";
+Usage: zmdiaglog [-dthazj]
+
+    -a    - Do everything: also gather JVM heapdump/coredump
+    -d    - Log destination (Default $DEFAULT_DEST)
+    -t    - Timeout in seconds for hanging commands (Default $DEFAULT_TIMEOUT)
+    -j    - Also include the output of /opt/zimbra/libexec/zmjavawatch
+    -z    - Create a zip file of the data collected by zmdiaglog
+    -Z    - Archive data collected by zmdiaglog into a zip file AND remove
+            data collection directory.
+    -h    - This help message
+EOF
+}
+
+
+sub get_mysql_data() {
+    if ($HAVE_MYSQL) {
+        my $mysql_cmd="/opt/zimbra/bin/mysql";
+        logmsg "Collecting MySQL data ";
+        logmsg ".";
+        system("echo \"show engine innodb status\\G;\" | $SU $mysql_cmd > mysql-innodb-status.txt");
+        logmsg ".";
+        system("echo \"show global status;\" | $SU $mysql_cmd > mysql-show-global-status.txt");
+        logmsg ".";
+        system("echo \"select * from information_schema.processlist;\" | $SU $mysql_cmd > mysql-information_schema.processlist.txt");
+        logmsg " done.";
+    }
+}
+
+
+# "main"
+sub run() {
+    my %options;
+    $options{'d'} = $DEFAULT_DEST;
+    $options{'t'} = $DEFAULT_TIMEOUT;
+    getopts('d:t:jhazZ', \%options);
+    
+    if ($options{'h'}) {
+        HELP_MESSAGE(\*STDERR);
+        exit(0);
+    }
+    if ($< != 0) {
+        print STDERR "zmdiaglog needs to be run as root\n";
+        exit 1;
+    }
+    
+    my $destination = $options{'d'};
+    $destination    = File::Spec->rel2abs($destination);
+    my $timeout     = $options{'t'};
+    
+    if (! -d $destination) {
+        File::Path::mkpath("$destination"); 
+    }
+    my (undef, undef,$uid,$gid) = getpwnam('zimbra');
+
+    chown $uid, $gid, $destination;
+    chdir($destination);
+    
+    my $mailboxd_pid = get_pid();
+    logmsg "No '-a' argument, skipping heap and coredump collection.\n"
+            if (!$options{'a'});
+    logmsg "ZCS mailboxd pid: $mailboxd_pid\n";
+    logmsg "Saving diagnostic logging output to: $destination\n";
+    
+    my $JAVA_VERSION = get_java_version();
+    logmsg "Java version: $JAVA_VERSION\n";
+    
+    logmsg "Saving output of zmdumpenv\n";
+    exec_with_timeout("$SU '$ZMDUMPENV' > zmdumpenv.txt 2>&1", $timeout);
+    logmsg "Saving server configuration\n";
+    exec_with_timeout("$SU '$ZMPROV gs $ZMHOSTNAME' > zmprov-gs.txt 2>&1", $timeout);
+    exec_with_timeout("$SU '$ZMPROV gacf' > zmprov-gacf.txt 2>&1", $timeout);
+    system("cp /opt/zimbra/conf/localconfig.xml $destination/");
+    exec_with_timeout("$SU '$ZMLOCALCONFIG -x -s' > zmlocalconfig-x-s.txt 2>&1", $timeout);
+    exec_with_timeout("$SU '$ZMLOCALCONFIG -n' > zmlocalconfig-n.txt 2>&1", $timeout);
+    system("cp /opt/zimbra/conf/my.cnf $destination/");
+    
+    for (my $i = 1; $i <= 10; $i++) {
+        logmsg "Collecting thread stats/stacks: $i of 10\n";
+        my $TS = strftime("%H-%M-%S", localtime());
+    
+        invoke_thread_dump($i, $TS);
+        my $top_cmd = "top -bc -n1 > top.$i.$TS 2>&1";
+        if ($isMac) {
+            $top_cmd = "top -o cpu -l 2 | \
+                        awk 'BEGIN { sample = 0 } \
+                            { \
+                                if ( \$0 ~ /^Processes: / ) { sample++; } \
+                                if ( sample ==2 ) { print \$0 } \
+                            }' > top.$i.$TS 2>&1";
+        }
+        system($top_cmd);
+        system("/bin/ps -auxw > ps.$i.$TS 2>&1");
+        my $netstat = "netstat -anp > netstat.$i.$TS 2>&1";
+        $netstat = "netstat -an > netstat.$i.$TS 2>&1" if ($isMac);
+        system($netstat);
+    
+        my $stats = collect_thread_stats($mailboxd_pid);
+        open(STATS, ">proc-stats.$i.$TS") || warn $i;
+        print STATS $stats;
+        close(STATS);
+    
+        sleep(5);
+    }
+    
+    if ($HAVE_PSTACK) {
+        for (my $i = 1; $i <= 3; $i++) {
+            logmsg "Collecting process stack: $i of 3\n";
+            my $TS = strftime("%H-%M-%S", localtime());
+            exec_with_timeout("pstack $mailboxd_pid > pstack.$i.$TS 2>&1", $timeout);
+            sleep(5);
+        }
+    } else {
+        logmsg "'pstack' is not installed, will not collect process stacks\n";
+    }
+    
+    if ($options{'j'}) {
+        system("/opt/zimbra/libexec/zmjavawatch > zmjavawatch.log 2>&1");
+    }
+    
+    if ($HAVE_LSOF) {
+        logmsg "Saving output of LSOF\n";
+        qx(lsof > lsof.out 2>&1);
+    } else {
+        logmsg "'lsof' is not installed, will not check fd status\n";
+    }
+
+    if ($HAVE_DMESG) {
+      logmsg "Saving output of DMESG\n";
+      qx(dmesg > dmesg.out 2>&1);
+    } else {
+      logmsg "'dmesg' is not installed, skipping check.\n";
+    }
+
+    if ($HAVE_NETSTAT) {
+      logmsg "Saving netstat statistics\n";
+      qx(netstat -s > netstat-s.out 2>&1);
+    } else {
+      logmsg "'netstat' is not installed, skipping check.\n";
+    }
+
+    mkdir("$destination/logs");
+    mkdir("$destination/stats");
+    mkdir("$destination/ld.so.conf");
+    if (! -f $ZMSTAT_CONF) {
+        logmsg "Saving ZCS statistics chart config\n";
+        open(CONF, "$SU '/opt/zimbra/bin/zmstat-chart-config' |");
+        open(CONF_OUT, ">stats/zmstat-chart.xml");
+        while (<CONF>) {
+            print CONF_OUT;
+        }
+        close(CONF);
+        close(CONF_OUT);
+    } else {
+        logmsg "Copying ZCS statistics chart config\n";
+        system("cp $ZMSTAT_CONF stats/");
+    }
+    my $today = strftime("%Y-%m-%d", localtime(time()));
+    my $t_today = strftime("%Y_%m_%d", localtime(time()));
+    logmsg "Copying current ZCS logs\n";
+    system("cp /opt/zimbra/log/audit.log /opt/zimbra/log/my*.log /opt/zimbra/log/mailbox.log /opt/zimbra/log/zmmailboxd.out /opt/zimbra/log/access_log.$today /opt/zimbra/log/$t_today.trace.log /var/log/zimbra.log /opt/zimbra/log/hs_err_pid* /opt/zimbra/log/zmconfigd.log /opt/zimbra/log/sync.log $destination/logs/ 2> /dev/null");
+    system("cp /opt/zimbra/db/data/*.err $destination/logs/ 2> /dev/null");
+    logmsg "Copying today's ZCS statistics\n";
+    system("cp /opt/zimbra/zmstat/*.csv $destination/stats/");
+    
+    my $yesterday = time() - (24 * 60 * 60);
+    my $yesterday_stats_dir = strftime("%Y-%m-%d", localtime($yesterday));
+    if (-d "/opt/zimbra/zmstat/$yesterday_stats_dir") {
+        logmsg "Copying yesterday's ZCS statistics\n";
+        mkdir("$destination/stats/$yesterday_stats_dir");
+        my $zuser = $Zimbra::Mon::Zmstat::LC{zimbra_user};
+        my ($zuid,$zgid) = (getpwnam($zuser))[2,3];
+        chown $zuid, $zgid, "$destination/stats/$yesterday_stats_dir";
+        system("cp /opt/zimbra/zmstat/$yesterday_stats_dir/* $destination/stats/$yesterday_stats_dir/");
+    }
+
+    my $systemlogfile = "/var/log/messages";
+      $systemlogfile = "/var/log/system.log" if (isMac());
+    if (-f $systemlogfile) {
+      logmsg "Copying system log $systemlogfile\n";
+      system("cp $systemlogfile $destination/logs/");
+    }
+
+    if (-f "/opt/zimbra/log/nginx.log") {
+      logmsg "Copying nginx log /opt/zimbra/log/nginx.log\n";
+      system("cp /opt/zimbra/log/nginx.log $destination/logs/");
+    }
+   
+    if (-f "/opt/zimbra/log/nginx.access.log") {
+      logmsg "Copying nginx access log /opt/zimbra/log/nginx.access.log\n";
+      system("cp /opt/zimbra/log/nginx.access.log $destination/logs/");
+    }
+   
+    if (-f "/etc/ld.so.conf") { 
+      logmsg "Copying ld.so configuration\n";
+      system("cp /etc/ld.so.conf /etc/ld.so.conf.d/* $destination/ld.so.conf/");
+    } else {
+      logmsg "ld.so.conf not present...skipping copy.\n";
+    }
+
+    get_mysql_data();
+
+    my $dumped = save_heap_info($JAVA_VERSION, $destination,
+            $mailboxd_pid, $timeout) if ($options{'a'});
+
+    save_jvm_core($JAVA_VERSION, $mailboxd_pid) if (!$dumped && $options{'a'});
+    
+    logmsg "\n *** Diagnostics collection done.  Data stored in $destination/.\n";
+    my $dirname = `pwd`;
+    chomp($dirname);
+    chomp($dirname = `basename $dirname`);
+    if ($options{'z'} || $options{'Z'}) {
+      logmsg "Zipping up contents of $destination into $destination.zip\n";
+      chdir('..');
+      system("nice -n 19 zip -9r $dirname.zip $dirname/");
+      logmsg "\n *** Zipfile \"$destination.zip\" created.\n";
+      if ($options{'Z'}) {
+        remove_tree($dirname);
+      }
+    } else {
+    	logmsg "Skipping zip creation.\n";
+    }
+    chdir($destination);
+}
+
+run();

@@ -1,0 +1,154 @@
+#!/bin/bash
+# 
+# ***** BEGIN LICENSE BLOCK *****
+# Zimbra Collaboration Suite Server
+# Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010 Zimbra, Inc.
+# 
+# The contents of this file are subject to the Zimbra Public License
+# Version 1.3 ("License"); you may not use this file except in
+# compliance with the License.  You may obtain a copy of the License at
+# http://www.zimbra.com/license.
+# 
+# Software distributed under the License is distributed on an "AS IS"
+# basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+# ***** END LICENSE BLOCK *****
+# 
+#
+# This script sets up ldap query filters used by postfix.
+#
+
+source `dirname $0`/../bin/zmshutil || exit 1
+zmsetvars
+
+case "$#" in
+  0) 
+   ;;
+  1)
+    ldap_host="$1"
+    ldap_port=389
+    ldap_url="ldap://${ldap_host}:${ldap_port}"
+    ;;
+  2)
+    ldap_host="$1"
+    ldap_port="$2"
+    if [ "$ldap_port" == 636 ]; then
+       ldap_url="ldaps://${ldap_host}:${ldap_port}"
+    else
+       ldap_url="ldap://${ldap_host}:${ldap_port}"
+    fi
+    ;;
+  *)
+    echo Usage: `basename $0` ldap_host [ ldap_port ]
+    exit
+    ;;
+esac
+    
+if [ "$ldap_starttls_supported" == 1 ]; then
+   STARTTLS="yes"
+else
+   STARTTLS="no"
+fi
+
+PLAT=`/bin/bash ${zimbra_home}/libexec/get_plat_tag.sh`
+if [ "X$PLAT" = "XMACOSXx86_10.5" -o "X$PLAT" = "XMACOSXx86_10.6" -o "X$PLAT" = "XMACOSXx86_10.7" ]; then
+  postfix_owner=_postfix
+else
+  postfix_owner=postfix
+fi
+
+
+confdir=/opt/zimbra/conf
+mkdir -p ${confdir}
+
+cat<<EOF > ${confdir}/ldap-vmm.cf
+server_host = ${ldap_url}
+server_port = ${ldap_port}
+search_base =
+query_filter = (&(zimbraMailDeliveryAddress=%s)(zimbraMailStatus=enabled))
+result_attribute = zimbraMailDeliveryAddress
+version = 3
+start_tls = ${STARTTLS}
+tls_ca_cert_dir = /opt/zimbra/conf/ca
+bind = yes
+bind_dn = uid=zmpostfix,cn=appaccts,cn=zimbra
+bind_pw = ${ldap_postfix_password}
+timeout = 30
+EOF
+
+cat<<EOF > ${confdir}/ldap-vmd.cf
+server_host = ${ldap_url}
+server_port = ${ldap_port}
+search_base =
+query_filter = (&(zimbraDomainName=%s)(zimbraDomainType=local)(zimbraMailStatus=enabled))
+result_attribute = zimbraDomainName
+version = 3
+start_tls = ${STARTTLS}
+tls_ca_cert_dir = /opt/zimbra/conf/ca
+bind = yes
+bind_dn = uid=zmpostfix,cn=appaccts,cn=zimbra
+bind_pw = ${ldap_postfix_password}
+timeout = 30
+EOF
+
+cat<<EOF > ${confdir}/ldap-vam.cf
+server_host = ${ldap_url}
+server_port = ${ldap_port}
+search_base =
+query_filter = (&(|(zimbraMailDeliveryAddress=%s)(zimbraMailAlias=%s)(zimbraMailCatchAllAddress=%s))(zimbraMailStatus=enabled))
+result_attribute = zimbraMailDeliveryAddress,zimbraMailForwardingAddress,zimbraPrefMailForwardingAddress,zimbraMailCatchAllForwardingAddress
+version = 3
+start_tls = ${STARTTLS}
+tls_ca_cert_dir = /opt/zimbra/conf/ca
+bind = yes
+bind_dn = uid=zmpostfix,cn=appaccts,cn=zimbra
+bind_pw = ${ldap_postfix_password}
+timeout = 30
+special_result_attribute = member
+EOF
+
+cat<<EOF > ${confdir}/ldap-vad.cf
+server_host = ${ldap_url}
+server_port = ${ldap_port}
+search_base =
+query_filter = (&(zimbraDomainName=%s)(zimbraDomainType=alias)(zimbraMailStatus=enabled))
+result_attribute = zimbraDomainName
+version = 3
+start_tls = ${STARTTLS}
+tls_ca_cert_dir = /opt/zimbra/conf/ca
+bind = yes
+bind_dn = uid=zmpostfix,cn=appaccts,cn=zimbra
+bind_pw = ${ldap_postfix_password}
+timeout = 30
+EOF
+
+cat<<EOF > ${confdir}/ldap-scm.cf
+server_host = ${ldap_url}
+server_port = ${ldap_port}
+search_base = 
+query_filter = (&(|(zimbraMailDeliveryAddress=%s)(zimbraMailAlias=%s)(zimbraMailCatchAllAddress=%s))(zimbraMailStatus=enabled))
+result_attribute = zimbraMailCanonicalAddress,zimbraMailCatchAllCanonicalAddress
+version = 3
+start_tls = ${STARTTLS}
+tls_ca_cert_dir = /opt/zimbra/conf/ca
+bind = yes
+bind_dn = uid=zmpostfix,cn=appaccts,cn=zimbra
+bind_pw = ${ldap_postfix_password}
+timeout = 30
+EOF
+
+cat<<EOF > ${confdir}/ldap-transport.cf
+server_host = ${ldap_url}
+server_port = ${ldap_port}
+search_base =
+query_filter = (&(|(zimbraMailDeliveryAddress=%s)(zimbraDomainName=%s))(zimbraMailStatus=enabled))
+result_attribute = zimbraMailTransport
+version = 3
+start_tls = ${STARTTLS}
+tls_ca_cert_dir = /opt/zimbra/conf/ca
+bind = yes
+bind_dn = uid=zmpostfix,cn=appaccts,cn=zimbra
+bind_pw = ${ldap_postfix_password}
+timeout = 30
+EOF
+
+chgrp ${postfix_owner} ${confdir}/ldap-*.cf

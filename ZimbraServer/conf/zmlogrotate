@@ -1,0 +1,146 @@
+/var/log/zimbra.log {
+    daily
+    missingok
+    notifempty
+    create 0644 USER GROUP
+    postrotate
+      kill -HUP `cat /var/run/syslog*.pid 2> /dev/null` 2> /dev/null || true
+      su - zimbra -c "/opt/zimbra/bin/zmswatchctl restart" > /dev/null 2>&1 || true
+    endscript
+    compress
+}
+
+/var/log/zimbra-stats.log {
+    daily
+    missingok
+    notifempty
+    create 0644 USER GROUP
+    postrotate
+      kill -HUP `cat /var/run/syslog*.pid 2> /dev/null` 2> /dev/null || true
+      su - zimbra -c "/opt/zimbra/bin/zmlogswatchctl restart" > /dev/null 2>&1 || true
+    endscript
+    rotate 0
+}
+
+/opt/zimbra/log/myslow.log {
+    daily
+    missingok
+    copytruncate
+    rotate 30
+    notifempty
+    create 0644 zimbra zimbra
+    compress
+}
+
+/opt/zimbra/log/logger_myslow.log {
+    daily
+    missingok
+    copytruncate
+    notifempty
+    create 0660 zimbra zimbra
+    compress
+    size 5000k
+    rotate 7
+} 
+
+/opt/zimbra/log/zmconfigd.log {
+    daily
+    missingok
+    copytruncate
+    notifempty
+    create 0660 zimbra zimbra
+    postrotate
+      su - zimbra -c "/opt/zimbra/bin/zmconfigdctl restart" > /dev/null 2>&1 || true
+    endscript
+    rotate 30
+}
+
+/opt/zimbra/log/clamd.log {
+    daily
+    missingok
+    copytruncate
+    notifempty
+    create 0660 zimbra zimbra
+    postrotate
+     kill -HUP `cat /opt/zimbra/log/clamd.pid 2> /dev/null` 2> /dev/null || true
+    endscript
+    compress
+    size 5000k
+    rotate 7
+}
+
+/opt/zimbra/log/freshclam.log {
+    daily
+    missingok
+    copytruncate
+    notifempty
+    create 0660 zimbra zimbra
+    postrotate
+     kill -HUP `cat /opt/zimbra/log/freshclam.pid 2> /dev/null` 2> /dev/null || true
+    endscript
+    compress
+    size 5000k
+    rotate 7
+}   
+
+/opt/zimbra/log/zmlogswatch.out {
+    daily
+    missingok
+    copytruncate
+    notifempty
+    create 0740 zimbra zimbra
+    postrotate
+      su - zimbra -c "/opt/zimbra/bin/zmlogswatchctl restart" > /dev/null 2>&1 || true
+    endscript
+    rotate 5
+    compress
+}
+
+/opt/zimbra/log/zmswatch.out {
+    daily
+    missingok
+    copytruncate
+    notifempty
+    create 0740 zimbra zimbra
+    postrotate
+      su - zimbra -c "/opt/zimbra/bin/zmswatchctl restart" > /dev/null 2>&1 || true
+    endscript
+    rotate 5
+    compress
+}
+
+/opt/zimbra/log/nginx.log /opt/zimbra/log/nginx.access.log {
+    daily
+    sharedscripts
+    missingok
+    notifempty
+    create 0644 zimbra zimbra
+    postrotate
+      kill -USR1 `cat /opt/zimbra/log/nginx.pid 2> /dev/null` 2> /dev/null || true
+    endscript
+    rotate 7
+    compress
+}
+
+/opt/zimbra/zmstat/zmstat.out {
+    daily
+    missingok
+    copytruncate
+    rotate 7
+    notifempty
+    compress
+}
+
+/opt/zimbra/log/cbpolicyd.log {
+    daily
+    missingok
+    rotate 7
+    notifempty
+    create 0644 zimbra zimbra
+    postrotate
+      kill -HUP `cat /var/run/syslog*.pid 2> /dev/null` 2> /dev/null || true
+      su - zimbra -c "/opt/zimbra/bin/zmcbpolicydctl restart" > /dev/null 2>&1 || true
+    endscript
+    compress
+}   
+

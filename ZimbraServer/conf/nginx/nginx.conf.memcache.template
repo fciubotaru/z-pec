@@ -1,0 +1,33 @@
+memcache
+{
+    # memcached server configuration
+    # configure one or more memcached servers that will cache the route 
+    # information for pop/imap users
+    # 
+    ${memcache.:servers}
+
+    # The time that NGINX will wait for a cached result from a memcached
+    # server, after which the request will be considered timed out,
+    # and NGINX will fall back to an http routing lookup handler
+    # 
+    timeout     ${memcache.timeout};
+
+    # The amount of time that NGINX will wait before attempting to reconnect
+    # to a memcache server that unexpectedly terminated (or shut down) its 
+    # connection with NGINX
+    # 
+    reconnect   ${memcache.reconnect};
+
+    # The time to live (TTL) for an entry added to the memcached server 
+    # This value represents the amount of time that the route information 
+    # that is cached into the memcached servers will be available, before 
+    # the memcached daemon expires it
+    # Memcached expects the TTL for an entry to be specified in seconds, 
+    # therefore any value specified in milliseconds here will be rounded 
+    # up to the next integer value in seconds. If not specified, the TTL
+    # defaults to 0, which indicates an infinite time to live for the 
+    # routing information
+    # 
+    ttl         ${memcache.ttl};
+}
+

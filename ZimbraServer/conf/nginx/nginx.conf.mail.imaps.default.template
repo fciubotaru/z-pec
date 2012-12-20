@@ -1,0 +1,17 @@
+# IMAPS proxy default configuration
+# 
+server
+{
+    ${core.ipboth.enabled}listen                  [::]:${mail.imaps.port};
+    ${core.ipv4only.enabled}listen                ${mail.imaps.port};
+    ${core.ipv6only.enabled}listen                [::]:${mail.imaps.port} ipv6only=on;
+    protocol            imap;
+    proxy               on;
+    timeout             ${mail.imap.timeout};
+    proxy_timeout       ${mail.imap.proxytimeout};
+    ssl                 on;
+    ssl_certificate     ${ssl.crt.default};
+    ssl_certificate_key ${ssl.key.default};
+    sasl_service_name   "imap";
+}
+

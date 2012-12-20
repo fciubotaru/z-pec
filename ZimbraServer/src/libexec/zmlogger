@@ -1,0 +1,625 @@
+#!/usr/bin/perl
+#
+# ***** BEGIN LICENSE BLOCK *****
+# Zimbra Collaboration Suite Server
+# Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010 Zimbra, Inc.
+# 
+# The contents of this file are subject to the Zimbra Public License
+# Version 1.3 ("License"); you may not use this file except in
+# compliance with the License.  You may obtain a copy of the License at
+# http://www.zimbra.com/license.
+# 
+# Software distributed under the License is distributed on an "AS IS"
+# basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+# ***** END LICENSE BLOCK *****
+#
+
+use lib qw(/opt/zimbra/zimbramon/lib);
+use strict;
+use warnings;
+use Zimbra::Mon::Zmstat;
+use Zimbra::Mon::LoggerSchema;
+use RRDs;
+use DBI;
+use FileHandle;
+use POSIX ":sys_wait_h";
+use vars qw ($logger_directory $logger_rrd_directory $zmrrdfetch $zmrrdfetch_pid);
+
+my $server_pid = -1;
+
+#if ($^O eq "darwin") {
+#	$SIG{CHLD} = \&catchSignal;
+#} else {
+$SIG{CHLD} = sub {
+	my $reaped;
+	# always waitpid, even if processes are being autoreaped, it doesn't cost much...
+    while (($reaped = waitpid(-1,WNOHANG)) > 0) {
+    }
+};
+#}
+
+$SIG{QUIT}  = \&catchSignal;
+$SIG{INT}   = \&catchSignal;
+$SIG{KILL}  = \&catchSignal;
+$SIG{TERM}  = \&catchSignal;
+
+sub catchSignal {
+  my $sig = shift;
+  return if ($sig eq "CHLD");
+  if ($server_pid != -1) {
+      print STDERR "Killing child server from sighandler: $server_pid\n";
+      killserver();
+  }
+  print STDERR "Shutting down. Received signal $sig\n";
+  exit 0;
+}
+
+Zimbra::Mon::Zmstat::getLocalConfig();
+$zmrrdfetch = $Zimbra::Mon::Zmstat::LC{zimbra_home} . "/libexec/zmrrdfetch";
+$zmrrdfetch_pid = $Zimbra::Mon::Zmstat::LC{zimbra_log_directory} . "/zmrrdfetch-server.pid";
+
+my @CREATE_DDL = (
+    q{CREATE TABLE IF NOT EXISTS hosts (
+        id           INTEGER PRIMARY KEY,
+        dns_hostname VARCHAR(255) NOT NULL UNIQUE,
+        zm_hostname  VARCHAR(255)
+    )},
+    q{CREATE TABLE IF NOT EXISTS rrds (
+        id          INTEGER PRIMARY KEY,
+        host_id     INTEGER NOT NULL REFERENCES hosts(id) ON DELETE CASCADE,
+        col_name    VARCHAR(255) NOT NULL,
+        col_name_19 VARCHAR(20) NOT NULL, -- due to rrd 19 char limit
+        col_num     INTEGER NOT NULL,
+        csv_file    VARCHAR(255) NOT NULL,
+        rrd_file    INTEGER NOT NULL DEFAULT 0
+    )},
+);
+
+my %hostid_cache;
+my %structure_cache;
+
+my %hostname_mapped;
+sub map_host($$$) {
+    my ($dbh, $syslog_hostname, $zm_hostname) = @_;
+	
+    return if $syslog_hostname eq $zm_hostname;
+    return if exists $hostname_mapped{$syslog_hostname};
+	
+    my $sth = $dbh->prepare(q{
+        UPDATE hosts SET zm_hostname = ? WHERE dns_hostname = ?
+    });
+    my $rows = $sth->execute($zm_hostname, $syslog_hostname);
+    if (!$sth->err && $rows > 0) {
+    	$hostname_mapped{$syslog_hostname} = $zm_hostname;
+    }
+}
+
+sub get_host_id($$) {
+    my $dbh      = shift @_;
+    my $hostname = shift@_;
+
+    return $hostid_cache{$hostname} if defined $hostid_cache{$hostname};
+
+    my $sth = $dbh->prepare("SELECT id FROM hosts WHERE dns_hostname = ?");
+    $sth->bind_param(1, $hostname);
+    $sth->execute();
+    die $sth->err if ($sth->err);
+    my $ref = $sth->fetchall_arrayref({});
+    $hostid_cache{$hostname} = @$ref > 0 ? $ref->[0]->{'id'} : undef;
+    return $hostid_cache{$hostname};
+}
+
+sub create_host($$) {
+    my $dbh      = shift @_;
+    my $hostname = shift @_;
+    my $sth = $dbh->prepare(q{
+            INSERT INTO hosts (dns_hostname,zm_hostname) VALUES (?,?)
+    });
+    $sth->bind_param(1, $hostname);
+    $sth->bind_param(2, $hostname);
+    $sth->execute();
+    die $sth->err if ($sth->err);
+    return get_host_id($dbh, $hostname);
+}
+
+sub get_structure($$$) {
+    my ($dbh, $hostid, $csv) = @_;
+
+    $structure_cache{$hostid} = {} if !exists $structure_cache{$hostid};
+    return $structure_cache{$hostid}->{$csv}
+            if defined $structure_cache{$hostid}->{$csv};
+
+    my $sth = $dbh->prepare(q{
+            SELECT col_name, col_name_19, col_num, rrd_file FROM rrds
+            WHERE host_id = ? AND csv_file = ?
+    });
+    $sth->bind_param(1, $hostid);
+    $sth->bind_param(2, $csv);
+    $sth->execute();
+    die $sth->err if ($sth->err);
+    my $ref = $sth->fetchall_hashref('col_name');
+    $structure_cache{$hostid}->{$csv} = keys %$ref > 0 ? $ref : undef;
+    return $structure_cache{$hostid}->{$csv};
+}
+
+sub prune_data($$) {
+    my ($headersref, $dataref) = @_;
+    my @data;
+    my @headers;
+    my $column_prefix = '';
+    for (my $i = 0; $i < @$headersref; $i++) {
+        my $column = $headersref->[$i];
+        next if !defined($dataref->[$i]);
+        next if ($column eq $dataref->[$i]);
+        next if ($column eq 'timestamp');
+        if ($dataref->[$i] !~ /^\d*(\.\d*)?$/) {
+            # set column_prefix if first column (1 if there's a timestamp)
+            $column_prefix = $dataref->[$i] . "::" if ($i == 0 || $i == 1);
+            next;
+        }
+        push(@headers, $column_prefix . $column);
+        push(@data, $dataref->[$i]);
+    }
+    (\@headers, \@data);
+}
+
+sub get_next_rrd_fileno($$) {
+    my ($dbh, $hostid) = @_;
+    my $sth = $dbh->prepare(q{
+            SELECT max(rrd_file) FROM rrds WHERE host_id = ?
+    });
+    $sth->bind_param(1, $hostid);
+    $sth->execute();
+    die $sth->err if ($sth->err);
+    my @ary = $sth->fetchrow_array;
+    $sth->finish;
+    (@ary > 0 && defined($ary[0])) ? $ary[0] + 1 : 0;
+}
+
+sub get_col_types($$$$) {
+    my ($dbh, $csv, $columns, $real_columns) = @_;
+
+    my $sth = $dbh->prepare(q{
+        SELECT col_type, col_interval FROM rrd_column_type
+        WHERE csv_file = ? AND col_name = ?
+    });
+    my $fallback_sth = $dbh->prepare(q{
+    	SELECT col_type, col_interval FROM rrd_column_type
+    	WHERE csv_file = ? AND col_name = '*'
+    });
+
+    my %col_types;
+    my $i;
+    for ($i = 0; $i < @$real_columns; $i++) {
+        my $c = $real_columns->[$i];
+        $c =~ s/^.*::(.*)$/$1/;
+        $sth->bind_param(1, $csv);
+        $sth->bind_param(2, $c);
+        $sth->execute();
+        die $sth->err if ($sth->err);
+        my $r = $sth->fetchall_arrayref({});
+        $sth->finish();
+        my $type;
+        my $interval;
+        if (@$r > 0) {
+            $type     = $r->[0]->{'col_type'};
+            $interval = $r->[0]->{'col_interval'};
+        } else {
+        	$fallback_sth->bind_param(1, $csv);
+        	$fallback_sth->execute();
+        	die $sth->err if ($sth->err);
+        	$r = $fallback_sth->fetchall_arrayref({});
+        	$fallback_sth->finish();
+        	if (@$r > 0) {
+                $type     = $r->[0]->{'col_type'};
+                $interval = $r->[0]->{'col_interval'};
+        	} else {
+                $type     = 'G';
+                $interval = 30;
+        	}
+        }
+        if ($type eq 'G') {
+            $type = 'GAUGE';
+        } elsif ($type eq 'A') {
+            $type = 'ABSOLUTE';
+        } elsif ($type eq 'C') {
+            $type = 'COUNTER';
+        } elsif ($type eq 'D') {
+            $type = 'DERIVED';
+        }
+        $col_types{$columns->[$i]} = {
+            type     => $type,
+            interval => $interval,
+        }
+    }
+    \%col_types;
+}
+
+sub insert_rrd_column_map($$$$$) {
+    my ($dbh, $hostid, $csv, $headersref, $dataref) = @_;
+    delete $structure_cache{$hostid}->{$csv} if exists $structure_cache{$hostid};
+    my $rrd_file_no = get_next_rrd_fileno($dbh, $hostid);
+    my $sth = $dbh->prepare(q{
+            INSERT INTO rrds
+            (host_id, col_name, col_name_19, col_num, csv_file, rrd_file)
+            VALUES (?,?,?,?,?,?)
+    });
+    my $colnumber = 1;
+    my @columns = ();
+    my @real_columns = ();
+    my %truncated; # makes sure that the col19 name hasn't been used already
+
+    ($headersref, undef) = prune_data($headersref, $dataref);
+    return if @$headersref == 0;
+
+    for (my $i = 0; $i < @$headersref; $i++) {
+        my $column = $headersref->[$i];
+        my $col19  = map_col_for_rrd(\%truncated, $column);
+        $sth->bind_param(1, $hostid);
+        $sth->bind_param(2, $column);
+        $sth->bind_param(3, $col19);
+        $sth->bind_param(4, $colnumber);
+        $sth->bind_param(5, $csv);
+        $sth->bind_param(6, $rrd_file_no);
+        $sth->execute();
+        die $sth->err if ($sth->err);
+        $sth->finish();
+        push(@columns, $col19);
+        push(@real_columns, $column);
+        $colnumber++;
+    }
+    create_rrd($hostid, $rrd_file_no, \@columns, $dbh, $csv, \@real_columns);
+    @columns;
+}
+
+sub create_structure($$$$$) {
+    my ($dbh, $hostid, $csv, $headersref, $dataref) = @_;
+
+    my @columns = insert_rrd_column_map($dbh, $hostid, $csv,
+                                        $headersref, $dataref);
+
+    return get_structure($dbh, $hostid, $csv);
+}
+
+sub create_rrd($$$$$$) {
+    my ($hostid, $rrd_file_no, $columns, $dbh, $csv, $real_columns) = @_;
+    my $rrd_file = get_rrd_file($hostid, $rrd_file_no);
+    my $types = get_col_types($dbh, $csv, $columns, $real_columns);
+    my @ds = ();
+    my @rra = ();
+    foreach my $c (@$columns) {
+        my $type     = $types->{$c}->{'type'};
+        my $interval = $types->{$c}->{'interval'} * 2;
+        push(@ds, "DS:$c:$type:$interval:U:U");
+    }
+    @rra = (
+        "RRA:AVERAGE:0.9999:1:20160",   # 30s:1 week
+        "RRA:AVERAGE:0.9999:10:2016",   # 5 mins:1 week
+        "RRA:AVERAGE:0.9999:120:17532", # 1 hour:2 years
+        "RRA:AVERAGE:0.9999:2880:730",  # 1 day:2 years
+    );
+    RRDs::create($rrd_file, '--start', 'now', '--step', '30', @ds, @rra);
+    my $err = RRDs::error();
+    die "@$columns $err" if $err;
+}
+
+sub map_col_for_rrd($$) {
+    my $truncated = shift @_;
+    my $col       = shift @_;
+
+    $col =~ s#[^a-zA-Z0-9_]#_#g;
+    if (length $col > 19) {
+        $col =~ s/^(.{17}).*/$1/;
+        if (exists $truncated->{$col}) {
+            $col = $col . ++$truncated->{$col};
+        } else {
+            $truncated->{$col} = 0;
+            $col = $col . 0;
+        }
+    }
+    $col;
+}
+
+sub get_rrd_file($$) {
+    my ($hostid, $rrd_file) = @_;
+    sprintf "%s/%d-%d.rrd", $logger_rrd_directory, $hostid, $rrd_file;
+}
+
+sub add_columns($$$$$$) {
+    my ($dbh, $hostid, $csv_file, $structure, $headersref, $dataref) = @_;
+    my @columns;
+    my @data;
+    foreach my $i (0 .. $#$headersref) {
+        my $column = $headersref->[$i];
+        if (! exists $structure->{$column}) {
+            push(@columns, $column);
+            push(@data, $dataref->[$i]);
+        }
+    }
+    if (@columns > 0) {
+        insert_rrd_column_map($dbh, $hostid, $csv_file, \@columns, \@data);
+        $structure = get_structure($dbh, $hostid, $csv_file);
+    }
+    $structure;
+}
+
+sub insert_data($$$$$$) {
+    my ($dbh, $hostid, $csv_file, $structure, $headersref, $dataref) = @_;
+    ($headersref, $dataref) = prune_data($headersref, $dataref);
+    return if @$headersref == 0;
+    my %rrd_updates;
+    $structure = add_columns($dbh, $hostid, $csv_file,
+                             $structure, $headersref, $dataref);
+    for (my $i = 0; $i < @$headersref; $i++) {
+        my $column = $headersref->[$i];
+        if (exists $structure->{$column}) {
+            my $struct = $structure->{$column};
+            my $fileno = $struct->{'rrd_file'};
+            if (! exists $rrd_updates{$fileno}) {
+                $rrd_updates{$fileno} = [];
+                my $last_index = 0;
+                foreach my $k (keys %{$structure}) {
+                    next if ($fileno != $structure->{$k}->{'rrd_file'});
+                    my $num = $structure->{$k}->{'col_num'} - 1;
+                    $last_index = $last_index < $num ? $num : $last_index;
+                }
+                $rrd_updates{$fileno}->[$last_index] = 'U';
+            }
+            $rrd_updates{$fileno}->[$struct->{'col_num'} - 1] = $dataref->[$i];
+        } else {
+            warn "Missing column: $csv_file:$column";
+        }
+    }
+    foreach my $fileno (keys %rrd_updates) {
+        my @data = @{$rrd_updates{$fileno}};
+        @data = map { defined($_) ? $_ : "U" } @data;
+        my $update = join(":", @data);
+
+        my $rrd_file = get_rrd_file($hostid, $fileno);
+        if (! -f $rrd_file) {
+            my @rrd_columns;
+            my @real_columns;
+            my @struct = values %$structure;
+            @struct = sort { $a->{'col_num'} <=> $b->{'col_num'} } @struct;
+            foreach my $c (@struct) {
+                push(@real_columns, $c->{'col_name'})
+                        if ($fileno == $c->{'rrd_file'});
+                push(@rrd_columns, $c->{'col_name_19'})
+                        if ($fileno == $c->{'rrd_file'});
+            }
+            create_rrd($hostid, $fileno, \@rrd_columns, $dbh, $csv_file, \@real_columns);
+        }
+        RRDs::update($rrd_file, "N:$update");
+        my $err = RRDs::error();
+        die "$update: $err" if $err;
+    }
+}
+
+sub create_schema($) {
+    my $dbh = shift @_;
+    foreach my $table (@CREATE_DDL) {
+        $dbh->do($table) || die $dbh->err;
+    }
+}
+
+sub upgrade_schema($) {
+    my $dbh = shift @_;
+
+    my $version = 0;
+    my @rows = $dbh->selectrow_array("SELECT version FROM config");
+    my @upgrade = ();
+    if (!@rows) {
+        warn "Schema version not found, upgrading to version $#LOGGER_SCHEMA_UPGRADE";
+        @upgrade = @LOGGER_SCHEMA_UPGRADE;
+    } else {
+        $version = $rows[0];
+        if ($version < $#LOGGER_SCHEMA_UPGRADE) {
+            print "Upgrading schema version $version to $#LOGGER_SCHEMA_UPGRADE\n";
+            @upgrade = ($version + 1) == $#LOGGER_SCHEMA_UPGRADE ?
+                ($LOGGER_SCHEMA_UPGRADE[$#LOGGER_SCHEMA_UPGRADE]) :
+                @LOGGER_SCHEMA_UPGRADE[$version + 1, $#LOGGER_SCHEMA_UPGRADE];
+        }
+    }
+
+    foreach my $upgrade (@upgrade) {
+        foreach my $st (@$upgrade) {
+            $dbh->do($st);
+            die $dbh->err if $dbh->err;
+        }
+    }
+}
+
+sub init() {
+    $logger_directory = $Zimbra::Mon::Zmstat::LC{logger_data_directory};
+    $logger_rrd_directory   = "$logger_directory/rrds";
+
+    mkdir($logger_directory)     if (! -d $logger_directory);
+    mkdir($logger_rrd_directory) if (! -d $logger_rrd_directory);
+    
+    my $dbh = DBI->connect(
+            "dbi:SQLite:dbname=$logger_directory/logger.sqlitedb", "", "")
+                    || die $!;
+    create_schema($dbh);
+    upgrade_schema($dbh);
+    $dbh;
+}
+
+sub runzmrrdfetch($$) {
+	my ($cmd, $len) = @_;
+	chomp($cmd);
+	chomp($cmd);
+	$cmd =~ s/\r|\n//g;
+	
+	my @cmd = split(/ /, $cmd);
+	
+	close STDOUT;
+	open(STDOUT, ">&Client") || die "dup: $!";
+	close STDIN;
+	exec($zmrrdfetch, @cmd);
+	
+}
+
+sub runserver() {
+	use Socket;
+	use Carp;
+	
+	my $port = $Zimbra::Mon::Zmstat::LC{'logger_zmrrdfetch_port'};
+	my $proto = getprotobyname('tcp');
+	
+	socket(Server, PF_INET, SOCK_STREAM, $proto)               || die "socket: $!";
+	setsockopt(Server, SOL_SOCKET, SO_REUSEADDR, pack("l", 1)) || die "setsockopt: $!";
+	bind(Server, sockaddr_in($port, INADDR_LOOPBACK))          || die "bind: $!";
+	listen(Server, SOMAXCONN)                                  || die "listen: $!";
+	
+	for (; ; close Client) {
+		my $paddr = accept(Client,Server);
+		next if !$paddr;
+		my $pid;
+		if (($pid = fork()) == 0) {
+            $0 = "zmlogger: zmrrdfetch: client";
+			my $buf;
+            my $read = sysread(Client, $buf, 128);
+            if ($read > 0) {
+			    runzmrrdfetch($buf, $read);
+			    die "Failed to exec";
+            }
+            close Client;
+            exit;
+		} else {
+			my ($rport, $iaddr) = sockaddr_in($paddr);
+			print STDERR (scalar(localtime()) . ": Spawned: $pid -- Connected from " . inet_ntoa($iaddr) . ":$rport\n");
+			close Client;
+		}
+	}
+}
+sub forkserver() {
+	
+	my $pid;
+	if (($pid = fork()) == 0) {
+		$0 = "zmlogger: zmrrdfetch: server";
+		runserver();
+		die "Unexpected exit";
+	} else {
+		print STDERR "zmrrdfetch server pid: $pid\n";
+		$server_pid = $pid;
+		open(PIDFILE, ">$zmrrdfetch_pid") || die $!;
+		print PIDFILE "$server_pid\n";
+		close(PIDFILE);
+	}
+}
+sub killserver() {
+    print STDERR "Killing child server: $server_pid\n";
+    my $count = 0;
+    while (kill(0, $server_pid)) {
+        print STDERR "Sending SIGTERM to $server_pid\n";
+        kill('TERM', $server_pid);
+        $count++;
+        sleep(1);
+        kill('KILL', $server_pid) if ($count > 10);
+    }
+}
+
+sub run() {
+    my $dbh = init();
+    my $opened;
+    my $logregex = qr/(^.{15}) ((\d+\.\d+\.\d+\.\d+)|(\S+)) ([^[]+)(\[(\d+)\])?: (.*)$/o;
+
+    my $fragre = qr/:::(\w{8}-\w{4}-\w{4}-\w{4}-\w{12}):::$/o;
+    my $fragnextre = qr/.*:::(\w{8}-\w{4}-\w{4}-\w{4}-\w{12}):::(?!$)/o;
+    my %fragments; # workaround for syslogd 1024 byte limit
+
+    my $mailboxdre = qr/\[(\w+\.csv)\] .* slogger - (\w+\.csv): (.*):: (.*)$/;
+    my $zimbramonmtare = qr/MTA: (\S+): (.*):: (.*)$/;
+    my $zimbramonstatre = qr/zmstat (\S+\.csv): (.*):: (.*)$/;
+    my $zimbramonstatusre = qr/STATUS: (\S+): (\S+): (\w+)\s*/;
+    my $zimbramonqueuere = qr/QUEUE: (\d+) (\d+)\s*$/;
+    
+    while (<>) {
+        my $line = $_;
+        my $utime = times;
+        chomp $line;
+        die "No parent process. logswatch stopped?" if (getppid() == 1);
+        next if (/last message repeated/);
+        my ($log_date, $host, $ip, $name, $app, undef, $pid, $msg) =
+                ($line =~ m/$logregex/);
+        $host = ((defined($ip) && $ip ne "") ? $ip : $name);
+    
+        if ($msg =~ /$fragnextre/) {
+            my $uuid = $1;
+            $msg =~ s/$fragnextre//;
+            
+            # zmlogger is starting halfway into a message
+            next if !exists $fragments{$uuid};
+            
+            $msg = $fragments{$uuid} . $msg;
+            delete $fragments{$uuid};
+        }
+        if ($msg =~ /$fragre/) {
+            my $uuid = $1;
+            $msg =~ s/$fragre//;
+            $fragments{$uuid} = $msg;
+            next;
+        }
+        my ($csv_file, $headers, $data);
+        if ($app eq 'zimbramon') {
+            my @match;
+            if (@match = ($msg =~ m/$zimbramonstatre/)) {
+                ($csv_file, $headers, $data) = @match;
+            } elsif (@match = ($msg =~ m/$zimbramonstatusre/)) {
+                my ($hostname, $service, $status) = @match;
+                my $syslog_hostname = $host;
+                map_host($dbh, $syslog_hostname, $hostname);
+                
+                $host     = $hostname;
+                $csv_file = 'zmstatuslog';
+                $headers  = $service;
+                $data     = $status eq 'Running' ? 1 : 0;
+            } elsif (@match = ($msg =~ m/$zimbramonqueuere/)) {
+                my ($kbs, $msgs) = @match;
+                $csv_file = 'zmqueuelog';
+                $headers  = 'kB,msgs';
+                $data     = "$kbs,$msgs";
+            } elsif (@match = ($msg =~ m/$zimbramonmtare/)) {
+                ($host, $headers, $data) = @match;
+                $csv_file = 'zmmtastats';
+            }
+            next if (!@match);
+        } elsif ($app eq 'mailboxd') {
+            my $csv_confirm;
+            my @match = ($msg =~ m/$mailboxdre/);
+            next if (!scalar @match);
+            ($csv_file, $csv_confirm, $headers, $data) = @match;
+            die "$csv_file != $csv_confirm" if ($csv_file ne $csv_confirm);
+        } else {
+            next;
+        }
+
+        my $hostid = get_host_id($dbh,$host);
+        $hostid    = create_host($dbh, $host) if (!defined($hostid));
+
+        my @headerAry = split(/,/o, $headers);
+        @headerAry    = map { /^\s*(\S+)\s*$/o; $1 } @headerAry;
+        my @dataAry   = split(/,/o, $data);
+        @dataAry      = map { /^\s*(\S*)\s*$/o; $1 } @dataAry;
+
+        my $structure = get_structure($dbh, $hostid, $csv_file);
+        $structure    = create_structure(
+                $dbh, $hostid, $csv_file, \@headerAry, \@dataAry)
+                        if (!defined($structure));
+
+        insert_data($dbh, $hostid, $csv_file, $structure,
+                    \@headerAry, \@dataAry);
+
+        $utime = times() - $utime;
+        if ($utime > 0.015) {
+        	print STDERR "utime > 15ms ($utime): line: [$line]\n";
+        }
+    }
+    
+    $dbh->disconnect;
+
+}
+
+forkserver();
+run();
+killserver();

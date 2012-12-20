@@ -1,0 +1,234 @@
+#!/usr/bin/perl
+# 
+# ***** BEGIN LICENSE BLOCK *****
+# Zimbra Collaboration Suite Server
+# Copyright (C) 2007, 2008, 2009, 2010 Zimbra, Inc.
+# 
+# The contents of this file are subject to the Zimbra Public License
+# Version 1.3 ("License"); you may not use this file except in
+# compliance with the License.  You may obtain a copy of the License at
+# http://www.zimbra.com/license.
+# 
+# Software distributed under the License is distributed on an "AS IS"
+# basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+# ***** END LICENSE BLOCK *****
+# 
+
+use strict;
+use lib "/opt/zimbra/zimbramon/lib";
+use Zimbra::Mon::Logger;
+
+use FileHandle;
+use IPC::Open3;
+use Time::Local;
+use Mail::Mailer;
+use Getopt::Long;
+
+my %options = ();
+my $report = [];
+my $dbCheck = '';
+my $status = 0;
+my $zimbra_home = "/opt/zimbra";
+unless ( GetOptions ("mailReport" => \$options{m},
+                     "repair"     => \$options{r},
+                     "verbose"    => \$options{v},
+                     "debug"      => \$options{d},
+                     "help"       => \$options{h})) { usage(); };
+                     
+#unless ( getopts( 'mdhrv', \%options ) ) { usage(); }
+usage() if ($options{h});
+my $debug = $options{d} ? 1 : 0;
+my $verbose = $options{v} ? 1 : 0;
+$verbose = 1 if $debug;
+
+if ($verbose && $options{m}) {
+  print STDERR "Options -m and -v are mutually exclusive\n";
+  &usage();
+}
+
+my $check_disabled = getLocalConfig("zmdbintegrityreport_disabled");
+exit 0 if (lc($check_disabled) eq "true");
+
+addToReport("Generating report\n") if $debug;
+$status = (checkDbs() ? 1 : 0);
+if ($options{m}) {
+  sendEmailReport($report);
+} else {
+  print @$report;
+}
+
+exit $status;
+
+#------------- 
+# Subroutines
+#-------------
+
+sub usage {
+	print STDERR "Usage: $0 [-m] [-v] [-h] [-r]\n";
+  print STDERR "-m emails report to admin account, otherwise report is presented on stdout\n";
+  print STDERR "-v verbose output\n";
+  print STDERR "-r attempt auto repair of tables\n";
+  print STDERR "-h help\n";
+
+	exit (1);
+}
+
+sub checkDbs() {
+  my $mysql_root_passwd = getLocalConfig("mysql_root_password");
+  my $mysql_socket = getLocalConfig("mysql_socket") || "${zimbra_home}/db/mysql.sock";
+  my $mysql_mycnf = getLocalConfig("mysql_mycnf") || "${zimbra_home}/conf/my.cnf";
+  my $cmd = "${zimbra_home}/mysql/bin/mysqlcheck";
+  $cmd .= " --defaults-file=${mysql_mycnf}";
+  $cmd .= " -S ${mysql_socket}";
+  $cmd .= " -A -C";
+  $cmd .= " -s" unless $debug;
+  $cmd .= " -u root";
+  $cmd .= " --auto-repair" if $options{r};
+  unless (open(CMD, "$cmd --password=${mysql_root_passwd} |")) {
+    addToReport("can't run $cmd: $!\n"); 
+    return undef;
+  }
+  my @output = <CMD>;
+  if (scalar @output != 0) {
+    addToReport("Database errors found.\n");
+    addToReport("$cmd --password=XXXXXXXX\n");
+    addToReport("@output");
+  } else {
+    addToReport("No errors found\n") if $verbose;
+  }
+  unless (close(CMD)) {
+    addToReport("command failed $!\n");;
+    return undef;
+  }
+  return; 
+}
+
+
+sub getLocalConfig {
+	my $key = shift;
+	if (defined ($ENV{zmsetvars})) {
+		return $ENV{$key};
+	}
+	open CONF, 
+		"${zimbra_home}/bin/zmlocalconfig -s -q -m shell |" or die "Can't open local config: $!";
+	my @conf = <CONF>;
+	close CONF;
+
+	chomp @conf;
+
+	foreach (@conf) {
+		my ($key, $val) = split '=', $_, 2;
+		$val =~ s/;$//;
+		$val =~ s/'$//;
+		$val =~ s/^'//;
+		$ENV{$key} = $val;
+	}
+	$ENV{zmsetvars} = 'true';
+	return $ENV{$key};
+}
+
+
+sub sendEmailReport {
+  my $msg = shift;
+
+  my $from_address = getLocalConfig("smtp_source");
+  my $to_address = getLocalConfig("smtp_destination");
+  my $server = getLocalConfig("zimbra_server_hostname");
+  my $smtphost = getLdapConfigValue("zimbraSmtpHostname");
+  my $subject =  "Database Integrity check report for $server";
+  return if (scalar @$msg == 0);
+  print "Sending daily report to $to_address via $smtphost\n" if $debug;
+  eval { 
+    my $mailer = Mail::Mailer->new("smtp", Server => $smtphost);
+    $mailer->open( { From => $from_address,
+                   To   => $to_address, 
+                   Subject => $subject,
+                })
+    or warn "ERROR: Can't open: $!\n";
+    print $mailer $msg;
+    $mailer->close();
+  };
+  if ($@) {
+    logError("Failed to email report: $@\n");
+  } else {
+    print "Email report sent to $to_address\n" if $debug;
+  } 
+}
+
+sub addToReport {
+  my ($line) = @_;
+  push(@$report, $line);
+}
+
+sub logError {
+  my $msg = shift;
+  if ($options{m} && !$options{d}) {
+    my $dt = `date "+%Y-%m-%d %H:%M:%S"`;
+    chomp($dt);
+    Zimbra::Mon::Logger::Log("err", "$dt, zmdailyreport: $msg");
+  } else {
+    print STDERR $msg;
+  }
+  return;
+}
+
+sub getLdapConfigValue {
+    my $attrib = shift;
+
+    return (undef) unless ($attrib);
+
+    my $val = getLdapServerConfigValue($attrib);
+    print "Server: $val\n" if $debug;
+    $val = getLdapGlobalConfigValue($attrib) if ($val eq "");
+    print "Global: $val\n" if $debug;
+    return $val;
+}
+sub getLdapServerConfigValue {
+    my $attrib = shift;
+
+    return (undef) unless ($attrib);
+    my $server = getLocalConfig("zimbra_server_hostname");
+    # could consider redirecting STDERR to /dev/null
+    open( CONF, "/opt/zimbra/bin/zmprov -l gs $server '$attrib' |" )
+      or die("Open global config failed: $!");
+
+    my ( $key, $val );
+    while (<CONF>) {
+        chomp;
+        next if (/^#/);
+        ( $key, $val ) = split( /:\s*/, $_, 2 );
+        # for now just assume a single value/attribute is requested
+        last if ($val);
+    }
+    return $val;
+}
+sub getLdapGlobalConfigValue {
+  my $attrib = shift;
+  my ($val,$err);
+  my ($rfh,$wfh,$efh,$cmd,$rc);
+  $rfh = new FileHandle;
+  $wfh = new FileHandle;
+  $efh = new FileHandle;
+  $cmd = "/opt/zimbra/bin/zmprov -l gcf $attrib";
+  my $pid = open3($wfh,$rfh,$efh, $cmd);
+  unless(defined($pid)) {
+    return undef;
+  }
+  close $wfh;
+  chomp($val = (split(/\s+/, <$rfh>))[-1]);
+  chomp($err = join "", <$efh>);
+  waitpid($pid,0);
+  if ($? == -1) {
+    # failed to execute
+    return undef;
+  } elsif ($? & 127) {
+    # died with signal 
+    return undef;
+  } else {
+    $rc = $? >> 8;
+    return undef if ($rc != 0);
+  }
+
+  return $val;
+}
+

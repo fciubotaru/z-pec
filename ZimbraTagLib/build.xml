@@ -1,0 +1,90 @@
+<project name="ZimbraTagLib" default="jar">
+
+    <import file="../ant-global.xml" />
+
+    <property environment="env"/>
+
+    <property name="root.dir" location=""/>
+    <property name="build.dir" location="build"/>
+
+    <property name="webinf.dir" location="WEB-INF"/>
+
+    <property name="jarfile" location="${build.dir}/zimbrataglib.jar" />
+
+    <condition property='isProduction' value='true'>
+        <or>
+            <not>
+                <isset property='env.ZIMBRA_BUILD'/>
+            </not>
+            <not>
+                <equals arg1='${env.ZIMBRA_BUILD}' arg2='development'/>
+            </not>
+        </or>
+    </condition>
+
+    <condition property='isProduction' value='false'>
+        <equals arg1='${env.ZIMBRA_BUILD}' arg2='development'/>
+    </condition>
+    <condition property='isDevelopment' value='true'>
+        <equals arg1='${isProduction}' arg2='false'/>
+    </condition>
+    <condition property='isDevelopment' value='false'>
+        <equals arg1='${isProduction}' arg2='true'/>
+    </condition>
+
+    <path id="class.path">
+        <pathelement location="${server.classes.dir}"/>
+    	<pathelement location="${soap.classes.dir}"/>
+        <pathelement location="${client.classes.dir}"/>
+    	
+        <fileset dir="${jars.dir}">
+            <include name="**/*.jar"/>
+        </fileset>
+
+        <fileset dir="${common.jars.dir}">
+            <include name="**/*.jar"/>
+        </fileset>
+
+        <fileset file="${server.jarfile}"/>
+        <fileset file="${common.jarfile}"/>
+    </path>
+
+
+    <target name="docs" depends="jar" description="build tld docs in build/docs directory">
+        <java fork="true" jar="jars/tlddoc.jar" failonerror="true">
+            <arg line="-d ${build.dir}/docs"/>
+            <arg value="${jarfile}"/>
+        </java>
+    </target>
+
+
+    <target name="build-init">
+        <mkdir dir="${build.dir}"/>
+    </target>
+
+    <target name="compile" depends="build-init" description="compile all classes">
+        <ant dir="${server.dir}" target="jar" inheritAll="false"/>
+        <ant dir="${common.dir}" target="jar" inheritAll="false"/>
+
+        <!-- Compile the java code from ${src} into ${build} -->
+        <mkdir dir='${build.dir}/classes'/>
+        <javac srcdir="${src.dir}" destdir="${build.dir}/classes" debug="on">
+            <classpath refid="class.path"/>
+            <include name="**/*.java"/>
+        </javac>
+    </target>
+
+    <target name="clean" depends="build-init" description="Removes any built/temporary files">
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <target name="jar" depends="compile" description="build the jar file">
+        <jar destfile="${jarfile}">
+            <fileset dir="${build.dir}/classes"/>
+            <fileset dir="${root.dir}" includes="META-INF/**"/>
+            <fileset dir="resources"/>
+        </jar>
+    </target>
+
+</project>
+        

@@ -1,0 +1,197 @@
+#!/bin/bash
+# 
+# ***** BEGIN LICENSE BLOCK *****
+# Zimbra Collaboration Suite Server
+# Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010 Zimbra, Inc.
+# 
+# The contents of this file are subject to the Zimbra Public License
+# Version 1.3 ("License"); you may not use this file except in
+# compliance with the License.  You may obtain a copy of the License at
+# http://www.zimbra.com/license.
+# 
+# Software distributed under the License is distributed on an "AS IS"
+# basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+# ***** END LICENSE BLOCK *****
+# 
+
+PID=""
+PIDFILE="/opt/zimbra/openldap/var/run/slapd.pid"
+
+mkdir -p "/opt/zimbra/openldap/var/run/"
+
+source /opt/zimbra/bin/zmshutil || exit 1
+zmsetvars \
+  ldap_is_master \
+  ldap_url \
+  ldap_bind_url \
+  ldap_master_url \
+  ldap_common_require_tls
+
+if [ x$ldap_is_master = "xfalse" ]; then
+  if [ "x$ldap_url" = "x$ldap_master_url" -a "x$1" != "xstop" ]; then
+    echo "ldap_url and ldap_master_url cannot be the same on an ldap replica"
+    exit 1
+  fi
+fi
+
+getpid()
+{
+	if [ -f $PIDFILE ]; then
+		PID=`cat $PIDFILE`
+	fi
+}
+
+checkrunning()
+{
+	getpid
+	if [ "x$PID" = "x" ]; then
+		RUNNING=0
+	else
+		kill -0 $PID
+		if [ $? != 0 ]; then
+			PID=""
+			RUNNING=0
+		else
+			RUNNING=1
+		fi
+	fi
+}
+
+checkListening()
+{
+  SEARCHTIMEOUT=30 #timelimit for ldapsearch
+  if [ x"$ldap_common_require_tls" = "x0" ]; then
+    /opt/zimbra/openldap/bin/ldapsearch -x -l $SEARCHTIMEOUT -b "" -s base -H ldapi:/// >/dev/null 2>&1
+  else
+    /opt/zimbra/openldap/bin/ldapsearch -ZZ -x -l $SEARCHTIMEOUT -b "" -s base -H ldapi:/// >/dev/null 2>&1
+  fi
+  if [ $? -ne 0 ]; then
+    LISTENING=0
+  else
+    LISTENING=1
+  fi
+
+}
+
+doDebugStart() {
+  TIMEOUT=60 # timelimit for command
+	sudo /opt/zimbra/libexec/zmslapd -l LOCAL0 -u zimbra -h "${bind_url} ldapi:///" \
+			-F /opt/zimbra/data/ldap/config -d 1 2>&1 | egrep "failed|error" &
+  cmd_pid=$!
+  sleep $TIMEOUT | (
+    read nothing # wait on sleep to finish
+    kill $cmd_pid 2>/dev/null; # otherwise abort the command!
+  ) &
+  sleep_pid=$!
+  wait $cmd_pid
+  kill -ALRM $sleep_pid 2>/dev/null # kill sleep if still running
+	echo ""
+	exit 1
+}
+
+
+start()
+{
+   checkrunning
+   if [ $RUNNING = 0 ]; then
+    # Our ldap url should be the first in the list in localconfig
+    bind_url=$ldap_bind_url
+    if [ x"$bind_url" = "x" ]; then
+		  bind_url=$(echo ${ldap_url} | awk '{print $1}')
+    fi
+	sudo /opt/zimbra/libexec/zmslapd -l LOCAL0 \
+      -u zimbra -h "${bind_url} ldapi:///" -F /opt/zimbra/data/ldap/config
+    sleep 5
+    for ((i =0; i < 6; i++)); do
+      checkrunning
+      if [ $RUNNING = 0 ]; then
+	    sudo /opt/zimbra/libexec/zmslapd -l LOCAL0 \
+          -u zimbra -h "${bind_url} ldapi:///" -F /opt/zimbra/data/ldap/config
+      else 
+        break
+      fi
+      sleep 5
+    done
+		if [ "x$PID" = "x" ]; then
+      echo "Failed to start slapd.  Attempting debug start to determine error."
+      doDebugStart
+		else
+			echo "Started slapd: pid $PID"
+		fi
+	else
+		echo "slapd already running: pid $PID"
+		exit 1
+	fi
+    for ((i =0; i < 6; i++)); do
+      checkListening
+      if [ $LISTENING = 1 ]; then
+        break
+      fi
+      sleep 5
+    done
+    if [ $LISTENING = 0 ]; then
+      echo "Error: Unable to check that slapd is listening to connections"
+      exit 1
+    fi
+}
+
+stop()
+{
+	checkrunning
+  
+	if [ $RUNNING = 0 ]; then
+		echo "slapd not running"
+		exit 0
+	else
+    echo -n "Killing slapd with pid $PID"
+		kill -TERM $PID
+    for ((i =0; i < 300; i++)); do
+      sleep 5
+      kill -0 $PID 2> /dev/null
+      if [ $? != 0 ]; then
+        echo " done."
+        exit 0
+      fi
+      echo -n "."
+    done
+    kill -TERM $PID
+    if [ $? = 0 ]; then
+      echo " gave up waiting!"
+      exit 1
+    else 
+      echo " done."
+    fi
+	fi
+  exit 0
+}
+
+status()
+{
+	checkrunning
+	if [ $RUNNING = 0 ]; then
+		exit 1
+	else
+		echo "slapd running pid: $PID"
+		exit 0
+	fi
+}
+
+case "$1" in 
+	restart)
+		$0 stop
+		$0 start
+		;;
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	status)
+		status
+		;;
+	*)
+		echo "Usage: $0 start|stop|status"
+		exit 1
+		;;
+esac

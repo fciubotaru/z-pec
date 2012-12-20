@@ -1,0 +1,177 @@
+#!/bin/bash
+# 
+# ***** BEGIN LICENSE BLOCK *****
+# Zimbra Collaboration Suite Server
+# Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010 Zimbra, Inc.
+# 
+# The contents of this file are subject to the Zimbra Public License
+# Version 1.3 ("License"); you may not use this file except in
+# compliance with the License.  You may obtain a copy of the License at
+# http://www.zimbra.com/license.
+# 
+# Software distributed under the License is distributed on an "AS IS"
+# basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+# ***** END LICENSE BLOCK *****
+# 
+
+if [ x`whoami` != xzimbra ]; then
+  echo Error: must be run as zimbra user
+  exit 1
+fi
+
+if [ ! -L "/opt/zimbra/clamav" ]; then
+  exit 0
+fi
+
+platform=`/opt/zimbra/libexec/get_plat_tag.sh`
+
+source `dirname $0`/zmshutil || exit 1
+zmsetvars \
+  zimbra_home \
+  zimbra_log_directory
+
+
+pidfile=${zimbra_log_directory}/clamd.pid
+
+if [ ! -d "/opt/zimbra/data/clamav/db" ]; then
+    mkdir -p /opt/zimbra/data/clamav/db
+fi
+
+rewriteconfig() {
+  /opt/zimbra/libexec/configrewrite antivirus > /dev/null 2>&1
+}
+
+getpid() {
+  if [ -f $pidfile ]; then
+    cpid=`cat $pidfile`
+  fi
+}
+
+checkrunning() {
+  getpid
+  # clamd
+  if [ "x$cpid" = "x" ]; then
+    running=0
+  else
+    kill -0 $cpid 2> /dev/null
+    if [ $? != 0 ]; then
+      rm $pidfile
+      cpid=""
+      running=0
+    else
+      running=1
+    fi
+  fi
+}
+
+pskillall() {
+  ps_cmd="/bin/ps ax -o pid,ppid,command"
+  killsig="$1"
+  pname=`echo "$2" | sed -e 's%/%\\\/%g'`
+  plist=`${ps_cmd} | awk '{ if ( $3 ~ /'${pname}'/ ) { print $1 " " $2 } }' | sort -nr -k2 -k1 | awk '{ print $1 }'`
+  for p in ${plist}
+  do
+    kill ${killsig} ${p}
+  done
+}
+
+
+#
+# Main
+#
+case "$1" in
+  'start')
+
+    if [ ! -f ${zimbra_home}/data/clamav/db/daily.cvd ]; then
+      # Start with the files we ship.
+      cp -f ${zimbra_home}/clamav/db/daily.cvd.init \
+        ${zimbra_home}/data/clamav/db/daily.cvd
+      cp -f ${zimbra_home}/clamav/db/main.cvd.init \
+        ${zimbra_home}/data/clamav/db/main.cvd
+    fi
+    if [ x$2 = "x" ]; then
+      rewriteconfig
+    fi
+
+    checkrunning
+    echo -n "Starting clamd..."
+    if [ $running = 1 ]; then
+      echo "clamd is already running.";
+    else
+      ${zimbra_home}/clamav/sbin/clamd \
+        --config-file=${zimbra_home}/conf/clamd.conf \
+          >> ${zimbra_log_directory}/clamd.log 2>&1 &
+  
+      for ((i = 0; i < 12; i++)); do
+        checkrunning
+        if [ $running = 1 ]; then
+          echo "done."
+        exit 0
+        fi
+        sleep 5
+      done
+      echo "failed."
+      exit 1
+    fi
+    exit 0
+   ;;
+  
+  'kill')
+    if [ -f /opt/zimbra/log/clamd.pid ]; then
+      cpid=`cat /opt/zimbra/log/clamd.pid`
+      kill -9 "$cpid" 2> /dev/null
+    fi
+    pskillall -9 ${zimbra_home}/clamav/sbin/clamd
+    exit 0
+   ;;
+
+  'stop')
+    checkrunning
+    echo -n "Stopping clamd..."
+    if [ $running = 0 ]; then
+      echo "clamd is not running.";
+    else
+      if [ x"$cpid" != "x" ]; then
+        kill -TERM "$cpid" 2> /dev/null
+      fi
+      for ((i = 0; i < 30; i++)); do
+        sleep 2
+        kill -0 $cpid 2> /dev/null
+        if [ $? != 0 ]; then
+          rm -f ${pidfile}
+          break
+        fi
+        kill $cpid
+      done
+      if [ -s ${pidfile} ]; then
+        echo "failed."
+        exit 1
+      else
+        echo "done."
+      fi
+    fi
+    exit 0
+  ;;
+  
+  'restart'|'reload')
+    $0 stop
+    $0 start $2
+  ;;
+  
+  'status')
+    checkrunning
+    echo -n "clamd is "
+    if [ $running = 1 ]; then
+      echo "running."
+      exit 0
+    else
+      echo "not runnning."
+      exit 1
+    fi
+  ;;
+  
+  *)
+    echo "Usage: $0 start|stop|kill|restart|status"
+    exit 1
+  ;;
+esac

@@ -1,0 +1,199 @@
+<?xml version="1.0"?>
+
+<!-- =============================================================== -->
+<!-- config file for running with jetty-ant-plugin                   -->
+<!-- =============================================================== -->
+
+
+<Configure id="Server" class="org.eclipse.jetty.server.Server">
+    
+    <!-- =========================================================== -->
+    <!-- Set handler Collection Structure                            --> 
+    <!-- =========================================================== -->
+    <Set name="handler">
+      <New id="Handlers" class="org.eclipse.jetty.rewrite.handler.RewriteHandler">
+        <Set name="rewriteRequestURI">true</Set>
+        <Set name="rewritePathInfo">false</Set>
+        <Set name="originalPathAttribute">requestedPath</Set>
+	    <Call name="addRule"><Arg><New class="org.eclipse.jetty.rewrite.handler.MsieSslRule"/></Arg></Call>
+        <!-- map convenience URLs to the webapp that handles them -->
+        <Call name="addRule">
+	    <Arg>
+		<New class="org.eclipse.jetty.rewrite.handler.RewritePatternRule">
+		    <Set name="pattern">/Microsoft-Server-ActiveSync/*</Set>
+		    <Set name="replacement">/service/extension/zimbrasync</Set>
+		</New>
+	    </Arg>
+        </Call>
+        <Call name="addRule">
+	    <Arg>
+		<New class="org.eclipse.jetty.rewrite.handler.RewritePatternRule">
+		    <Set name="pattern">/principals/*</Set>
+		    <Set name="replacement">/service/dav/principals</Set>
+		</New>
+	    </Arg>
+        </Call>
+        <Call name="addRule">
+	    <Arg>
+		<New class="org.eclipse.jetty.rewrite.handler.RewritePatternRule">
+		    <Set name="pattern">/dav/*</Set>
+		    <Set name="replacement">/service/dav/home</Set>
+		</New>
+	    </Arg>
+        </Call>
+        <Call name="addRule">
+	    <Arg>
+		<New class="org.eclipse.jetty.rewrite.handler.RewritePatternRule">
+		    <Set name="pattern">/home/*</Set>
+		    <Set name="replacement">/service/home/</Set>
+		</New>
+	    </Arg>
+        </Call>
+        <Call name="addRule">
+	    <Arg>
+		<New class="org.eclipse.jetty.rewrite.handler.RewritePatternRule">
+		    <Set name="pattern">/user/*</Set>
+		    <Set name="replacement">/service/user/</Set>
+		</New>
+	    </Arg>
+        </Call>
+        <Call name="addRule">
+	    <Arg>
+		<New class="org.eclipse.jetty.rewrite.handler.RewritePatternRule">
+		    <Set name="pattern">/zimbra/home/*</Set>
+		    <Set name="replacement">/service/home</Set>
+		</New>
+	    </Arg>
+        </Call>
+        <Call name="addRule">
+	    <Arg>        
+		<New class="org.eclipse.jetty.rewrite.handler.RewritePatternRule">
+		    <Set name="pattern">/zimbra/user/*</Set>
+		    <Set name="replacement">/service/user</Set>
+		</New>
+	    </Arg>
+        </Call>  
+        <!-- stop if we've hit the proper webapps -->
+        <Call name="addRule">
+	    <Arg>        
+		<New class="org.eclipse.jetty.rewrite.handler.RewritePatternRule">
+		    <Set name="pattern">/service/*</Set>
+		    <Set name="replacement">/service</Set>
+		    <Set name="terminating">true</Set>
+		</New>
+	    </Arg>
+        </Call>
+        <Call name="addRule">
+	    <Arg>        
+		<New class="org.eclipse.jetty.rewrite.handler.RewritePatternRule">
+		    <Set name="pattern">/zimbraAdmin/*</Set>
+		    <Set name="replacement">/zimbraAdmin</Set>
+		    <Set name="terminating">true</Set>
+		</New>
+	    </Arg>
+        </Call>
+        <Call name="addRule">
+	    <Arg>        
+		<New class="org.eclipse.jetty.rewrite.handler.RewritePatternRule">
+		    <Set name="pattern">/zimbra/*</Set>
+		    <Set name="replacement">/zimbra</Set>
+		    <Set name="terminating">true</Set>
+		</New>
+	    </Arg>
+        </Call>                               
+        <!-- assume all other requests handled by zimbra webapp -->
+        <Call name="addRule">
+	    <Arg>        
+		<New class="org.eclipse.jetty.rewrite.handler.RewritePatternRule">
+		    <Set name="pattern">/*</Set>
+		    <Set name="replacement">/zimbra</Set>
+		</New>
+	    </Arg>
+        </Call>       
+        <Set name="handler">
+          <New id="Handlers" class="org.eclipse.jetty.server.handler.HandlerCollection">
+            <Set name="handlers">
+             <Array type="org.eclipse.jetty.server.Handler">
+               <Item>
+                 <New id="Contexts" class="org.eclipse.jetty.server.handler.ContextHandlerCollection"/>
+               </Item>
+               <Item>
+                 <New id="DefaultHandler" class="org.eclipse.jetty.server.handler.DefaultHandler"/>
+               </Item>
+               <Item>
+                 <New id="RequestLog" class="org.eclipse.jetty.server.handler.RequestLogHandler"/>
+               </Item>
+             </Array>
+            </Set>
+          </New>
+        </Set>
+      </New>
+    </Set>
+
+
+    <!-- Configure System and Server classes  -->
+    <!-- By default, Jetty7 does not expose all the libraries to WebApps, so customize server/system classes -->
+    <!-- Refer http://wiki.eclipse.org/Jetty/Reference/Jetty_Classloading -->
+
+    <Call name="setAttribute">
+        <Arg>org.eclipse.jetty.webapp.systemClasses</Arg>
+        <Arg>
+           <Array type="java.lang.String">
+              <Item>java.</Item>
+              <Item>javax.</Item>
+              <Item>org.xml.</Item>
+              <Item>org.w3c.</Item>
+              <Item>org.apache.commons.logging.</Item>
+              <Item>org.eclipse.jetty.continuation.</Item>
+              <Item>org.eclipse.jetty.jndi.</Item>
+              <Item>org.eclipse.jetty.plus.jaas.</Item>
+              <Item>org.eclipse.jetty.websocket.</Item>
+              <Item>org.eclipse.jetty.servlet.</Item>
+              <Item>org.eclipse.jetty.servlets.</Item>
+              <Item>org.eclipse.jetty.server.</Item>
+              <Item>org.eclipse.jetty.io.</Item>
+              <Item>org.eclipse.jetty.http.</Item>
+              <Item>org.eclipse.jetty.security.</Item>
+              <Item>org.eclipse.jetty.util.</Item>
+           </Array>
+        </Arg>
+    </Call>
+
+    <Call name="setAttribute">
+        <Arg>org.eclipse.jetty.webapp.serverClasses</Arg>
+        <Arg>
+           <Array type="java.lang.String">
+              <Item>-org.eclipse.jetty.continuation.</Item>
+              <Item>-org.eclipse.jetty.jndi.</Item>
+              <Item>-org.eclipse.jetty.plus.jass.</Item>
+              <Item>-org.eclipse.jetty.websocket.</Item>
+              <Item>-org.eclipse.jetty.servlet.</Item>
+              <Item>-org.eclipse.jetty.servlets.</Item>
+              <Item>-org.eclipse.jetty.server.</Item>
+              <Item>-org.eclipse.jetty.io.</Item>
+              <Item>-org.eclipse.jetty.http.</Item>
+              <Item>-org.eclipse.jetty.security.</Item>
+              <Item>-org.eclipse.jetty.util.</Item>
+              <Item>org.eclipse.jetty.</Item>
+           </Array>   
+        </Arg>
+    </Call>
+
+    <Ref id="RequestLog">
+      <Set name="requestLog">
+        <New id="RequestLogImpl" class="org.eclipse.jetty.server.NCSARequestLog">
+          <Arg><SystemProperty name="jetty.home" default="/opt/zimbra/jetty"/>/logs/access_log.yyyy_mm_dd</Arg>
+          <Set name="logDateFormat">dd/MMM/yyyy:HH:mm:ss Z</Set>
+          <Set name="retainDays">30</Set>
+          <Set name="append">true</Set>
+          <Set name="extended">true</Set>
+          <Set name="filenameDateFormat">yyyy-MM-dd</Set>
+        </New>
+      </Set>
+    </Ref>
+
+    <Set name="stopAtShutdown">true</Set>
+    <Set name="sendServerVersion">false</Set>
+    <Set name="sendDateHeader">true</Set>
+
+</Configure>

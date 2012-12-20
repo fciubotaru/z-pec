@@ -1,0 +1,39 @@
+# Mixed Mode Configuration For HTTP
+
+            set $has_auth_token 0;
+
+            set $sslport ${web.https.port};
+            set $sslhost $host;
+            set $nargs "zminitmode=http";
+            
+            if ($sslport != 443) {  # This is the standard SSL port, leave it as is
+                set $sslhost $host:$sslport;
+            }
+ 
+            if ($http_cookie ~* "ZM_AUTH_TOKEN=[^;]+(?:;|$)") {
+                set $has_auth_token 1;
+            }
+
+            if ($args ~* ^(.+)$) {
+                set $nargs "$args&$nargs";
+            }
+            
+            # if it's logout, just redirect no matter whether ZM_AUTH_TOKEN is available
+            if ($arg_loginOp = "logout") {
+                set $args $nargs;
+                rewrite ^/(.*)$ https://$sslhost/$1 redirect;
+            }
+
+            # redirect to http unless we have a ZM_AUTH_TOKEN
+            # 
+            if ($has_auth_token = 0) {
+                set $args $nargs;
+                rewrite ^/(.*)$ https://$sslhost/$1 redirect;
+            }
+
+            # Change password URL needs to be redirected to SSL 
+
+            if ($uri ~* "changepass$") {
+                rewrite ^/(.*)$ https://$sslhost/$1 redirect;
+            }
+

@@ -1,0 +1,163 @@
+#!/bin/bash
+# 
+# ***** BEGIN LICENSE BLOCK *****
+# Zimbra Collaboration Suite Server
+# Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010 Zimbra, Inc.
+# 
+# The contents of this file are subject to the Zimbra Public License
+# Version 1.3 ("License"); you may not use this file except in
+# compliance with the License.  You may obtain a copy of the License at
+# http://www.zimbra.com/license.
+# 
+# Software distributed under the License is distributed on an "AS IS"
+# basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+# ***** END LICENSE BLOCK *****
+# 
+
+source `dirname $0`/zmshutil || exit 1
+zmsetvars
+
+if [ ! -d ${mailboxd_directory} ]; then
+  exit 0
+fi
+
+if [ ! -d ${zimbra_home}/mysql/bin ]; then
+  exit 0
+fi
+
+if [ ! -d ${zimbra_java_home} ]; then
+  exit 0
+fi
+
+
+#
+# Memory for use by JVM.
+#
+javaXmx=${mailboxd_java_heap_size:=512}
+javaXms=${javaXmx}
+mailboxd_java_heap_new_size_percent=${mailboxd_java_heap_new_size_percent:=25}
+javaXmn=$(expr ${javaXmx} '*' ${mailboxd_java_heap_new_size_percent} / 100)
+
+#
+# Spnego - the spnego_options_file is written by zmconfigd 
+#          to avoid a zmprov call here.
+#
+spnego_options_file=${zimbra_home}/conf/spnego_java_options
+if [ -e ${spnego_options_file} ]; then
+  spnegoJavaOptions=$(cat $spnego_options_file)
+fi
+
+#
+# Expand war files.
+#
+mk_download_dir() {
+  if [ -d "${mailboxd_directory}/webapps/zimbra/downloads" ]; then
+    ${zimbra_home}/libexec/zmupdatedownload
+  fi
+}
+
+rewriteWebXml() {
+  /opt/zimbra/libexec/configrewrite webxml > /dev/null 2>&1
+}
+
+#
+# Main
+#
+case "$1" in
+    'start')
+      mk_download_dir
+	  if [ "x$2" = "x" ]; then
+		  ${zimbra_home}/bin/zmtlsctl > /dev/null 2>&1
+	  fi
+      sudo ${zimbra_home}/libexec/zmmailboxdmgr status
+      if [ $? = 0 ]; then
+        echo "mailboxd already running."
+        exit 0
+      fi
+
+      if [ "x${mailboxd_server}" = "xtomcat" ]; then
+        # Create the work directories so they're owned by zimbra
+        mkdir -p ${mailboxd_directory}/work/Catalina/localhost/_/org/apache/jsp/public_
+        mkdir -p ${mailboxd_directory}/work/Catalina/localhost/zimbra/org/apache/jsp/public_
+        mkdir -p ${mailboxd_directory}/work/Catalina/localhost/service/org/apache/jsp/public_
+        mkdir -p ${mailboxd_directory}/work/Catalina/localhost/zimbraAdmin/org/apache/jsp/public_
+        mkdir -p ${mailboxd_directory}/work/Catalina/localhost/manager
+        mkdir -p ${mailboxd_directory}/work/Catalina/localhost/host-manager
+      else
+        mkdir -p ${mailboxd_directory}/work/service/jsp
+        mkdir -p ${mailboxd_directory}/work/zimbra/jsp
+        mkdir -p ${mailboxd_directory}/work/zimbraAdmin/jsp
+        if [ ! -d ${mailboxd_directory}/webapps/zimlet/WEB-INF ]; then
+          mkdir -p ${mailboxd_directory}/webapps/zimlet/WEB-INF
+		  if [ "x$2" = "x" ]; then
+			  rewriteWebXml
+          fi
+        fi
+      fi
+
+      mailboxd_thread_stack_size=${mailboxd_thread_stack_size:=256k}
+      if [ -z "`echo ${mailboxd_java_options} | grep Xss`" ]; then
+        mailboxd_java_options="${mailboxd_java_options} -Xss${mailboxd_thread_stack_size}"
+      fi
+
+      networkaddress_cache_ttl=${networkaddress_cache_ttl:=60}
+      if [ -z "`echo ${mailboxd_java_options} | grep sun.net.inetaddr.ttl`" ]; then
+        mailboxd_java_options="${mailboxd_java_options} -Dsun.net.inetaddr.ttl=${networkaddress_cache_ttl}"
+      fi
+      echo -n "Starting mailboxd..."
+      sudo ${zimbra_home}/libexec/zmmailboxdmgr start \
+        -Dfile.encoding=UTF-8 ${mailboxd_java_options} ${spnegoJavaOptions} -Xms${javaXms}m \
+        -Xmx${javaXmx}m -Xmn${javaXmn}m < /dev/null > /dev/null 2>&1
+      status=$?
+      if [ $status = 0 ]; then
+        echo "done."
+      else
+        echo "failed."
+      fi
+      exit $status
+    ;;
+
+    'kill'|'stop')
+      echo -n "Stopping mailboxd..."
+      sudo ${zimbra_home}/libexec/zmmailboxdmgr status
+      if [ $? != 0 ]; then
+        echo "mailboxd is not running."
+        exit 0
+      fi
+      ${zimbra_home}/bin/zmthrdump -i -o ${zimbra_home}/log/stacktrace.$$.$(date +%Y%m%d%H%M%S) 2> /dev/null
+      sudo ${zimbra_home}/libexec/zmmailboxdmgr stop 
+      if [ $? = 0 ]; then
+        echo "done."
+      else 
+        echo "failed."
+      fi 
+      exit 0
+    ;;
+
+    
+    'restart'|'reload')
+        $0 stop
+        $0 start $2
+    ;;
+    
+    'status')
+      echo -n "mailboxd is "
+      sudo ${zimbra_home}/libexec/zmmailboxdmgr status
+      if [ $? = 0 ]; then
+        echo "running."
+        exit 0
+      else 
+        echo "not running."
+        exit 1
+      fi
+    ;;
+
+	'update')
+		mk_download_dir
+	;;
+
+    *)
+      echo "Usage: $0 start|stop|kill|restart|reload|status|update"
+      exit 1
+    ;;
+esac

@@ -1,0 +1,77 @@
+#!/bin/bash
+#
+# ***** BEGIN LICENSE BLOCK *****
+# Zimbra Collaboration Suite Server
+# Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011 Zimbra, Inc.
+#
+# The contents of this file are subject to the Zimbra Public License
+# Version 1.3 ("License"); you may not use this file except in
+# compliance with the License.  You may obtain a copy of the License at
+# http://www.zimbra.com/license.
+#
+# Software distributed under the License is distributed on an "AS IS"
+# basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+# ***** END LICENSE BLOCK *****
+#
+#
+# We cannot rely on any config parameters when running zmlocalconfig for obvious
+# chicken and egg reasons. So we just make assumptions about install layout.
+#
+
+ZMROOT=`dirname $0`/..
+ZMROOT=`(cd "${ZMROOT}"; pwd)`
+
+umask 0027
+
+if [ -x "${ZMROOT}/java/bin/java" ]; then
+    java="${ZMROOT}/java/bin/java"
+else
+    java=java
+fi
+
+if [ -f ".hotspot_compiler" ]; then
+  cd $ZMROOT
+fi
+
+case "`uname`" in
+CYGWIN*) PATHSEP=";";;
+*) PATHSEP=":";;
+esac
+
+CP=${ZMROOT}/lib/jars/zimbracommon.jar\
+${PATHSEP}${ZMROOT}/lib/jars/zimbrasoap.jar\
+${PATHSEP}${ZMROOT}/lib/jars/zimbraclient.jar\
+${PATHSEP}${ZMROOT}/lib/jars/zimbrastore.jar\
+${PATHSEP}${ZMROOT}/lib/jars/zimbra-native.jar\
+${PATHSEP}${ZMROOT}/lib/jars/apache-log4j-extras-1.0.jar\
+${PATHSEP}${ZMROOT}/lib/jars/commons-logging.jar\
+${PATHSEP}${ZMROOT}/lib/jars/commons-cli-1.2.jar\
+${PATHSEP}${ZMROOT}/lib/jars/commons-httpclient-3.1.jar\
+${PATHSEP}${ZMROOT}/lib/jars/commons-codec-1.6.jar\
+${PATHSEP}${ZMROOT}/lib/jars/guava-10.0.1.jar\
+${PATHSEP}${ZMROOT}/lib/jars/dom4j-1.5.2.jar\
+${PATHSEP}${ZMROOT}/lib/jars/log4j-1.2.16.jar\
+${PATHSEP}${ZMROOT}/lib/jars/json.jar
+
+if [ -f "${ZMROOT}/lib/ext/backup/zimbrabackup.jar" ]; then
+    CP="$CP${PATHSEP}${ZMROOT}/lib/ext/backup/zimbrabackup.jar"
+fi
+
+if [ -f "${ZMROOT}/lib/ext/voice/zimbravoice.jar" ]; then
+    CP="$CP${PATHSEP}${ZMROOT}/lib/ext/voice/zimbravoice.jar"
+fi
+
+if [ -f "${ZMROOT}/lib/ext/com_zimbra_oo/com_zimbra_oo.jar" ]; then
+    CP="$CP${PATHSEP}${ZMROOT}/lib/ext/com_zimbra_oo/com_zimbra_oo.jar"
+fi
+
+java_version=$(${java} -version 2>&1 | grep "java version" | sed -e 's/"//g' | awk '{print $NF}' | awk -F_ '{print $1}')
+if [ x"$java_version" = "x1.6.0" ]; then
+  java_options="-XX:ErrorFile=${ZMROOT}/log"
+else
+  java_options=""
+fi
+
+exec ${java} ${java_options} -client -cp "$CP" \
+    -Djava.library.path=${ZMROOT}/lib -Dzimbra.home="${ZMROOT}" \
+    com.zimbra.cs.localconfig.LocalConfigCLI "$@"

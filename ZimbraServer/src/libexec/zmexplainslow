@@ -1,0 +1,155 @@
+#!/usr/bin/perl
+# 
+# ***** BEGIN LICENSE BLOCK *****
+# Zimbra Collaboration Suite Server
+# Copyright (C) 2005, 2006, 2007, 2009, 2010 Zimbra, Inc.
+# 
+# The contents of this file are subject to the Zimbra Public License
+# Version 1.3 ("License"); you may not use this file except in
+# compliance with the License.  You may obtain a copy of the License at
+# http://www.zimbra.com/license.
+# 
+# Software distributed under the License is distributed on an "AS IS"
+# basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+# ***** END LICENSE BLOCK *****
+# 
+
+use strict;
+use Getopt::Long;
+use English;
+
+# Options
+my $user = "zimbra";
+my $password = "zimbra";
+my $database = "zimbra";
+my $mySqlCommand = "mysql";
+my $verbose = 0;
+my $usage = 0;
+my $logDir = "/opt/zimbra/log";
+my $ignore;
+
+if (-f "/opt/zimbra/bin/zmlocalconfig") {
+    $password = `zmlocalconfig -s -m nokey zimbra_mysql_password`;
+    chomp $password;
+    $user = `zmlocalconfig -m nokey zimbra_mysql_user`;
+    chomp $user;
+    $logDir = `zmlocalconfig -x -m nokey zimbra_log_directory`;
+    chomp $logDir;
+}
+
+GetOptions("user=s" => \$user, "password=s" => \$password,
+	   "database=s" => \$database, "mysql=s" => \$mySqlCommand,
+	   "ignore=s" => \$ignore, "help" => \$usage);
+
+if ($usage) {
+    usage();
+    exit(0);
+}
+
+if (scalar(@ARGV) == 0) {
+    # No file was specified, so read slowQueries.csv
+    push(@ARGV, $logDir . "/slowQueries.csv");
+}
+
+while (<>) {
+    if (/\"(SELECT[^\"]+)\"/i) {
+	my $query = $1;
+	if (defined($ignore) && $query =~ /$ignore/) {
+	    next;
+	}
+
+	my @notes;
+	my $rows = 0;
+	my %notes;
+	my $totalRows = 1;
+
+	print($query . "\n\n");
+	my @output = runSql("EXPLAIN " . $1);
+
+	foreach my $line (@output) {
+	    if ($line =~ /type\: ALL/ ||
+		$line =~ /key\: NULL/) {
+		$notes{"Table scan"} = 1;
+	    }
+	    if ($line =~ /rows: (\d+)/) {
+		$rows = $1;
+		$totalRows = $totalRows * $rows;
+	    }
+	    if ($line =~ /filesort/) {
+		if ($rows > 100) {
+		    $notes{"Filesort"} = 1;
+		}
+	    }
+	    if ($line =~ /temporary/) {
+		if ($rows > 100) {
+		    $notes{"Temporary table"} = 1;
+		}
+	    }
+
+	    print($line . "\n");
+	}
+	print("\n");
+
+	if ($totalRows > 1000) {
+	    $notes{$totalRows . " rows scanned"} = 1;
+	}
+
+	if (scalar(keys(%notes)) > 0) {
+	    print("### NOTES: " . join(",", keys(%notes)) . "\n\n");
+	}
+    }
+}
+
+exit(0);
+
+############################
+
+sub runSql($) {
+    my ($script) = @_;
+
+    # Write the last script to a text file for debugging
+    # open(LASTSCRIPT, ">lastScript.sql") || die "Could not open lastScript.sql";
+    # print(LASTSCRIPT $script);
+    # close(LASTSCRIPT);
+
+    # Run the mysql command and redirect output to a temp file
+    my $tempFile = "mysql.out";
+    my $command = "$mySqlCommand --user=$user --password=$password " .
+        "--database=$database --vertical";
+    open(MYSQL, "| $command > $tempFile") || die "Unable to run $command";
+    print(MYSQL $script);
+    close(MYSQL);
+
+    if ($? != 0) {
+        die "Error while running '$command'.";
+    }
+
+    # Process output
+    open(OUTPUT, $tempFile) || die "Could not open $tempFile";
+    my @output;
+    while (<OUTPUT>) {
+        s/\s+$//;
+        push(@output, $_);
+    }
+
+    unlink($tempFile);
+    return @output;
+}
+
+sub usage() {
+    print <<USAGE_EOF
+Usage: $PROGRAM_NAME [slowQueries.csv]
+
+Runs EXPLAIN on SELECT statements in the specified file.  If
+the path to slowQueries.csv is not specified, reads
+$logDir/slowQueries.csv.
+
+  -h, --help           Displays this usage message
+  -i, --ignore=regexp  Ignore any SELECT statements that match the
+                       specified regular expression
+  -u, --user=name      MySQL user name (default: "zimbra")
+  -p, --password=name  MySQL password (default: "zimbra")
+  -d, --database=name  MySQL database (default: "zimbra")
+  -m, --mysql=command  MySQL client command name (default: "mysql")
+USAGE_EOF
+}

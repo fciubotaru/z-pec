@@ -1,0 +1,64 @@
+#!/bin/bash
+# 
+# ***** BEGIN LICENSE BLOCK *****
+# Zimbra Collaboration Suite Server
+# Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010 Zimbra, Inc.
+# 
+# The contents of this file are subject to the Zimbra Public License
+# Version 1.3 ("License"); you may not use this file except in
+# compliance with the License.  You may obtain a copy of the License at
+# http://www.zimbra.com/license.
+# 
+# Software distributed under the License is distributed on an "AS IS"
+# basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+# ***** END LICENSE BLOCK *****
+# 
+
+# Much faster; just call zmlocalconfig once
+source `dirname $0`/zmshutil || exit 1
+zmsetvars -f
+
+if [ -d ${zimbra_java_home}/jre ]; then
+    JRE_EXT_DIR=${zimbra_java_home}/jre/lib/ext
+else
+    #JRE_EXT_DIR=/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Home/lib/ext
+    JRE_EXT_DIR=${zimbra_java_home}/lib/ext
+fi
+
+if [ -f ".hotspot_compiler" ]; then
+  cd $zimbra_home
+fi
+case "`uname`" in
+CYGWIN*) PATHSEP=";";;
+*) PATHSEP=":";;
+esac
+
+ZIMBRA_EXTENSIONS="backup clamscanner network zimbra-license zimbrahsm zimbrasync"
+ZIMBRA_EXT_DIR="/opt/zimbra/lib/ext-common"
+for i in $ZIMBRA_EXTENSIONS; do
+  if [ -d "/opt/zimbra/lib/ext/$i" ]; then
+   ZIMBRA_EXT_DIR="${ZIMBRA_EXT_DIR}${PATHSEP}/opt/zimbra/lib/ext/$i"
+  fi
+done 
+
+java_version=$(${zimbra_java_home}/bin/java -version 2>&1 | grep "java version" | sed -e 's/"//g' | awk '{print $NF}' | awk -F_ '{print $1}')
+if [ x"$java_version" = "x1.6.0" ]; then
+  java_options="-XX:ErrorFile=${zimbra_home}/log"
+else 
+  java_options=""
+fi 
+
+if [ x${zimbra_zmjava_java_library_path} = "x" ]; then
+  zimbra_zmjava_java_library_path=${zimbra_home}/lib
+fi  
+
+if [ x${zimbra_zmjava_java_ext_dirs} = "x" ]; then
+  zimbra_zmjava_java_ext_dirs=${JRE_EXT_DIR}${PATHSEP}${zimbra_home}/lib/jars${PATHSEP}${ZIMBRA_EXT_DIR}
+fi  
+
+exec ${zimbra_java_home}/bin/java ${java_options} \
+     -client ${zimbra_zmjava_options} \
+     -Dzimbra.home=${zimbra_home} \
+     -Djava.library.path=${zimbra_zmjava_java_library_path} \
+     -Djava.ext.dirs=${zimbra_zmjava_java_ext_dirs} \
+     "$@"

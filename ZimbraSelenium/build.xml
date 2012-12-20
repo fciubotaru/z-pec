@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ZimbraSelenium" default="jar" basedir=".">
+
+    <import file="../ant-global.xml" />
+	<property name="build.version" value="6.0.0" />
+
+	<property name="build.classes.dir" location="${build.dir}/classes" />
+	<property name="build.resources.dir" location="${build.dir}/resources" />
+	<property name="build.coverage.dir" location="${build.dir}/coverage" />
+	
+	<property name="generated.dir" location="${build.dir}/generated" />
+	<property name="generated.java.dir" location="${generated.dir}/java" />
+	<property name="generated.javadocs.dir" location="${generated.dir}/javadocs" />
+	<property name="dist.dir" location="${build.dir}/dist/zimbra-${build.version}" />
+	<property name="dist.lib.dir" location="${dist.dir}/lib" />
+	<property name="tms.dir" location="${build.dir}/tms"/>
+	<property name="tms.tgz.file" location="${dist.dir}/selng.tgz"/>
+
+	<property name="conf.dir" location="conf" />
+	<property name="src.dir" location="src" />
+	<property name="src.java.dir" location="${src.dir}/java" />
+
+	<property name="zimbraqa.dir" location="../ZimbraQA" />
+	<property name="webclient.dir" location="../ZimbraWebClient" />
+	<property name="native.dir" location="../ZimbraNative" />
+	<property name="zimlet.dir" location="../Zimlet" />
+
+	<path id="class.path">
+		<pathelement location="${build.classes.dir}" />
+		<pathelement location="${build.resources.dir}" />
+
+		<fileset dir="jars">
+			<include name="**/*.jar" />
+		</fileset>
+
+		<fileset dir="${common.dir}/jars">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset file="${common.jarfile}" />
+		<fileset file="${soap.jarfile}" />
+                <fileset file="${client.jarfile}" />
+		<fileset file="${server.jarfile}" />
+	</path>
+
+	<path id="all.java.path">
+		<pathelement location="${src.java.dir}" />
+		<pathelement location="${generated.java.dir}" />
+	</path>
+
+	<target name="clean" description="Removes all built files">
+		<delete dir="${build.dir}" />
+	</target>
+
+	<target name="build-init" description="Create folders as required">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${dist.lib.dir}" />
+		<mkdir dir="${generated.java.dir}" />
+		<mkdir dir="${generated.javadocs.dir}" />
+		<mkdir dir="${build.classes.dir}" />
+	</target>
+
+	<target name="compile-ZimbraServer" depends="compile-ZimbraNative" description="Builds ZimbraServer">
+		<ant dir="${server.dir}" target="jar" inheritAll="false" />
+	</target>
+
+	<target name="compile-ZimbraNative" description="Builds ZimbraNative">
+		<ant dir="${native.dir}" target="jar" inheritAll="false" />		
+	</target>
+
+	<target name="compile-ZimbraCommon" description="Builds ZimbraCommon">
+		<ant dir="${common.dir}" target="jar" inheritAll="false" />
+	</target>
+
+	<target name="compile-ZimbraSoap" description="Builds ZimbraSoap">
+		<ant dir="${soap.dir}" target="jar" inheritAll="false" />
+	</target>
+
+	<target name="compile" depends="build-init,data-files,bundles-jar,coverage-jar,compile-ZimbraCommon,compile-ZimbraSoap,compile-ZimbraServer" description="Compiles the source code">
+		<echo message="compiling framework..." />
+		<javac destdir="${build.classes.dir}" debug="true" classpathref="class.path" nowarn="on">
+			<src refid="all.java.path" />
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile" description="Creates the jar file">
+		<jar destfile="${dist.lib.dir}/zimbraselenium.jar" basedir="${build.classes.dir}" />
+	</target>
+
+	<target name="javadocs" description="Build javadocs">
+		<javadoc destdir="${generated.javadocs.dir}" classpathref="class.path" access="public" useexternalfile="yes">
+			<link offline="true" href="http://java.sun.com/j2se/1.5.0/docs/api package-list" packagelistLoc="." />
+			<fileset dir="${src.java.dir}/com/zimbra/qa/selenium/framework" includes="**/*.java"/>
+			<fileset dir="${src.java.dir}/com/zimbra/qa/selenium/projects/ajax/core" includes="**/*.java"/>
+			<fileset dir="${src.java.dir}/com/zimbra/qa/selenium/projects/ajax/ui" includes="**/*.java"/>
+			<fileset dir="${src.java.dir}/com/zimbra/qa/selenium/projects/admin/core" includes="**/*.java"/>
+			<fileset dir="${src.java.dir}/com/zimbra/qa/selenium/projects/admin/ui" includes="**/*.java"/>
+			<fileset dir="${src.java.dir}/com/zimbra/qa/selenium/projects/mobile/core" includes="**/*.java"/>
+			<fileset dir="${src.java.dir}/com/zimbra/qa/selenium/projects/mobile/ui" includes="**/*.java"/>
+		</javadoc>
+	</target>
+	
+	<target name="data-files" description="Copies sample data from ZimbraQA to ZimbraSelenium">
+		<copy todir="data/public/Files">
+			<fileset dir="${zimbraqa.dir}/data/Files" />
+		</copy>
+	</target>
+	
+	<target name="bundles-classes" description="Copies the I18N properties files to build">
+		<copy todir="${build.resources.dir}">
+			<fileset dir="${webclient.dir}/WebRoot/messages/" />
+		</copy>
+		<copy todir="${build.resources.dir}">
+			<fileset dir="${server.dir}/conf/msgs/" />
+		</copy>
+		<copy todir="${build.resources.dir}">
+			<fileset dir="${zimlet.dir}/src/zimlet/com_zimbra_attachcontacts/">
+				<filename name="*.properties"/>
+			</fileset>
+			<fileset dir="${zimlet.dir}/src/zimlet/com_zimbra_attachmail/">
+				<filename name="*.properties"/>
+			</fileset>
+			<fileset dir="${zimlet.dir}/src/zimlet/com_zimbra_date/">
+				<filename name="*.properties"/>
+			</fileset>
+			<fileset dir="${zimlet.dir}/src/zimlet/com_zimbra_dnd/">
+				<filename name="*.properties"/>
+			</fileset>
+			<fileset dir="${zimlet.dir}/src/zimlet/com_zimbra_email/">
+				<filename name="*.properties"/>
+			</fileset>
+			<fileset dir="${zimlet.dir}/src/zimlet/com_zimbra_linkedin/">
+				<filename name="*.properties"/>
+			</fileset>
+			<fileset dir="${zimlet.dir}/src/zimlet/com_zimbra_phone/">
+				<filename name="*.properties"/>
+			</fileset>
+			<fileset dir="${zimlet.dir}/src/zimlet/com_zimbra_social/">
+				<filename name="*.properties"/>
+			</fileset>
+			<fileset dir="${zimlet.dir}/src/zimlet/com_zimbra_srchhighlighter/">
+				<filename name="*.properties"/>
+			</fileset>
+			<fileset dir="${zimlet.dir}/src/zimlet/com_zimbra_url/">
+				<filename name="*.properties"/>
+			</fileset>
+			<fileset dir="${zimlet.dir}/src/zimlet/com_zimbra_webex/">
+				<filename name="*.properties"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="bundles-jar" depends="bundles-classes" description="Creates a jar with all resource bundles">
+		<jar destfile="${dist.lib.dir}/resources.jar" basedir="${build.resources.dir}" />
+	</target>
+
+	<target name="coverage-classes" description="Copies the coverage website files to build">
+		<copy todir="${build.coverage.dir}">
+			<fileset dir="${src.java.dir}/com/zimbra/qa/selenium/framework/util/coverage" />
+		</copy>
+	</target>
+
+	<target name="coverage-jar" depends="coverage-classes" description="Creates a jar with all coverage website files">
+		<jar destfile="${dist.lib.dir}/coverage.jar" basedir="${build.coverage.dir}" />
+	</target>
+
+	<target name="jar-staf-selenium" depends="jar, bundles-jar, coverage-jar" description="Creates the STAF jar file for the selenium service">
+
+		<property name="build.staf.selenium" location="${build.dir}/staf/selenium" />
+		<property name="build.staf.selenium.jars.dir" location="${build.staf.selenium}/STAF-INF/jars" />
+		<property name="build.staf.selenium.classes.dir" location="${build.staf.selenium}/STAF-INF/classes" />
+
+		<copy todir="${build.staf.selenium.classes.dir}">
+			<fileset dir="${build.classes.dir}" />
+		</copy>
+
+		<copy todir="${build.staf.selenium.jars.dir}">
+			<fileset dir="${dist.lib.dir}">
+				<include name="resources.jar" />
+			</fileset>
+			<fileset dir="${dist.lib.dir}">
+				<include name="coverage.jar" />
+			</fileset>
+			<fileset dir="jars">
+				<include name="commons-beanutils-1.7.jar" />
+				<include name="commons-configuration-1.5.jar" />
+				<include name="commons-lang-2.6.jar" />
+				<include name="ezmorph-1.0.6.jar" />
+				<include name="htmlcleaner-2.2.jar" />
+				<include name="json-lib-2.3-jdk15.jar" />
+				<include name="ocutil-2.4.2.jar" />
+				<include name="selenium-java-2.20.0.jar" />
+				<include name="selenium-server-standalone-2.20.0.jar" />
+				<include name="testng-5.12.1.jar" />
+				<include name="xalan.jar" />
+				<include name="ws-commons-util-1.0.2.jar" />
+				<include name="xmlrpc-client-3.1.3.jar" />
+				<include name="xmlrpc-common-3.1.3.jar" />
+				<include name="commons-codec-1.6.jar" />
+				<include name="ldtp-1.0.jar"/>
+			</fileset>
+			<fileset dir="${common.dir}/jars">
+				<include name="ant-tar-patched.jar" />
+				<include name="apache-log4j-extras-1.0.jar" />
+				<include name="commons-cli-1.2.jar" />
+				<include name="commons-code-1.4.jar" />
+				<include name="commons-configuration-1.5.jar" />
+				<include name="commons-httpclient-3.1.jar" />
+				<include name="commons-logging.jar" />
+				<include name="dom4j-1.5.2.jar" />
+				<include name="jaxen-1.1.3.jar" />
+				<include name="libidn-1.24.jar" />
+				<include name="log4j-1.2.16.jar" />
+				<include name="javamail-1.4.5.jar" />
+				<include name="mysql-connector-java-5.1.18-bin.jar" />
+				<include name="guava-*.jar" />
+			</fileset>
+			<fileset file="${common.jarfile}" />
+			<fileset file="${native.jarfile}" />
+			<fileset file="${soap.jarfile}" />
+                        <fileset file="${client.jarfile}" />
+			<fileset file="${server.jarfile}" />
+		</copy>
+
+		<jar destfile="${dist.lib.dir}/zimbrastaf.jar" basedir="${build.staf.selenium}">
+			<manifest>
+				<attribute name="Main-Class" value="staf.Driver" />
+				<section name="staf/service/info">
+					<attribute name="Service-Class" value="com.zimbra.qa.selenium.staf.StafIntegration" />
+					<attribute name="Packaged-Jars" value="guava-10.0.1 commons-beanutils-1.7 commons-configuration-1.5 commons-lang-2.6 ezmorph-1.0.6 htmlcleaner-2.2 json-lib-2.3-jdk15 ocutil-2.4.2 selenium-java-2.20.0 selenium-server-standalone-2.20.0 testng-5.12.1 xalan apache-log4j-extras-1.0 commons-cli-1.2 commons-code-1.4 commons-configuration-1.5 commons-httpclient-3.1 commons-logging dom4j-1.5.2 jaxen-1.1.3 libidn-1.24 log4j-1.2.16 mail mysql-connector-java-5.1.18-bin resources coverage zimbracommon zimbra-native zimbrasoap zimbraclient zimbrastore ant-tar-patched" />
+				</section>
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="jar-staf" depends="jar-staf-selenium" description="Creates all the STAF jar files">
+	</target>
+
+	<target name="Run-ExecuteHarnessMain" depends="jar" description="Run all tests per specified arguments">
+		<property name="jarfile" value="${dist.lib.dir}/zimbraselenium.jar"/>
+		<property name="pattern" value="ajax.tests"/>
+		<property name="groups" value="always,sanity"/>
+		<property name="exclude_groups" value="skip"/>
+		<echo>Executing ...</echo>
+		<java classname="com.zimbra.qa.selenium.framework.core.ExecuteHarnessMain"          classpathref="class.path"          fork="true" failonerror="true">
+			<arg line="-j '${jarfile}' -p ${pattern} -g ${groups} -eg ${exclude_groups} -l conf/log4j.properties  "/>				
+		</java>
+	</target>
+
+	<target name="Run-ExecuteHarnessMain (dev)" depends="jar" description="Run all tests per specified arguments">
+		<property name="jarfile" value="${dist.lib.dir}/zimbraselenium.jar"/>
+		<property name="pattern" value="ajax.tests"/>
+		<property name="groups" value="always,sanity"/>
+		<echo>Executing ...</echo>
+		<java classname="com.zimbra.qa.selenium.framework.core.ExecuteHarnessMain"          classpathref="class.path"          fork="true" failonerror="true">
+			<arg line="-d -j '${jarfile}' -p ${pattern} -g ${groups} -l conf/log4j.properties "/>				
+		</java>
+	</target>
+
+	<target name="tgz-contents" depends="jar,jar-staf" description="Creates the TMS package contents folder">
+		<echo message="Creating TMS TGZ contents ..." />
+		<copy file="${dist.lib.dir}/zimbraselenium.jar" todir="${tms.dir}/jars/"/>
+		<copy file="${dist.lib.dir}/zimbrastaf.jar" todir="${tms.dir}/jars/"/>
+		<copy todir="${tms.dir}/conf/">
+			<fileset dir="conf">
+				<include name="**/*"/>
+			</fileset>
+		</copy>
+		<copy todir="${tms.dir}/data/">
+			<fileset dir="data">
+				<include name="**/*"/>
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="tgz-file" depends="tgz-contents" description="Creates the TMS Package TGZ file">
+		<echo message="zipping TMS TGZ package ..." />
+		<tar destfile="${tms.tgz.file}" compression="gzip">
+			<tarfileset dir="${tms.dir}" prefix="SelNG" mode="777">
+				<include name="**/*"/>
+			</tarfileset>
+		</tar>
+		<checksum file="${tms.tgz.file}" forceOverwrite="yes"/>
+	</target>
+	
+	<target name="build-selng" depends="tgz-file" description="Creates the TMS Package">
+	</target>
+		
+
+</project>

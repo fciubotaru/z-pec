@@ -1,0 +1,66 @@
+#!/usr/bin/perl -w
+# 
+# ***** BEGIN LICENSE BLOCK *****
+# Zimbra Collaboration Suite Server
+# Copyright (C) 2009, 2010 Zimbra, Inc.
+# 
+# The contents of this file are subject to the Zimbra Public License
+# Version 1.3 ("License"); you may not use this file except in
+# compliance with the License.  You may obtain a copy of the License at
+# http://www.zimbra.com/license.
+# 
+# Software distributed under the License is distributed on an "AS IS"
+# basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+# ***** END LICENSE BLOCK *****
+# 
+
+#10.72.186.147 -  -  [06/May/2009:00:00:05 +0000] "GET /zimbra/img/logo/blank.ico HTTP/1.1" 200 894 "-" "Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.1.20) Gecko/20081217 Firefox/2.0.0.20"
+
+use strict; 
+
+my %bytes = ();
+my %requests = ();
+
+while (<>) { 
+    chomp;
+    s/\042[^\042]*\042//g;
+    s/^.*\d{4}://g;
+    my ($c1, $c2) = m/(^.*):\d{2} .* (\d+)\s*$/;
+    if (defined($bytes{$c1})) {
+	$bytes{$c1} = $c2 + $bytes{$c1};
+    } else {
+	$bytes{$c1} = $c2;
+    }
+    if (defined($requests{$c1})) {
+	$requests{$c1} = $requests{$c1} + 1;
+    } else {
+	$requests{$c1} = 1;
+    }	
+}
+
+sub chartHash($) {
+    my %hash = %{shift()};
+    my $max = 0;
+    my @keys = sort keys %hash;
+    foreach my $key (@keys) {
+	if ($max < $hash{$key}) {
+	    $max = $hash{$key};
+	}
+    }
+    
+    my $ratio = 100.0 / $max;
+    foreach my $key (@keys) {
+	my $n = $ratio * $hash{$key};
+	printf("%s %10d ", $key, $hash{$key});
+	for (my $i = 0; $i < $n; $i++) {
+	    print "*";
+	}
+	print "\n";
+    }
+}
+
+print "==== Bytes transferred per minute ====\n";
+chartHash(\%bytes);
+print "==== Requests per minute ====\n";
+chartHash(\%requests);
+

@@ -1,0 +1,3335 @@
+#!/usr/bin/perl
+#
+# ***** BEGIN LICENSE BLOCK *****
+# Zimbra Collaboration Suite Server
+# Copyright (C) 2007, 2008, 2009, 2010 Zimbra, Inc.
+#
+# The contents of this file are subject to the Zimbra Public License
+# Version 1.3 ("License"); you may not use this file except in
+# compliance with the License.  You may obtain a copy of the License at
+# http://www.zimbra.com/license.
+#
+# Software distributed under the License is distributed on an "AS IS"
+# basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+# ***** END LICENSE BLOCK *****
+#
+#Convert Oracle Corporate Time iCal file to Zimbra adoptable format
+#
+use strict;
+use Cwd;
+use Date::Calc qw(:all);
+use File::Path;
+
+my $DEBUG = 0;
+#global constants
+my $version = "1.40";
+my $newfileext=".zimbra";
+my $bakfileext=".bak";
+my $invalidfileext=".invalid";
+#TZ tag to convert date-time info into TZ format
+my $TZTag="";
+#hold TZID records from timezones.ics
+my %TZIDHash=();
+#global TZ record for chosen TZ
+my $GTZRec;
+
+#get script directory
+my $progdir = cwd;
+#store timezones.ics file path
+my $timezonefile;
+#keep log file in script directory
+my $logfilepath;
+if ($DEBUG)
+{
+  $logfilepath="c:\\opt\\zimbra\\log";
+  $timezonefile="C:\\opt\\zimbra\\conf\\timezones.ics";
+}
+else
+{
+  $logfilepath="/opt/zimbra/log";
+  $timezonefile="/opt/zimbra/conf/timezones.ics";
+}
+my $logfilename = "icalmig.log";
+my $logfile;
+my $icalfile;
+my $outfile;
+my $invalidfile;
+my $tzx_tz="NOTZ";
+#used for debug purpose
+$icalfile="" if ($DEBUG);
+
+#for recurring DAILY exceptions
+my $STAT_CANCELLED = 3;
+#used as const values for pattern calcualtions.
+my $DAILY = 1,
+my $WEEKLY = 7,
+my $BIWEEKLY=14,
+my $MONTHLY=28,
+my $MATCHPC=100,
+
+#default values
+#set 1 to delete RDATEs else 0 for no delete
+my $deleteRDATE=1;
+#set 1 to create exceptions else 0
+my $createEXCEPTIONS=1;
+#set 1 to create pattern rule else 0
+my $createPatternRRULE =1;
+#set 1 to use TZ companent and TZ tag else 0
+my $useTZcomponent =0;
+#over write original file
+my $oworginalfile=0;
+#for non standard DTSTART (29805)
+my $nonStandardDTSTART=0;
+# for standard DTSTART(29743)
+my $StandardDTSTART=1;
+#If no pattern found,create standalone recurrences by default.
+#else create YEARLY exceptions series
+my $YearlyException =0;
+
+if ($#ARGV<0)
+{
+  help() if (!$DEBUG);
+  exit if (!$DEBUG);
+}
+
+#look for command line switches
+while ($ARGV[0] =~ /^-(.+)/)
+{
+  my $switch = $1;
+  #pull this switch off of the front of the list
+  shift;
+
+  #if they ask for help, do it and exit
+  if (($switch eq "h")||($switch eq "help"))
+  {
+    help();
+    exit;
+  }
+  elsif ($switch eq "v")
+  {
+    print "VERSION: $version\n";
+    exit;
+  }
+  elsif ($switch eq "f")
+  {
+    $icalfile = shift;
+  }
+  elsif ($switch eq "delrdate")
+  {
+    $deleteRDATE = shift;
+  }
+  elsif ($switch eq "exceptions")
+  {
+    $createEXCEPTIONS = shift;
+  }
+  elsif ($switch eq "patternrule")
+  {
+    $createPatternRRULE = shift;
+  }
+  elsif ($switch eq "tz")
+  {
+    $useTZcomponent = 1;
+  }
+  elsif ($switch eq "tzx")
+  {
+    $useTZcomponent = 1;
+    $tzx_tz = shift;
+  }
+  elsif ($switch eq "logpath")
+  {
+    $logfilepath= shift;
+  }
+  elsif (lc($switch) eq lc("nonStandardDTSTART"))
+  {
+    $nonStandardDTSTART=1;
+  }
+  elsif (lc($switch) eq lc("StandardDTSTART"))
+  {
+    $StandardDTSTART=1;
+  }
+  elsif (lc($switch) eq lc("YearlyException"))
+  {
+    $YearlyException =1;
+  }
+  elsif ($switch eq "d")
+  {
+    $DEBUG=1;
+  }
+  else
+  {
+    print "\nNo such option '$switch'.\n\n";
+    help();
+    exit;
+  }
+}
+#call functions
+&Initialize (@ARGV);
+my %rhlist= &processfile;
+&UnInitialize;
+#set task status to compelete for 100% complete tasks.
+&sed_settaskstatus;
+&end_message;
+
+#help menu
+sub help
+{
+  print "Usage: icalmig -f <ics file> [options]\n";
+  print "[options]\n";
+  print "-h           (Shows help)  \n";
+  print "-v           (Shows Version)\n\n";
+  print "-tz          \n";
+  print "       - Add timezone component to ics file.
+         Asks for TZID to be used. Specify desired TZID
+         from list displayed on screen.
+         Date/Recurrence information would be
+         modified to add the TZ information.
+         Takes TZ information from ZCS's timezonesfile.\n\n";
+  print "-tzx         <TZID from ZCS's timezonesfile>\n";
+  print "       - Specify TZID for no question conversion.\n\n";
+  print "-nonStandardDTSTART        \n";
+  print "       - If master event has DTSTART later than
+        one of the RDATEs, use this option to
+        use the least RDATE as event start date.\n\n";
+  print "-YearlyException           \n";
+  print "       - To create YEARLY exception series
+        for which no pattern can be found else standalone
+        event list be created.\n\n";
+  print "-logpath <path>            (Default /opt/zimbra/log)\n";
+  print "       - Specify altrenate logfile path.\n\n";
+  
+  print "-delrdate    (0-OFF 1-ON ) (DEFAULT: 1)\n";
+  print "-exceptions  (0-OFF 1-ON ) (DEFAULT: 1)\n";
+  print "-patternrule (0-OFF 1-ON ) (DEFAULT: 1)\n";
+  print "       - Above given 3 options are for debug
+        testing. Dont use them until you are
+        sure about them.\n\n";
+  print "\n";
+  
+}
+
+#Initialize: open logfile and iCal file for parsing
+sub Initialize
+{
+  $logfile= $logfilepath."\/".$logfilename;
+  $invalidfile= "$icalfile"."$invalidfileext";
+  if (!$icalfile)
+  {
+    &log_message("No file to process, use -f option.\n");
+    exit;
+  }
+  &log_message("Opening $icalfile...");
+  open CFHANDLE, "<$icalfile" or die "Cannot open $icalfile for read :$!";
+  &log_message("$icalfile opened successfully.");
+  
+  #check for log file path (specially for Windows OS)
+  if (-d $logfilepath)
+  {
+    &log_message("$logfilepath exists\n");
+  }
+  else
+  {
+    eval { File::Path::mkpath($logfilepath) };
+    if ($@) {
+      &log_message("Couldn't create $logfilepath: $@\n");
+    }
+  }
+  
+  #open logfile
+  open LFHANDLE, ">$logfile" or die "Cannot open logfile $logfile";
+  #open Output file
+  $outfile="$icalfile"."$newfileext";
+  open OTHANDLE, ">$outfile" or die "can not open output file.";
+  &log_message("icalmig verison: $version");
+  #init TZHeader
+  if ($useTZcomponent)
+  {
+    open TZFHANDLE, "<$timezonefile" or die "can not open time zone file.";
+    &init_TZRec();
+    my $tzcoice;
+    if($tzx_tz eq "NOTZ")
+    {
+      print "Available TimeZones:\n";
+      &print_TZIDs();
+      print "You have chosen to include the TimeZone information.\n";
+      print "Please mention the TZID of the required TimeZone from above printed list.\n";
+      chomp($tzcoice = <STDIN>);
+      print "\n";
+    }
+    else
+    {
+      $tzcoice=$tzx_tz;
+    }
+    &log_message("Entered time zone: $tzcoice");
+    $tzcoice = trim($tzcoice);
+    #Retreive Timze record for chosen TZ
+    $GTZRec=get_chosed_TZRec($tzcoice);
+    my $chtzid = trim($GTZRec->{'TZID'});
+    &log_message("Retrieved time zone: $chtzid");
+    $TZTag= ";".$chtzid;
+    $TZTag =~ s/TZID:/TZID=/;
+  }
+}
+
+#unInitialize: close logfile and ical file
+sub UnInitialize
+{
+  #close file handles
+  close CFHANDLE;
+  close OTHANDLE;
+  #close IVHANDLE;
+  &log_message("$icalfile and $logfile closed.");
+  close LFHANDLE;
+  if ($useTZcomponent)
+  {
+    close TZFHANDLE;
+  }
+  #save original file as bakupfile
+  if ($oworginalfile)
+  {
+    rename($icalfile, $icalfile.$bakfileext);
+    rename($outfile, $icalfile);
+  }
+}
+
+#print final status message
+sub end_message
+{
+  &log_message("\n");
+  &log_message("*************************************************************");
+  &log_message("NOTE:Output file path:$outfile.");
+  &log_message("NOTE:Log file path:$logfile.");
+  &log_message("*************************************************************");
+}
+
+#log_message: log message to file and print to console
+sub log_message
+{
+  my $msg = @_[0];
+  chomp($msg);
+  print "$msg\n";
+  print LFHANDLE "$msg\n";
+}
+
+#processfile: do Ical file processing
+sub processfile
+{
+  my $fdelete=0;
+  my %hlist=();
+  my $rec={};
+  my $write_pos = 0;
+  my $IsFirstRecId=0;
+  my $begreceventpos=0;
+  my $prvrecevpos=0;
+  my $Iscreaterrule=0;
+  my @recdata=();
+  my $IsTZHeaderPrinted=0;
+  my %hrdate=();
+  my $prvuid="";
+  my $uidtosrch;
+  my $enveventpos=0;
+  my $g_isdelrdate=0;
+  my $g_isrdate=0;
+  my $del_pos=0;
+  my $gen_evenstpos=0;
+  my $gen_CFsteventpos=0;
+  my $wasrulecreated=0;
+  my @attendeearr=();
+  my $firstevchkctr=0;
+  my $IsfrstevStandalone=0; my $frstevdelpos=0; my $uidchangectr=0;
+  my $OrganizerFound=0; my @resourcearr=(); my $prevneworganizer;
+  my $neworganizer= "ORGANIZER;";
+  &log_message("processing file...");
+  while (<CFHANDLE>)
+  {
+    push (@recdata,$_);
+    if ($_=~/^BEGIN:VEVENT/)          #start of VEVENT
+    {
+      $OrganizerFound=0;
+      $prevneworganizer = $neworganizer;
+      $neworganizer= "ORGANIZER;";
+      #print TZHeader before first VEVENT
+      if (($useTZcomponent)&&(!$IsTZHeaderPrinted))
+      {
+        &log_message("Add TimeZoneHeader.");
+        &print_TZINFObyTZID($GTZRec->{'TZID'});
+        $write_pos = tell OTHANDLE;
+        $IsTZHeaderPrinted=1;
+      }
+      &log_message("Start VEVENT component.");
+      $rec={};
+
+      @recdata=();#initialize array
+      @attendeearr=();
+      @resourcearr =();
+      push (@recdata,$_);
+      
+      #set to default value
+      $rec->{'MASTER_VEVENT'}=1;
+      $rec->{'ISRRULE'}=0;
+      $rec->{'ISRDATE'}=0;
+
+      if (!$IsFirstRecId)
+      {
+        $prvrecevpos =$begreceventpos;
+        $begreceventpos= tell OTHANDLE;#remember first rec-id vevent begin pos
+        $IsFirstRecId=1;
+      }
+      $gen_evenstpos= tell OTHANDLE;#generic event start pos
+      $gen_CFsteventpos = tell CFHANDLE;#CFHANDLEs generic event start pos
+      $firstevchkctr++;
+    }
+    #RRULE will be created on the base of UID change as in some cases, RDATEs
+    #are not part of last VEVENT. RDATEs may appear in any VEVENT also. So UID
+    #will be used as criteria to check to process group VEVENTS e.g. VEVENTS with
+    #same UID.
+    elsif ($_=~/^UID:/)               #store UID
+    {
+      &log_message("$_");
+      $rec->{'UID'} = $_;
+
+      #set VEVENT begining point to truncate correclty,
+      #even if VEVENTS are not in correct sequence.
+      if($prvuid eq "")
+      {
+        $prvrecevpos=$begreceventpos;
+      }
+      if (($prvuid ne "")&&($prvuid ne $_))
+      {
+        $uidchangectr++;
+        $IsFirstRecId=0;#reset
+        #shift back to previous VEVENT start point as current one is with next UID
+        $del_pos=$prvrecevpos;
+
+        if(($IsfrstevStandalone)&&($uidchangectr>2))
+        {
+          $IsfrstevStandalone=0;
+        }
+        #if first event is standalone, it is getting wiped off.
+        #set correct delpos
+        if($firstevchkctr eq 2)
+        {
+          $IsfrstevStandalone=1;
+          $frstevdelpos=$gen_evenstpos;
+        }
+
+        if((!$g_isdelrdate)&&($g_isrdate))
+        {
+          $Iscreaterrule=1;
+          #UID for which processing should be done.
+          $uidtosrch=$prvuid;
+          $g_isrdate=0;
+          $neworganizer = $prevneworganizer;
+        }
+        #if RDATEs should be deleted and current VEVENT has RDATEs
+        elsif (($g_isdelrdate)&&($g_isrdate))
+        {
+          #delete previously added lines due to RRULE+RDATE events.
+          #Delete position changes due to no RRULE creation.
+          my $dpos= $gen_evenstpos;
+          seek OTHANDLE, $dpos, 0;
+          truncate OTHANDLE, $dpos or print "UID section:Couldn't truncate: $!\n";
+          $begreceventpos= tell OTHANDLE;
+        }
+      }
+      $g_isdelrdate=0;
+      $prvuid=$_;
+      #if rule was created at previous roll, reset IsFirstRecId
+      #else a single event between 2 recurring events gets wiped out.
+      if ($wasrulecreated)
+      {
+        $IsFirstRecId=0;#reset
+        $wasrulecreated=0;
+      }
+    }
+    elsif ($_=~/^DTSTART[:;]/)           #store DTSTART
+    {
+      $rec->{'DTSTART'} = get_offset_datetime($_);
+    }
+    elsif ($_=~/^DTEND[:;]/)             #store DTEND
+    {
+      $rec->{'DTEND'} = get_offset_datetime($_);
+    }
+    elsif ($_=~/^LOCATION:/)              #store LOCATION
+    {
+      my $loc=$_;
+      $loc =~ s/^LOCATION://;
+      $rec->{'LOCATION'} =$loc;
+    }
+    elsif ($_=~/^SUMMARY:/)              #store LOCATION
+    {
+      my $summary=$_;
+      $summary =~ s/^SUMMARY://;
+      $rec->{'SUMMARY'} =$summary;
+    }
+    elsif ($_=~/^DESCRIPTION:/)          #store DESCRIPTION
+    {
+      my $desc=$_;
+      $desc =~ s/^DESCRIPTION://;
+      $rec->{'DESCRIPTION'} =$desc;
+    }
+    elsif ($_=~/^RECURRENCE-ID[:;]/)  #store RECURRENCE-ID
+    {
+      $rec->{'RECURRENCE-ID'}=get_offset_datetime($_);
+      $rec->{'MASTER_VEVENT'}=0;
+    }
+    elsif ($_=~/^RRULE/)              #check if RRULE is present
+    {
+      $rec->{'ISRRULE'}=1;
+    }
+    elsif ($_=~/^RDATE/)
+    {
+      $rec->{'ISRDATE'}=1;
+      $g_isrdate=1;
+      push @{$hrdate{get_offset_datetime($_)}},get_offset_datetime($_);
+      #Case 1.#if RDATEs should be deleted
+      if ($deleteRDATE)
+      {
+        if ($rec->{'ISRRULE'})
+        {
+          $fdelete =1;
+          $g_isdelrdate=1;
+        }
+      }
+    }
+    elsif ($_ =~/^ATTENDEE/)
+    {
+      #check for empty "mailto" and 'mailto' property existence
+      #if it is empty or doesnt exists, remove corresponding ATTENDEE
+      my $keepmove=1;
+      my $tline=$_;
+      my $cmptline=$tline;
+      my $nomailto=0;
+      my $npos;
+      my $curpos=tell CFHANDLE;
+      while ($keepmove)
+      {
+        if (($cmptline =~/mailto:/)||($nomailto))
+        {
+          $keepmove=0;
+          if(($cmptline =~/mailto:$/)||($nomailto))
+          {
+            my $nline;
+            if (!$nomailto)
+            {
+              $npos= tell CFHANDLE;
+              $nline = readline(*CFHANDLE);
+            }
+            else
+            {
+              $nline = $tline;
+            }
+            if ($nline=~/ATTENDEE|END/)
+            {
+              if ($nomailto)
+              {
+                &log_message("$cmptline");
+                &log_message("WARNING: No 'mailto:' found. May cause import error.\n");
+              }
+              else
+              {
+                &log_message("$tline");
+                &log_message("WARNING: EMPTY 'mailto:' found. May cause import error.\n");
+              }
+              &log_message("Removing it from output file.");
+              $fdelete=1;
+              seek CFHANDLE,$npos,0;
+              #remove from recdata array else will destroy recurring event.
+              my $item = pop(@recdata);
+              &log_message("removed from rec array:$item");
+            }
+            else
+            {
+              seek CFHANDLE,$curpos,0;
+            }
+          }
+          else
+          {
+            #check if some part of mailto: is left,
+            #if yes, add it before exiting.
+            #It will be used to create attendee list (exception creation, if attendees changed!)
+            my $iline;
+            $npos= tell CFHANDLE;
+            $iline = readline(*CFHANDLE);
+            if ($iline =~/ATTENDEE|END/)
+            {
+              #nothing to do here...
+            }
+            else
+            {
+              #trim to avoid any start/end spaces
+              $iline = trim($iline);
+              $cmptline = $cmptline.$iline;
+            }
+            #create attendee list
+            push(@attendeearr,$cmptline);
+            #If its resource, save it in resource list
+            if ($cmptline =~/CUTYPE=RESOURCE/)
+            {
+              push(@resourcearr,$cmptline);
+            }
+            #set to startpos
+            seek CFHANDLE,$curpos,0;
+          }
+        }
+        else
+        {
+          $npos= tell CFHANDLE;
+          $tline = readline(*CFHANDLE);
+          #trim to avoid any start/end spaces
+          $tline = trim($tline);
+          #save cmptline for RESOURCE thing
+          my $itempcmptline = $cmptline;
+          #form complete ATTENDEE line as 'mailto' may be divided into more than one line
+          $cmptline = $cmptline.$tline;
+          #globally replace all line-feeds with nothing
+          $cmptline =~ s/\n//g;
+          #globally replace all carriage-returns with nothing
+          $cmptline =~ s/\r//g;
+          #if next ATTENDEE or END:VEVENT found, it means no 'mailto' is found!!!.
+          if ($tline =~/ATTENDEE|END/)
+          {
+            $nomailto=1;
+            #save resource.. doesnt matter it has 'mailto' or not
+            if ($itempcmptline =~/CUTYPE=RESOURCE/)
+            {
+              push(@resourcearr,$itempcmptline);
+            }
+          }
+        }
+      }#end while keepmove
+    }
+    elsif ($_=~/^ORGANIZER/)
+    {
+      $OrganizerFound=1;
+    }
+    elsif ($_=~/^END:VEVENT/)         #end of VEVENT
+    {
+      #if no ORGANIZER Found, most probably its resource there{bug#47336}
+      #check if resource available then add it as organizer else just add no_organizer
+      if(!$OrganizerFound)
+      {
+        &log_message("No ORGANIZER Found.Adding custom organizer...");
+        my $resource_count= $#resourcearr;
+        if(($#attendeearr == -1) ||($resource_count == -1))
+        {
+          $neworganizer = "ORGANIZER;CN=no_organizer:mailto:no_organizer";
+          print_outfile("ORGANIZER;CN=no_organizer:mailto:no_organizer");
+          &log_message("no attendee or resource found. Added no_organizer.");
+        }
+        else
+        {
+          my $resstr=$resourcearr[0];
+          my $tcnsidx=index($resstr,"CN=");
+          my $tcneidx=index($resstr,";",$tcnsidx);
+          my $strcn = substr($resstr,$tcnsidx,($tcneidx-$tcnsidx));
+          $neworganizer = $neworganizer.$strcn;
+          if($#attendeearr!= -1)
+          {
+            my $strDomain=GetDomainFromATTENDEE($attendeearr[0]);
+            if($strDomain ne "")
+            {
+              $neworganizer = $neworganizer.":mailto:no_resource@".$strDomain;
+            }
+            else
+            {
+              $neworganizer = $neworganizer.":mailto:no_resource";
+            }
+            print_outfile("$neworganizer");
+            &log_message("Added New ORGANIZER: $neworganizer");
+          }
+        }
+        $write_pos = tell OTHANDLE;
+      }
+      
+      #do rest of work
+      foreach my $rdate ( sort keys %hrdate)
+      {
+        &log_message("$rdate \n");
+      }
+      $rec->{'RDATE'}= {%hrdate};
+      $rec->{'RECDATA'} = [@recdata];
+      $rec->{'ATTENDEES'} = [@attendeearr];
+      push @{$hlist{$rec->{'UID'}}}, $rec;
+      %hrdate=();
+      $enveventpos=tell CFHANDLE;#remember last vevent end pos
+      &log_message("--End VEVENT component.");
+    }
+    #uniical exports ics file with VCALANDER component for each UID group
+    elsif($_=~/^END:VCALENDAR/)
+    {
+      if (($uidtosrch ne $prvuid)&&(!$g_isdelrdate)&&($g_isrdate))
+      {
+        $Iscreaterrule=1;
+        $uidtosrch=$prvuid;
+        $del_pos=$prvrecevpos;
+      }
+      else
+      {
+        $prvuid="";
+      }
+      $g_isdelrdate=0;
+      $g_isrdate=0;
+      $IsFirstRecId=0;
+      #reset it #36415:it will add VTIMEZONE to all VCALENDAR components
+      $IsTZHeaderPrinted=0;
+    }
+#Case: 1 *******************************************************>>>>>>>>>>>
+    #shall we delete the RDATEs from VEVENT with RRULE and RDATEs?
+    #if $fdelete is false, dont include the line
+    my $read_pos = tell CFHANDLE;
+    seek OTHANDLE, $write_pos, 0;
+    if (!$fdelete)
+    {
+      if (/^DTSTART/)
+      {
+        my $tzdtst= $_;
+        $tzdtst=~ s/DTSTART/DTSTART$TZTag/;
+        $tzdtst =get_offset_datetime($tzdtst);
+        print_outfile("$tzdtst");
+      }
+      elsif (/^DTEND/)
+      {
+        my $tzdten= $_;
+        $tzdten=~ s/DTEND/DTEND$TZTag/;
+        $tzdten =get_offset_datetime($tzdten);
+        print_outfile("$tzdten");
+      }
+      elsif (/^RECURRENCE-ID/)
+      {
+        my $tzrecid= $_;
+        $tzrecid=~ s/RECURRENCE-ID/RECURRENCE-ID$TZTag/;
+        $tzrecid =get_offset_datetime($tzrecid);
+        print_outfile("$tzrecid");
+      }
+      #Add METHOD:PUBLISH to avoid NPE during import
+      elsif (/^BEGIN:VCALENDAR/)
+      {
+        print_outfile ($_);
+        &Add_METHOD_PUBLISH;
+        $write_pos = tell OTHANDLE;
+      }
+      else
+      {
+        #write to output file
+        print_outfile ($_) ;
+      }
+    }
+    else
+    {
+      &log_message("Deleting $_");
+    }
+#End Case:1 *****************************************************<<<<<<<<<
+
+#Case: 2 & Case: 3***********************************************>>>>>>>>>>
+    #shall we create new RRULE for RDATEs only VEVENT?
+    if ($Iscreaterrule)
+    {
+      &log_message("Creating event with RRULE....");
+      #deletion start position
+      my $delstpos= $del_pos;
+      if($IsfrstevStandalone)
+      {
+        $delstpos = $frstevdelpos;
+        $IsfrstevStandalone=0;
+      }
+      #truncate file till delstpos
+      seek OTHANDLE, $delstpos, 0;
+      truncate OTHANDLE, $delstpos or print "Couldn't truncate: $!\n";
+      #reset to last event component
+      seek CFHANDLE,$enveventpos,0;
+      #get array of recurring events with same UID
+      my @newrecarr= @{$hlist{$uidtosrch}};
+      my @masterrecdata; my $delta_days; my $rdarray;
+      my $masterrec;
+      my $RPrulecreated=0; my $checkforltdex=0;
+      my $sEvDate=0; my $eEvDate=0;
+      my $orig_mstrsdt=0; my $orig_mstredt=0;
+      my %srtd_newrecarr=();
+      my %ltd_exlist=(); my $lmt_listrec={};  my %weekenddate_list=();
+      my $islocchanged=0; my $issmrychanged=0; my $isattndchanged=0;
+      my $isrdtimeok=1;my $isdescchanged=0; my $isweekdayok=1;
+      my $isrdtdeleted=0;
+      my %week_day_arr_list=();
+      #iterate through all occurences
+      my %heventdates=();
+      foreach my $newrec (@newrecarr)
+      {
+        #store all events DTSTART and DTEND so that first group date can be extracted
+        #to create master VEVENT as master can appear on any group date in some cases.
+        push @{$heventdates{$newrec->{'DTSTART'}}},$newrec->{'DTEND'};
+        #find master event
+        if ($newrec->{'MASTER_VEVENT'})
+        {
+          $masterrec= $newrec;
+        }
+        #create sorted hash for recurrences else exceptions are created in random way and cannot be shown in UI
+        push @{$srtd_newrecarr{$newrec->{'DTSTART'}}},$newrec;
+      }#end foreach my $newrec
+      
+      &print_srtdnewrecarr(%srtd_newrecarr);
+      
+      #get first event dates
+      my $key;
+      foreach $key (sort keys %heventdates)
+      {
+        $sEvDate = $key;
+        $eEvDate= $heventdates{$key}[0];
+        last;
+      }
+        
+      #check for nonStandardDTSTART
+      if ($nonStandardDTSTART)
+      {
+        #check if masterrec DTSTART is not equal to oldest RDATE.
+        #(29805)if so make oldest RDATE event as master and add master's DTSTART to rdate array.
+        if ($masterrec->{'DTSTART'} ne $sEvDate)
+        {
+          &log_message("WARNING:Masterrec DTSTART is not same as oldest RDATE.icalmig will adopt nonStandardDTSTART.");
+          my $mstrdtstart=$masterrec->{'DTSTART'};
+          my $mstrdtend=$masterrec->{'DTEND'};
+
+          #srdt_array modifications----->
+          #put old masterrec date in least DTSTART containing object
+          my $firstrec=$srtd_newrecarr{$sEvDate}[0];
+          my $frstrectstartdt= $firstrec->{'DTSTART'};
+          my $frstrecenddt=  $firstrec->{'DTEND'};
+          #delete it
+          delete ($srtd_newrecarr{$firstrec->{'DTSTART'}});
+          $firstrec->{'DTSTART'}=$mstrdtstart;
+          $firstrec->{'DTEND'}=$mstrdtend;
+          
+          #put least DTSTART/DTEND in masterrec
+          my $newmstrrec= $srtd_newrecarr{$mstrdtstart}[0];
+          #delete it
+          delete($srtd_newrecarr{$newmstrrec->{'DTSTART'}});
+          $newmstrrec->{'DTSTART'}=$frstrectstartdt;
+          $newmstrrec->{'DTEND'}=$frstrecenddt;
+          
+          #push modified instances
+          push @{$srtd_newrecarr{$firstrec->{'DTSTART'}}},$firstrec;
+          push @{$srtd_newrecarr{$newmstrrec->{'DTSTART'}}},$newmstrrec;
+          #srdt_modifications end--------<
+          
+          #rdarray modifications------->
+          my $rdarr;
+          $rdarr = ($masterrec->{'RDATE'});
+          #delete RDATE
+          $frstrectstartdt=~ s/DTSTART/RDATE/;
+          delete ($rdarr->{$frstrectstartdt});
+          #Add old masterrec date
+          $mstrdtstart=~ s/DTSTART/RDATE/;
+          push @{$rdarr->{$mstrdtstart}},$mstrdtstart;
+          &print_srtdnewrecarr(%srtd_newrecarr);
+        }
+      }
+      #will remove any RDATE occurences which are before master even DTSTART
+      elsif($StandardDTSTART)
+      {
+        #(29743)for making it RFC compliant, make masterrec as start event and delete older rdates from rdate array.
+        if ($masterrec->{'DTSTART'} ne $sEvDate)
+        {
+          my $mstrdtstart=$masterrec->{'DTSTART'};
+          $mstrdtstart=~ s/DTSTART/RDATE/;
+          my $rdarr;
+          $rdarr = $masterrec->{'RDATE'};
+          for my $key ( sort keys %$rdarr)
+          {
+            if($key lt $mstrdtstart)
+            {
+              delete ($rdarr->{$key});
+              my $tdtdst= $key;
+              $tdtdst=~ s/RDATE/DTSTART/;
+              delete($srtd_newrecarr{$tdtdst});
+              $isrdtdeleted=1;
+            }
+          }#end for
+        }#end if
+      }#end else
+
+
+      #Create master event
+      my $mUID=0;
+      my $IsExceptionSeries=0;
+      if ($masterrec->{'MASTER_VEVENT'})
+      {
+        &log_message("Creating master event. UID:$masterrec->{'UID'}");
+        #create master VEVENT with all data as it is except RADTEs and
+        #create new RRULE section
+        #$mUID = trim($masterrec->{'UID'});
+        @masterrecdata= @{$masterrec->{'RECDATA'}};
+        my $isrruledone=0;
+        my $IsfirstRdate=1; my $firstrdate=0; my $lastrdate=0;
+        my $val;
+        #write MasterEvent properties and modify needed values
+        for(my $i=0; $i<$#masterrecdata+1; $i++)
+        {
+          my $str=$masterrecdata[$i];
+          #if RDATE; calculate RDATE range and create RRULE with
+          #exceptions for same dates
+          if ($str =~/^RDATE/)
+          {
+            &log_message("Removed: $str");
+            if (!$isrruledone)
+            {
+              #if RRULE should be created on recurrence pattern
+              if ($createPatternRRULE)
+              {
+                my $dlctr=0;my $wkctr=0; my $bwkctr=0;
+                $rdarray= $masterrec->{'RDATE'};
+                #Add master date too in rdarray for pattern calculation.
+                #It WILL be removed after pattern calculation
+                my $tmdts= $masterrec->{'DTSTART'};
+                $tmdts=~ s/DTSTART/RDATE/;
+                push @{$rdarray->{$tmdts}},$tmdts;
+
+                #get master weekday;Will be used to check for RDATE weekdays.
+                #if master weekday is not same as RDATE weekdays, create exceptions.
+                #As it is possible that recurrence has been changed to another weekday
+                #later.
+                my $midx= rindex($masterrec->{'DTSTART'},':');
+                my $mdt= substr($masterrec->{'DTSTART'},$midx+1);
+                my $masterweekday=get_weekday($mdt);
+                
+                #get time difference of rdate appointments, if time is different
+                #create exceptions else only RRULE will create recurrence only
+                #on base of master event
+                my $msttime=$mdt;
+                
+                #store masterrect location to check with occurence's location,
+                #if changed, exception should be cerated
+                my $mlocation= $masterrec->{'LOCATION'};
+                
+                #store masterrec summary to check with occurence's summary,
+                #if changed, exception should be cerated
+                my $msummary= $masterrec->{'SUMMARY'};
+                
+                #store attendee to check with occurrence's attendee list,
+                #if changed, exception should be created
+                my @mattendeearr= @{$masterrec->{'ATTENDEES'}};
+                
+                #store description to check with occurrence's description,
+                #if changed, exception should be created
+                my $mdescription= $masterrec->{'DESCRIPTION'};
+                
+                my $k1;my $k2;my $v1; my $v2;
+                my $rweekday;
+                my $ioccurrec; my $ilocation;my $isummary;my @iattenarr;my $idescription;
+                my $floop=1;
+                my $sdt;my $ndt;
+                my $isweekendpresent=0; my $wkday; my $weekendcount=0;
+                my $prvwkday=0;my $jstcrosswend=0;
+                my $weekenddaypassed=0;
+
+                my @weekday_arr;
+                %week_day_arr_list=();
+                my $startwkday=-1;my $endwkday=-1;
+                for my $k1 ( sort keys %$rdarray )
+                {
+                  #for weekend present check and passed weekend calculations
+                  my $twdidx= rindex($k1,':');
+                  my $tk1= substr($k1,$twdidx+1);
+                  $wkday= get_weekday($tk1);
+                  #store start weekday for weekly pattern calculation
+                  if ($startwkday eq -1)
+                  {
+                    $startwkday= $wkday;
+                  }
+                  #check if weekend present
+                  if ($wkday>5)
+                  {
+                    #yes it is there!
+                    $isweekendpresent=1;
+                    my $tdt=$k1;
+                    $tdt=~ s/RDATE/DTSTART/;
+                    $weekenddate_list{$tdt}=$wkday;
+                    
+                    #set it to 1 if just saturday has passed. set to 0 when sunday passed
+                    #as weekendcount will increment so no need to keep track of just saturday
+                    $weekenddaypassed=1;
+                  }
+                  if ($prvwkday>$wkday)
+                  {
+                    $weekendcount++;
+                    $jstcrosswend=1;
+                    #reset it after weekend gone
+                    $weekenddaypassed=0;
+                  }
+                  $prvwkday=$wkday;
+                  
+                  #Store weekdays date in hash array
+                  if ($wkday eq 1)
+                  {
+                    push @{$week_day_arr_list{"MO"}}, $k1;
+                  }
+                  elsif ($wkday eq 2)
+                  {
+                    push @{$week_day_arr_list{"TU"}}, $k1;
+                  }
+                  elsif ($wkday eq 3)
+                  {
+                    push @{$week_day_arr_list{"WE"}}, $k1;
+                  }
+                  elsif ($wkday eq 4)
+                  {
+                    push @{$week_day_arr_list{"TH"}}, $k1;
+                  }
+                  elsif ($wkday eq 5)
+                  {
+                    push @{$week_day_arr_list{"FR"}}, $k1;
+                  }
+                  elsif ($wkday eq 6)
+                  {
+                    push @{$week_day_arr_list{"SA"}}, $k1;
+                  }
+                  elsif ($wkday eq 7)
+                  {
+                    push @{$week_day_arr_list{"SU"}}, $k1;
+                  }
+                  if ($floop)  #first loop
+                  {
+                    $k2=$k1;
+                    $firstrdate=$k1;
+                    $lastrdate=$k1;
+                    $sdt= $k2;
+                    $ndt=$k1;
+                    $floop=0;
+                  }
+                  else
+                  {
+                    $sdt= $k2;
+                    $ndt=$k1;
+                    my $rsdt= $sdt;
+                    $rsdt=~ s/RDATE/DTSTART/;
+                    $ioccurrec=$srtd_newrecarr{$rsdt}[0];
+                    $ilocation= $ioccurrec->{'LOCATION'};
+                    $isummary = $ioccurrec->{'SUMMARY'};
+                    @iattenarr = @{$ioccurrec->{'ATTENDEES'}};
+                    $idescription= $ioccurrec->{'DESCRIPTION'};
+                    my $tidx= rindex($sdt,':');
+                    $sdt= substr($sdt,$tidx+1);
+                    $ndt = substr($ndt,$tidx+1);
+                    #check for rdate weekdays
+                    $rweekday= get_weekday($sdt);
+                    #if master weekday is not same as RDATE weekday
+                    if ($masterweekday != $rweekday)
+                    {
+                      $isweekdayok=0;
+                      $ltd_exlist{$rsdt}=1;
+                    }
+                    #check for if master date time is equal to rdate time component
+                    my $rsttime= $sdt;
+                    if (!istime_equal($msttime,$sdt))
+                    {
+                      $isrdtimeok = 0;
+                      $ltd_exlist{$rsdt}=0;
+                      &log_message("occurrence time changed->master-time:$msttime recur-time:$rsttime");
+                    }
+                    #if location changed, create exceptions
+                    if ($mlocation ne $ilocation)
+                    {
+                      $islocchanged=1;
+                      $ltd_exlist{$rsdt}=0;
+                      &log_message("occurrence location changed->master-location:$mlocation recur-location:$ilocation");
+                    }
+                    #if summary changed, create exceptions
+                    if ($msummary ne $isummary)
+                    {
+                      $issmrychanged=1;
+                      $ltd_exlist{$rsdt}=0;
+                      &log_message("occurrence summary changed->master-summary:$msummary recur-summary:$isummary");
+                    }
+                    #if attendees changed, create exception
+                    if ($#iattenarr eq $#mattendeearr)
+                    {
+                      for(my $j=0; $j<$#iattenarr+1; $j++)
+                      {
+                        if ($iattenarr[$j] ne $mattendeearr[$j])
+                        {
+                          $isattndchanged=1;
+                          $ltd_exlist{$rsdt}=0;
+                          &log_message("occurrence attendees changed \nmaster-attendees:@mattendeearr \nrecur-attendee:@iattenarr");
+                        }
+                      }
+                    }
+                    else
+                    {
+                      $isattndchanged=1;
+                      $ltd_exlist{$rsdt}=0;
+                      &log_message("occurrence attendees changed \nmaster-attendees:@mattendeearr \nrecur-attendee:@iattenarr");
+                    }
+                    #if description changed, create exceptions
+                    if (($mdescription ne $idescription) && (defined($mdescription)))
+                    {
+                      $isdescchanged=1;
+                      $ltd_exlist{$rsdt}=0;
+                      &log_message("occurrence description changed->master-description:$mdescription recur-description:$idescription");
+                    }
+                    
+                    #delta days
+                    $delta_days=get_date_diff($sdt, $ndt);
+                    if (($delta_days==$DAILY)||(($jstcrosswend)&&($delta_days<=3)))
+                    {
+                      $dlctr++;
+                      &log_message("Delta: DAILY");
+                    }
+                    elsif($delta_days==$WEEKLY)
+                    {
+                      $wkctr++;
+                      &log_message("Delta: WEEKLY");
+                    }
+                    elsif($delta_days==$BIWEEKLY)
+                    {
+                      $bwkctr++;
+                      &log_message("Delta: BIWEEKLY");
+                    }
+                    $k2=$k1;
+                    $lastrdate=$k1;
+                    print "$delta_days";
+                    $jstcrosswend=0;
+                  }
+                } #end for my $k1...
+                
+                #check for last occurrence
+                #***************************
+                my $rndt= $lastrdate;
+                $rndt=~ s/RDATE/DTSTART/;
+                $ioccurrec=$srtd_newrecarr{$rndt}[0];
+                my $tidx= rindex($ndt,':');
+                $ndt = substr($ndt,$tidx+1);
+                $rweekday= get_weekday($ndt);
+                if ($endwkday eq -1)
+                {
+                  $endwkday= $rweekday;
+                }
+                #if master weekday is not same as ndt weekday
+                if ($masterweekday != $rweekday)
+                {
+                  $isweekdayok=0;
+                  $ltd_exlist{$rndt}=1;
+                }
+                #check for if master date time is equal to rdate time component
+                if (!istime_equal($msttime,$ndt))
+                {
+                  $isrdtimeok = 0;
+                  $ltd_exlist{$rndt}=0;
+                  log_message("occurrence time changed->master-time:$msttime recur-time:$ndt");
+                }
+                #Get summary and location information
+                $ilocation= $ioccurrec->{'LOCATION'};
+                $isummary = $ioccurrec->{'SUMMARY'};
+                @iattenarr = @{$ioccurrec->{'ATTENDEES'}};
+                $idescription= $ioccurrec->{'DESCRIPTION'};
+                #if location changed, create exceptions
+                if ($mlocation ne $ilocation)
+                {
+                  $islocchanged=1;
+                  $ltd_exlist{$rndt}=0;
+                  &log_message("occurrence location changed->master-location:$mlocation recur-location:$ilocation");
+                }
+                #if summary changed, create exceptions
+                if ($msummary ne $isummary)
+                {
+                  $issmrychanged=1;
+                  $ltd_exlist{$rndt}=0;
+                  &log_message("occurrence summary changed->master-summary:$msummary recur-summary:$isummary");
+                }
+                #if attendees changed, create exception
+                if ($#iattenarr eq $#mattendeearr)
+                {
+                  for(my $j=0; $j<$#iattenarr+1; $j++)
+                  {
+                    if ($iattenarr[$j] ne $mattendeearr[$j])
+                    {
+                      $isattndchanged=1;
+                      $ltd_exlist{$rndt}=0;
+                      &log_message("occurrence attendees changed \nmaster-attendees:@mattendeearr \n recur-attendee:@iattenarr");
+                    }
+                  }
+                }
+                else
+                {
+                  $isattndchanged=1;
+                  $ltd_exlist{$rndt}=0;
+                  &log_message("occurrence attendees changed \nmaster-attendees:@mattendeearr \n recur-attendee:@iattenarr");
+                }
+                #if description changed, create exceptions
+                if (($mdescription ne $idescription) && (defined($mdescription)))
+                {
+                  $isdescchanged=1;
+                  $ltd_exlist{$rndt}=0;
+                  &log_message("occurrence description changed->master-description:$mdescription recur-description:$idescription");
+                }
+                #***************************
+                #delete master dtstart from rdarray which was added for pattern
+                #calculation before
+                delete($rdarray->{$tmdts});
+                
+                my $rdpattern=0; my $freq="NONE"; my $interval; my $rdcnt;
+                $rdcnt= keys (%$rdarray);#-1;
+                if (!$rdcnt)
+                {
+                  $rdcnt++;
+                }
+
+                #check for weekly pattern
+                print_wdarrlist(\%week_day_arr_list);
+                my @wkltd_exlist=();
+                my $wkrrule=&get_weekly_rrule(\%week_day_arr_list,$weekendcount, $startwkday,$endwkday,\@wkltd_exlist);
+                if ($wkrrule ne -1)
+                {
+                  print_outfile("$wkrrule");
+                  &log_message("New RRULE: $wkrrule");
+                  $RPrulecreated=1;
+                  &log_message("WEEKLY RRULE CREATED.");
+                  #reset isweekok as in case of WEEKLY frequency, more than 1
+                  #weekdays can be present.
+                  $isweekdayok=1;
+                   
+                  #clear limited exception list
+                  #%ltd_exlist=();
+                  for(my $wectr=0;$wectr<$#wkltd_exlist+1;$wectr++)
+                  {
+                    my $twkdt=@wkltd_exlist[$wectr];
+                    $twkdt=~ s/RDATE/DTSTART/;
+                    $ltd_exlist{$twkdt}=0;
+                  }
+                  $checkforltdex=1;
+                  $isdescchanged=1;#To push into limited exception creation
+                }
+                
+                #if not rrule created, check for monthly pattern
+                if(!$RPrulecreated)
+                {
+                  my $mthlyrrule=get_monthly_rrule(\%srtd_newrecarr);
+                  if ($mthlyrrule ne -1)
+                  {
+                    print_outfile("$mthlyrrule");
+                    &log_message("New RRULE: $mthlyrrule");
+                    $RPrulecreated=1;
+                    &log_message("MONTHLY RRULE CREATED.");
+                    $isweekdayok=1;
+                    $checkforltdex=1;
+                    $isdescchanged=1;#To push into limited exception creation
+                  }
+                }
+
+                if (!$RPrulecreated)
+                {
+	                #check for pattern
+	                my $pmatch= ($dlctr/$rdcnt)*100; #DAILY
+	                &log_message("DAILY Match Percentage: $pmatch");
+	                if ($pmatch<$MATCHPC)
+	                {
+	                  $pmatch= ($wkctr/$rdcnt)*100;  #WEEKLY
+	                  &log_message("WEEKLY Match Percentage: $pmatch");
+	                  if($pmatch<$MATCHPC)
+	                  {
+	                    $pmatch= ($bwkctr/$rdcnt)*100; #BIWEEKLY
+	                    &log_message("BIWEEKLY Match Percentage: $pmatch");
+	                    if($pmatch<$MATCHPC)
+	                    {
+	                    }
+	                    else
+	                    {
+	                      $rdpattern=$BIWEEKLY;
+	                      $freq="WEEKLY";
+	                      $interval=2;
+	                    }
+	                  }
+	                  else
+	                  {
+	                    $rdpattern=$WEEKLY;
+	                    $freq="WEEKLY";
+	                    $interval=1;
+	                  }
+	                }
+	                else
+	                {
+	                  $rdpattern=$DAILY;
+	                  $freq="DAILY";
+	                  $interval=1;
+	                  #reset isweekok as in case of DAILY frequency, weekdays will
+	                  #be always different.
+	                  $isweekdayok=1;
+	                }
+	                &log_message("Total RDATEs: $rdcnt DailyCtr: $dlctr WeeklyCtr: $wkctr");
+	
+	                #### Exception/RRULE creation criteria ####
+	                #1. if recurrence pattern found, No need to create exceptions
+	                #2. if weekdays has changed due to meeting has moved to another day,
+	                #   create complete series exception.
+	                if (($rdpattern)&& ($isweekdayok))
+	                {
+                    my $daily_exception_created=0;
+                    my $ridx= rindex($firstrdate,':');
+                    if($ridx<0)
+                    {
+                      &log_message("No expected(:) delimiter found.Qutiing!!!") ;
+                      die "No expected(:) delimeter found. Quitting!!!";
+                    }
+                     
+                    my $fdt= substr($firstrdate,$ridx+1);
+                    my $ldt = substr($lastrdate,$ridx+1);
+	                  if ($freq eq "DAILY")
+	                  {
+                      #total weekend days present
+	                    my $wkenddayspresent=keys(%weekenddate_list);
+                      #total weekend days crossed
+	                    my $wkenddaycrossed= ($weekendcount*2);
+                      #delta days
+	                    #if weekenddays present, take complete day difference
+	                    if($wkenddaycrossed eq $wkenddayspresent)
+	                    {
+	                      $delta_days=get_date_diff($fdt, $ldt)+1;
+	                    }
+	                    else#else deduct weekends and add any weekend exception
+	                    {
+	                      #no addition of exception count in delta_days
+	                      $delta_days=get_date_diff($fdt, $ldt)+1;
+                       
+                        #Doesnt work with ZCO
+                        #deduct weekend days count, if weekend days are present. They will be
+                        #created as exception
+	                      #$delta_days = $delta_days - get_weekenddayscountByDateRange($fdt,$ldt) ;
+                       
+                        #Add master rec date to rdaary for complete date range
+                        my $tmdts= $masterrec->{'DTSTART'};
+                        $tmdts=~ s/DTSTART/RDATE/;
+                        push @{$rdarray->{$tmdts}},$tmdts;
+                        
+                        my %missing_days_list= get_missingdays_list($fdt, $ldt, $rdarray);
+                        #delete master rec rdate
+                        delete($rdarray->{$tmdts});
+
+                        #if some intermidiate day is missing from range, create exception
+                        #and set its status as CANCELLED
+                        if (keys(%missing_days_list)>0)
+                        {
+                          $delta_days = $delta_days-(keys(%missing_days_list));
+                          for my $md ( sort keys %missing_days_list )
+                          {
+                            $ltd_exlist{$md}=$STAT_CANCELLED; #STATUS:CANCELLED
+                          }
+                        }
+                        # Doesn't work with ZCO. Comment it.
+                        #add weekend days in limited exception list for exception creation
+	                      #if($wkenddayspresent>0)
+	                      #{
+	                      #  for my $wek1 ( sort keys %weekenddate_list )
+	                      #  {
+                        #    #if ($fdt eq get_datepart_from_icsdt($wek1))
+                        #    #{
+                        #      #$delta_days++;
+                        #    #}
+	                      #    #$ltd_exlist{$wek1}=0;
+                        #    $ltd_exlist{$wek1}=2; #2 for STATUS:CONFIRMED
+	                      #  }
+	                      #}
+                       
+                        $daily_exception_created=1;
+	                    }
+	                  }
+	                  else
+	                  {
+	                    $delta_days=$rdcnt+1;
+	                  }
+	                  my $bywkday=";BYDAY=MO,TU,WE,TH,FR";
+	                  my $newrrule= "RRULE:FREQ=$freq;COUNT=$delta_days;INTERVAL=$interval";
+                    my $teststr="";
+	                  if($freq eq "DAILY")
+	                  {
+                      if($daily_exception_created)
+                      {
+                        #do nothing. Let it be complete wekeday BYDAY
+                        $bywkday=&get_byday(\%week_day_arr_list,0);#1);
+                      }
+                      else
+                      {
+                        $bywkday=&get_byday(\%week_day_arr_list,0);
+                      }
+	                    #set it to weekly instead of DAILY to avoid server side bug#30094
+	                    #$newrrule= "RRULE:FREQ=WEEKLY;COUNT=$delta_days;INTERVAL=$interval".$bywkday;
+                      $ldt=trim($ldt);
+                      $newrrule="RRULE:FREQ=WEEKLY;UNTIL=$ldt;INTERVAL=$interval".$bywkday;
+                      $teststr="DAILY";
+	                  }
+                    elsif($freq eq "WEEKLY")
+	                  {
+                      $bywkday=&get_byday(\%week_day_arr_list,0);
+                      my $tridx= rindex($firstrdate,':');
+                      my $tfdt= substr($firstrdate,$tridx+1);
+	                    my $tldt = substr($lastrdate,$tridx+1);
+                      my $nweeks=get_weeks_by_date_range($tfdt,$tldt)+1;
+                      &log_message("date range weeks: $nweeks");
+                      #adjust weeknums for interval>1
+                      if($interval>1)
+                      {
+                        $nweeks = $nweeks - int($nweeks / $interval);
+                      }
+                      $newrrule= "RRULE:FREQ=WEEKLY;COUNT=$nweeks;INTERVAL=$interval".$bywkday;
+                    }
+	                  print_outfile("$newrrule");
+	                  &log_message($teststr." New RRULE: $newrrule.");
+	                  $RPrulecreated=1;
+	                  $checkforltdex=1;
+	                }
+		            }
+              }#end_if($createPatternRRULE)
+
+              #if recurrence pattern based RRULE could NOT be created
+              #Go for RRULE for exceptions
+              if(!$RPrulecreated)
+              {
+                if (!$isweekdayok)
+                {
+                  &log_message("Weekday changed. Going for Yearly recurrnce");
+                }
+                #create RRULE for exceptions
+                my $ridx= rindex($firstrdate,':');
+                if($ridx<0)
+                {
+                  &log_message("No expected(:) delimiter found.Qutiing!!!") ;
+                  die "No expected(:) delimeter found. Quitting!!!";
+                }
+                my $fdt= substr($firstrdate,$ridx+1);
+                my $ldt = substr($lastrdate,$ridx+1);
+                #delta days
+                $delta_days=get_date_diff($fdt, $ldt)+1;
+                my $reccnt=keys(%$rdarray)+1;
+                my $newrrule= "RRULE:FREQ=YEARLY;COUNT=$reccnt;INTERVAL=1";
+                #Add new RRULE only, if yearlyException mode is true
+                #otherwise let it go in same way as for yealry but without RRULE
+                #to create as standalone occurrences
+                if($YearlyException)
+                {
+                  print_outfile("$newrrule");
+                  &log_message("New RRULE: $newrrule.");
+                }
+                $checkforltdex=0;
+                $IsExceptionSeries=1;
+              }
+            }#end if (!$isrruledone)
+            $isrruledone=1;
+          }#end if ($str =~/^RDATE/)
+          elsif ($str =~/^UID/)
+          {
+            #store UID as it will be used after $IsExceptionSeries can be determined
+            #in DTSTART part
+            $mUID = trim($str);
+          }
+          elsif ($str =~/^DTSTART/)
+          {
+            my $tzdtst;
+            if($isrdtdeleted)
+            {
+              $tzdtst=$str;
+            }
+            else
+            {
+              $tzdtst= $sEvDate;
+            }
+            $orig_mstrsdt=$str;
+            $tzdtst=~ s/DTSTART/DTSTART$TZTag/;
+            print_outfile("$tzdtst");
+            &log_message("New DTSTART: $tzdtst");
+            
+            #if not yearlyException mode, create newUID for master occurrence
+            #but exception series found
+            if((!$YearlyException)&&($IsExceptionSeries))
+            {
+              #create new UID to appear as standalone event
+              my $idtstart = get_datepart_from_icsdt($tzdtst);
+              #new UID will be created
+              if(!$mUID)
+          		{
+		            die("NO UID Found for recurrence UID creation. Exiting..");
+		          }
+              my $newUID= $mUID."-".$idtstart;
+              &log_message("newUID: $newUID");
+              print_outfile("$newUID");
+            }
+            else
+            {
+              #for log purpose only
+              &log_message("$mUID");
+              if(!$mUID)
+          		{
+		            die("NO UID Found for recurrence UID creation. Exiting..");
+		          }
+              print_outfile("$mUID");
+            }
+          }
+          elsif ($str =~/^DTEND/)
+          {
+            my $tzdten;
+            if($isrdtdeleted)
+            {
+              $tzdten=$str;
+            }
+            else
+            {
+              $tzdten= $eEvDate;#$str;
+            }
+            $orig_mstredt=$str;
+            $tzdten=~ s/DTEND/DTEND$TZTag/;
+            print_outfile("$tzdten");
+            &log_message("$tzdten");
+          }
+          elsif($str=~/^END:VEVENT/)
+          {
+            #if no ORGANIZER found, then add it to master occurrence
+            if(!$OrganizerFound)
+            {
+              print_outfile("$neworganizer");
+              &log_message("Added New ORGANIZER: $neworganizer");
+            }
+            print_outfile("$str");
+          }
+          else  #keep writing in Outfile
+          {
+            print_outfile("$str");
+          }
+        }#end writing masterrecdata--creating master event with RRULE
+        &log_message("Master event created.");
+      }#end ($$masterrec->{'MASTER_VEVENT'})
+
+      #if pattern has found and any of following is changed. Create exception
+      #only for changed occurences else exceptions will be created for complete series.
+      #1. if time has changed for RDATE occurences.
+      #2. if LOCATION changed for any occurrence.
+      #3. if SUMMARY changed for any occurences.
+      #4. if ATTENDEE list changed for any occurrence.
+      #5. if DESCRIPTION changed for any occurrence.
+      #6. WEEKDAY MUST BE OK. ELSE CREATE SERIES EXCEPTION
+      if (($checkforltdex)&& ((!$isrdtimeok)
+          || ($islocchanged) ||($issmrychanged)
+          || ($isattndchanged) || ($isdescchanged)
+          || ($isweekdayok)))
+      {
+        &log_message("Checking limited exception occurrences");
+        my $recidfmtstr="";
+        my $recctr=1;
+        my $mstrdtstart = $masterrec->{'DTSTART'};
+        my $idx2= index($mstrdtstart,';');
+        my $ridx= rindex($mstrdtstart,':');
+        my $recidfmtstr="";
+        if ($idx2>0)
+        {
+          $recidfmtstr=substr($mstrdtstart,$idx2,($ridx-$idx2)+1);
+        }
+        else
+        {
+          $recidfmtstr=":";
+        }
+        $mstrdtstart = substr($mstrdtstart,$ridx+1);
+        my $ndtstart=$mstrdtstart;
+
+        foreach my $srdtkey (sort keys %ltd_exlist)
+        {
+          my $wdc =$ltd_exlist{$srdtkey};
+          my $ctoccurrence=1;
+          #store rec date for resetting the date in case of $STAT_CANCELLED
+          my $tsrdtkey=$srdtkey;
+          #if only weekday changed and weekdays are OK then skip it.
+          if (($wdc ==1)&&($isweekdayok))
+          {
+            $ctoccurrence=0;
+          }
+          #if any daily meeting is missing from range, use master record
+          #replace its DTSTART/DTEND and Recurrence-id by missing event's date
+          elsif($wdc == $STAT_CANCELLED)
+          {
+            $srdtkey = "DTSTART".$recidfmtstr.$mstrdtstart;
+          }
+          if ($ctoccurrence)
+          {
+            my $occurrec=$srtd_newrecarr{$srdtkey}[0];
+            $srdtkey = $tsrdtkey;
+            #only for recurrences or if any daily meeting is cancelled
+            if ((!$occurrec->{'MASTER_VEVENT'}) || ($wdc == $STAT_CANCELLED))
+            {
+              &log_message("Creating limited Recurrence:");
+              my @occurrecdata= @{$occurrec->{'RECDATA'}};
+              for(my $i=0; $i<=$#occurrecdata; $i++)
+              {
+                my $str=$occurrecdata[$i];
+
+                if ($str =~/^DTSTART/)
+                {
+                  if ($wdc == $STAT_CANCELLED)
+                  {
+                    $str=replaceicsdatetimeby($str,$srdtkey);
+                  }
+                  my $tzdtst= $str;
+                  $tzdtst=~ s/DTSTART/DTSTART$TZTag/;
+                  print_outfile("$tzdtst");
+                  &log_message("New DTSATRT:$tzdtst");
+
+                  if(($occurrec->{'MASTER_VEVENT'}) &&($wdc==$STAT_CANCELLED))
+                  {
+                    #create RECURRENCE_ID
+                    my $recdt= $tzdtst;
+                    $recdt=~ s/DTSTART/RECURRENCE-ID/;
+                    print_outfile("$recdt");
+                  }
+                }
+                elsif ($str =~/^DTEND/)
+                {
+                  if ($wdc == $STAT_CANCELLED)
+                  {
+                    $str=replaceicsdatetimeby($str,$srdtkey);
+                  }
+                  my $tzdten= $str;
+                  $tzdten=~ s/DTEND/DTEND$TZTag/;
+                  print_outfile("$tzdten");
+                  &log_message("New DTEND: $tzdten");
+
+                  if($wdc == $STAT_CANCELLED) #STATUS:CANCELLED
+                  {
+                    print_outfile("STATUS:CANCELLED");
+                  }
+                }
+                elsif($str =~/^RECURRENCE-ID/)
+                {
+                  if ($wdc == $STAT_CANCELLED)
+                  {
+                    $str=replaceicsdatetimeby($str,$srdtkey);
+                  }
+                  my $rndtt; my $rntime;
+                  if(!$isrdtimeok)
+                  {
+                    $rndtt=$occurrec->{'DTSTART'};
+                    $rndtt=~ s/DTSTART$recidfmtstr//;
+                    my $adndtstart=$ndtstart;
+                    $rntime = get_time($adndtstart);
+                    
+                    $rndtt=get_date($rndtt);
+                    $rndtt= "RECURRENCE-ID$TZTag$recidfmtstr$rndtt"."T$rntime";
+                  }
+                  else
+                  {
+                    $rndtt= $str;
+                    $rndtt=~ s/RECURRENCE-ID/RECURRENCE-ID$TZTag/;
+                    $rndtt =$rndtt;
+                  }
+                  print_outfile("$rndtt");
+                }
+                elsif($str =~/^CREATED/)
+                {
+                 #do nothing
+                }
+                elsif ($str =~/^RDATE/)
+                {
+                  #do nothing.. will be case of wdc=$STAT_CANCELLED (3)
+                }
+                elsif ($str =~/^STATUS/)
+                {
+                  if($wdc != $STAT_CANCELLED)
+                  {
+                    print_outfile("$str");
+                  }
+                }
+                elsif ($str =~/^UID/)
+                {
+                  #for log purpose only
+                  &log_message("$str");
+                  print_outfile("$str");
+                }
+                else
+                {
+                  print_outfile("$str");
+                }
+              }# end_for(my $i=0...)
+              &log_message("Limited recurrence Created.");
+            }#end_if (!$occurrec->{'MASTER_VEVENT'})
+          }
+        }#end_foreach my $srdtkey
+        $begreceventpos= tell OTHANDLE;
+        &log_message("Check for limited Recurrences finished.");
+        $RPrulecreated=1;
+      }
+
+      #if RRULE for exceptions created, create recurrences
+      if(!$RPrulecreated)
+      {
+        &log_message("Creating Recurrences...");
+        my $recctr=1;
+        #get last datetime portion
+        $rdarray = ($masterrec->{'RDATE'});
+        my $mstrdtstart = $masterrec->{'DTSTART'};
+        my $idx2= index($mstrdtstart,';');
+        my $ridx= rindex($mstrdtstart,':');
+        my $recidfmtstr="";
+        if ($idx2>0)
+        {
+          $recidfmtstr=substr($mstrdtstart,$idx2,($ridx-$idx2)+1);
+        }
+        else
+        {
+          $recidfmtstr=":";
+        }
+        $mstrdtstart = substr($mstrdtstart,$ridx+1);
+        my $ndtstart=get_adjusted_recurrenceID_date($mstrdtstart);
+        my $syear= substr($ndtstart,0,4);
+        my $iUID=0;
+        foreach my $srdtkey (sort keys %srtd_newrecarr)
+        {
+          my $occurrec=$srtd_newrecarr{$srdtkey}[0];
+          #only for recurrences
+          if (!$occurrec->{'MASTER_VEVENT'})
+          {
+            &log_message("Creating Recurrence:");
+            $iUID=trim($occurrec->{'UID'});
+            my @occurrecdata= @{$occurrec->{'RECDATA'}};
+            for(my $i=0; $i<=$#occurrecdata; $i++)
+            {
+              my $str=$occurrecdata[$i];
+            
+              if ($str =~/^DTSTART/)
+              {
+                #create RECURRENCE-ID
+                #it should be increment to masterevent's DTSTART
+                #and continue for range need to cover
+                #increment by year as Outlook cannot show exceptions, if
+                #recurrecneID is less than the DTSTART
+                $syear++;
+                $ndtstart= $syear.substr($ndtstart,4);
+
+                #if yearlyException mode
+                if(($YearlyException)&&($IsExceptionSeries))
+                {
+                  my $rndtstart= "RECURRENCE-ID$TZTag$recidfmtstr$ndtstart";
+                  print_outfile("$rndtstart");
+                  &log_message("New RECURRENCE-$rndtstart");
+                }
+                $recctr++;
+              
+                #start date
+                #if RDATEs are not in sequence than master date shifts to first
+                #date(RDATE) so master original date should appear as RDATE.
+                if ($sEvDate eq $str)
+                {
+                  $str=$orig_mstrsdt;
+                }
+                my $tzdtst= $str;
+                $tzdtst=~ s/DTSTART/DTSTART$TZTag/;
+                print_outfile("$tzdtst");
+                &log_message("New DTSATRT:$tzdtst");
+
+                if((!$YearlyException)&&($IsExceptionSeries))
+                {
+                  #create new UID to appear as standalone event
+                  my $idtstart = get_datepart_from_icsdt($tzdtst);
+                  #new UID will be created
+                  if (!$iUID)
+                  {
+                    die("NO UID Found for recurrence UID creation. Exiting..");
+                  }
+                  my $newUID= trim($iUID)."-".$idtstart;
+                  &log_message("newUID: $newUID");
+                  print_outfile("$newUID");
+                }
+              }
+              elsif ($str =~/^DTEND/)
+              {
+                if ($eEvDate eq $str)
+                {
+                  $str=$orig_mstredt;
+                }
+                my $tzdten= $str;
+                $tzdten=~ s/DTEND/DTEND$TZTag/;
+                print_outfile("$tzdten");
+                &log_message("New DTEND: $tzdten");
+              }
+              elsif($str =~/^RECURRENCE-ID/)
+              {
+                &log_message("Old Recurrence-Id: $str");
+                #do nothing as we create REC-ID with DTSTART
+              }
+              elsif($str =~/^CREATED/)
+              {
+                #do nothing
+              }
+              elsif ($str =~/^UID/)
+              {
+                #For yearlyException mode
+                if(($YearlyException)||(!$IsExceptionSeries))
+                {
+                  #for log purpose only
+                  &log_message("$str");
+                  print_outfile("$str");
+                }
+                else
+                {
+                  #store UID to process it in DTSTART section to create newUID from it.
+                  $iUID = $str;
+                }
+              }
+              elsif($str=~/^END:VEVENT/)
+              {
+                #if no ORGANIZER found, then add it to each occurrence
+                if(!$OrganizerFound)
+                {
+                  print_outfile("$neworganizer");
+                  &log_message("Added New ORGANIZER: $neworganizer");
+                }
+                print_outfile("$str");
+              }
+              else
+              {
+                print_outfile("$str");
+              }
+            }
+            &log_message("Recurrence Created.");
+          }
+        }
+        $begreceventpos= tell OTHANDLE;
+        &log_message("All Recurrences Created.");
+      }
+
+      $Iscreaterrule=0;
+      #next write position
+      $write_pos = tell OTHANDLE;
+      $begreceventpos= tell OTHANDLE;
+      $wasrulecreated=1;
+    }
+    else
+    {
+      $write_pos = tell OTHANDLE;
+      seek CFHANDLE, $read_pos, 0;
+      $fdelete=0;
+    }
+#END Case 2: ***************************************************<<<<<<<<<<<<
+
+  } #end while<CFHANDLE>
+  
+  &log_message("processing finished");
+  return %hlist;
+}
+
+#check the status and if complete 100% set it COMPLETED
+sub sed_settaskstatus
+{
+  &log_message("using sed to set 100% compelete task's status to complete");
+  my $sedcmd = "sed -i '/PERCENT-COMPLETE:100/ a STATUS:COMPLETED' $icalfile$newfileext";
+  &log_message("sed command: $sedcmd");
+  system $sedcmd;
+}
+
+sub get_missingdays_list
+{
+  my $fdt= shift;
+  my $ldt= shift;
+  my $trdarray = shift;
+
+  my %retlist=();
+  my $tfdt;
+  my $i=0;
+  my $rdprefix;
+  foreach my $rdate (sort keys %$trdarray)
+  {
+    my $tidx= rindex($rdate,':');
+    $rdprefix = substr($rdate,0,$tidx+1);
+    last;
+  }
+  
+  do
+  {
+    $tfdt=get_date_by_days($fdt,$i);
+    my $rdt=$rdprefix.$tfdt;
+    my $tt = $trdarray->{$rdt};
+    my $found=0;
+    foreach my $trdt (sort keys %$trdarray)
+    {
+      if(trim(get_date(get_datepart_from_icsdt($trdt))) eq get_date(get_datepart_from_icsdt(trim($rdt))))
+      {
+        $found=1;
+        last;
+      }
+    }
+    if(!$found)
+    {
+      $rdt =~ s/RDATE/DTSTART/;
+      $retlist{$rdt} =3;
+    }
+    #if (!(exists ($trdarray->{$rdt})))
+    #{
+    #  $rdt =~ s/RDATE/DTSTART/;
+    #  $retlist{$rdt} =3;
+    #}
+    $i++;
+  }while ($tfdt < $ldt);
+  
+  return  %retlist;
+}
+
+sub get_adjusted_recurrenceID_date
+{
+  my $tdt= shift;
+  my $icsdt=get_datepart_from_icsdt($tdt);
+  my $dt=get_date_part($icsdt);
+  my $mth=get_month($icsdt);
+  my $retdt;
+  if(($mth==2)&&($dt>28))
+  {
+    $retdt=substr($tdt,0,6).'28'.substr($tdt,8,length($tdt)-8);
+  }
+  return $retdt;
+}
+#create monthly RRULE
+sub get_monthly_rrule
+{
+  my $srtd_darray = shift;
+  my $frstround=1;
+  my $prvcalcdt;
+  my $mthlyctr=0;
+  my $tot_ctr=0;
+  my $mth_date=0;
+  #check for recurrence by fix dates
+  foreach my $rdate (sort keys %$srtd_darray)
+  {
+    $rdate =get_datepart_from_icsdt($rdate);
+    my $month=get_month($rdate);
+    my $year = get_year($rdate);
+    my $days = Days_in_Month($year,$month);
+    $mth_date=get_date_part($rdate);
+    #Get next month date by adding month days
+    my $nxtmthdate=get_date_by_days($rdate,$days);
+    #check if calculated next month date is equal to $srtd_darray date
+    if (!$frstround)
+    {
+      if ($prvcalcdt == $rdate)
+      {
+        $mthlyctr++;
+      }
+    }
+    else
+    {
+      $frstround=0;
+    }
+    $prvcalcdt=$nxtmthdate;
+    $tot_ctr++;
+  }
+  if($tot_ctr eq ($mthlyctr+1))
+  {
+    $mthlyctr++;
+    my $mthlyRrule="RRULE:FREQ=MONTHLY;INTERVAL=1;BYMONTHDAY=$mth_date;COUNT=$mthlyctr";
+    return $mthlyRrule;
+  }
+  else #check for recurrence by fix days e.g. first monday, 3rd saturday of month etc
+  {
+    my $continue = 1;
+    my %yrmonthdates =();
+    my %mnthwkday=();
+    my %rdatewkday=();
+    my $prvyr=0;
+    my $prvmm=0;
+    my $stdate=0; my $stmnweek=0;
+    $mthlyctr=0;
+    
+    #1. create rdates hash
+    foreach my $rdate (sort keys %$srtd_darray)
+    {
+      $rdate =get_datepart_from_icsdt($rdate);
+      $rdate =get_date($rdate);
+      #store start date and start month week
+      if($stdate ==0)
+      {
+        $stdate= get_date_part($rdate);
+        my $ty=substr($rdate,0,4);
+        my $tm=substr($rdate,4,2);
+        my $td=substr($rdate,6,2);
+        $stmnweek= week_of_month_nonISO($ty,$tm,$td);
+      }
+      #if same date already exists, its too complex to find pattern, breakout
+      if (exists $yrmonthdates{$rdate})
+      {
+        $continue=0;
+      }
+      #create a hash based on rdates.
+      push @{$yrmonthdates{$rdate}},$rdate;
+      $mthlyctr++;
+    }
+
+    #2.a) check for month continuity and create weeknum hash on base of month.year
+    #  b) Check for weeknums
+    my %mthwknumlist=();
+    my %mnth_wknum_wkdayhash=();
+    my %wknum_wkdayhash=();
+    my $yr= 0;
+    my $mm= 0;
+    my $dt= 0;
+    foreach my $yrmonthdate (sort keys %yrmonthdates)
+    {
+      $yr= substr($yrmonthdate,0,4);
+      $mm= substr($yrmonthdate,4,2);
+      $dt= substr($yrmonthdate,6,2);
+      
+      #for year end checking
+      if ($mm < $prvmm)
+      {
+        #prvmonth must be 12 else continuity is broken
+        if($prvmm != 12)
+        {
+          $continue =0;
+        }
+        $prvyr = $prvyr+1;
+        $prvmm = 1;
+      }
+      
+      if (($prvyr ne 0)&&($continue))
+      {
+        #check for month frequency. Event should occur every month. if month is not continous break out.
+        if ( (($mm != ($prvmm)) && ($mm != ($prvmm+1)))||($yr != $prvyr))
+        {
+          $continue =0;
+        }
+        else
+        {
+          my $wkday = &get_weekday($yrmonthdate);
+          #store year.month.dt and its weekday
+          push @{$mnthwkday{$yr.$mm}},$wkday;
+          push @{$rdatewkday{$yr.$mm.$dt}},$wkday;
+          #calculate weeknumber for occurrences
+          my $wkofmonth=week_of_month_nonISO($yr,$mm,$dt);
+          my $firstwkdayofmonth=Day_of_Week($yr,$mm,1);
+          my $curwkdayofmonth = Day_of_Week($yr,$mm,$dt);
+          my $wknum;
+          if($firstwkdayofmonth <= $curwkdayofmonth)
+          {
+            $wknum = $wkofmonth;
+          }
+          else
+          {
+            $wknum = $wkofmonth-1;
+          }
+
+          #create weeknumber array for each month
+          push @{$mthwknumlist{$yr.$mm}},$wknum;
+
+          #create yr.month =>{wknum=>wkday} hash
+          #generate relative weeknum
+          #if 1 weeknum (key) has more than 1 weekday than generate weeknum
+          #by multiplying 7. It will be used as modulo(%) of 7 to get real value
+          my $wknumctr=0;
+          while (exists $mnth_wknum_wkdayhash{$yr.$mm}{(7*$wknumctr)+$wknum})
+          {
+            $wknumctr++;
+          }
+          #TODO: Currently if weekday of same week are in different sequence,
+          #No monthly RRULE can be calclauted as it checks in same order.
+          #Need to implement so that all weekdays reamin in asending or descending order.
+          
+          $mnth_wknum_wkdayhash{$yr.$mm}{(7*$wknumctr)+$wknum}= $wkday;
+          &log_message("year-mm: $yr,$mm Weeknum: $wknum");
+        }#end else
+      }#end if ($prvyr...)
+
+      #set prev params
+      $prvyr = $yr;
+      $prvmm = $mm;
+    }#end foreach my $yrmonthdate
+
+    my $fwkn_wkd_hashref;
+    if($continue)
+    {
+      $continue=0;
+      my $chkctr=0;
+      my $swkn_wkd_hashref;
+      my $firstyrmth; my $secyrmth;
+      my $foundsecref=0;
+      my $fleastwkn=-1;
+      foreach my $yrmth (sort keys %mnth_wknum_wkdayhash)
+      {
+        print "$yrmth\n";
+        my $iwkn_kkdhash =$mnth_wknum_wkdayhash{$yrmth};
+        foreach my $wkn (sort keys %$iwkn_kkdhash)
+        {
+          print "$wkn  $iwkn_kkdhash->{$wkn}\n";
+          #first yrmonth info
+          if ($chkctr == 0)
+          {
+            $firstyrmth=$yrmth;
+            $fwkn_wkd_hashref =$mnth_wknum_wkdayhash{$firstyrmth};
+            if ($fleastwkn==-1)
+            {
+              $fleastwkn = $wkn;
+            }
+          }
+          #2nd yrmonth info
+          if ($chkctr == 1)
+          {
+            $continue=1;
+            my $use2ndref=0;
+            $secyrmth=$yrmth;
+            $swkn_wkd_hashref=$mnth_wknum_wkdayhash{$secyrmth};
+            $foundsecref=1;
+
+            #check if all first month weekdays and weeknum exists in 2nd ref
+            #if 2nd ref's weeknum is less than the least weeknum of first
+            #and rest are available, use 2nd as ref for further comparision
+            #if non-existing weeknum is less the first weeknum of first number,
+            #dont make it decisive. if other weeknums found, 2nd hash ref will become
+            #referential for further comparision
+            my $lwkcnt=0;
+            foreach my $wkn (sort keys %$swkn_wkd_hashref)
+            {
+              if ((!exists $fwkn_wkd_hashref->{$wkn})&&(($wkn % 7) > $fleastwkn))
+              {
+                $continue =0;
+              }
+              
+              if (exists $fwkn_wkd_hashref->{$wkn})
+              {
+                foreach my $iwkn (keys %$swkn_wkd_hashref)
+                {
+                  if(($wkn % 7) == ($iwkn % 7))
+                  {
+                    if ($fwkn_wkd_hashref->{$wkn} == $swkn_wkd_hashref->{$iwkn})
+                    {
+                      $continue = 2;
+                    }
+                  }
+                }
+                if ($continue == 2)
+                {
+                  $continue =1;
+                }
+                else
+                {
+                  $continue =0;
+                }
+              }
+              if(!(($wkn % 7) > $fleastwkn)&&(!exists $fwkn_wkd_hashref->{$wkn}))
+              {
+                $use2ndref=1;
+                $lwkcnt++;
+              }
+            }
+            my $fcnt = keys %$fwkn_wkd_hashref;
+            my $scnt = keys %$swkn_wkd_hashref;
+            #check for weeknum/day count, scnt = fcnt+lwkcnt
+            if ($scnt != $fcnt+$lwkcnt)
+            {
+              $continue =0;
+            }
+            
+            #change the first ref
+            if (($use2ndref)&&($continue))
+            {
+              $fwkn_wkd_hashref = $swkn_wkd_hashref;
+            }
+          }
+
+          #for rest of months
+          if ($chkctr > 1)
+          {
+            my $mthlastwk=0;
+            foreach my $wkn (sort keys %$iwkn_kkdhash)
+            {
+              if (!exists $fwkn_wkd_hashref->{$wkn})
+              {
+                $continue =0;
+              }
+              #store last week of month
+              if($mthlastwk<($wkn%7))
+              {
+                $mthlastwk=($wkn%7);
+              }
+            }
+            #elements should be same in count. last one can be less as it may
+            #finish early
+            my $fcount = keys %$fwkn_wkd_hashref;
+            my $rcount= keys %$iwkn_kkdhash;
+            my $totcount = keys %mnth_wknum_wkdayhash;
+            if (($fcount != $rcount)&&($chkctr != ($totcount-1)))
+            {
+              $continue =0;
+            }
+            #if last one, check for week sequence too. It is possible that
+            # first or any number of week(s) between last event is not there,
+            #then skip it
+            if(($continue)&&($chkctr == ($totcount-1)))
+            {
+              foreach my $wkn (sort keys %$fwkn_wkd_hashref)
+              {
+                if ((($wkn%7)<=$mthlastwk)&&(!exists $iwkn_kkdhash->{($wkn%7)}))
+                {
+                  $continue =0;
+                }
+              }
+            }
+          }#end if ($chkctr > 1)
+        }
+        $chkctr++;
+      }
+    }#end if continue
+
+    if (!$continue)
+    {
+      return -1;
+    }
+    else
+    {
+      my $byday;
+      my $oneadded=0;
+      foreach my $wkn (sort keys %$fwkn_wkd_hashref)
+      {
+        my $twd= $fwkn_wkd_hashref->{$wkn};
+        if ($oneadded)
+        {
+          $byday=$byday.",".($wkn % 7).get_weekday_str($twd);
+        }
+        else
+        {
+          $byday=($wkn % 7).get_weekday_str($twd);
+        }
+        $oneadded++;
+      }
+      my $mthlyRrule="RRULE:FREQ=MONTHLY;INTERVAL=1;COUNT=$mthlyctr;BYDAY=".$byday;
+      return $mthlyRrule;
+    }
+  }
+}
+
+sub print_wdarrlist
+{
+  my $hashlist= shift;
+  foreach my $wdkey (keys %$hashlist)
+  {
+    my @wdarr =@{$hashlist->{$wdkey}};
+    my $wkdctr=0;
+    for (my $i=0;$i<$#wdarr+1;$i++)
+    {
+      &log_message("$wdkey: $wdarr[$i]");
+    }
+  }
+}
+
+sub week_of_month_nonISO
+{
+  my $yr= shift;
+  my $mm= shift;
+  my $dd = shift;
+  my $firstdayofmonthnr=Day_of_Week($yr,$mm,1);
+  my $weekofmonth = int(($dd + $firstdayofmonthnr - 2) / 7);
+
+  $weekofmonth = $weekofmonth+ 1;
+
+  return $weekofmonth;
+}
+
+sub week_of_month_ISO
+{
+  my $yr= shift;
+  my $mm= shift;
+  my $dd = shift;
+  my $firstdayofmonthnr=Day_of_Week($yr,$mm,1);
+  my $weekofmonth = int(($dd + $firstdayofmonthnr - 2) / 7);
+  #make it ISO 8601 compatible where start week which contains Thursday,
+  #is considered the first week of month
+  if ($firstdayofmonthnr > 4)  #4 => THURSDAY
+  {
+     $weekofmonth = $weekofmonth;
+  }
+  else
+  {
+    $weekofmonth = $weekofmonth+ 1;
+  }
+  return $weekofmonth;
+}
+
+# Takes as arguments:
+#  - The date
+#  - The day that we want to call the start of the week (1 is Monday, 7
+#    Sunday) (optional)
+sub get_week_num {
+  my $dt            = shift;
+  my $start_of_week = shift || 1;
+
+  # Work out what day the first of the month falls on
+  my $first = $dt->clone();
+  $first->set(day => 1);
+  my $wday  = $first->day_of_week();
+
+  # And adjust the day to the start of the week
+  $wday = ($wday - $start_of_week + 7) % 7;
+
+  # Then do the calculation to work out the week
+  my $mday  = $dt->day_of_month_0();
+
+  return int ( ($mday + $wday) / 7 ) + 1;
+}
+
+sub get_byday
+{
+  my $week_day_arr_list=shift;
+  my $without_WKEND = shift;
+  my $bywkday=";BYDAY=";
+  my @srtdarr=("","","","","","","");
+  foreach my $pdkey (keys %$week_day_arr_list)
+  {
+    $srtdarr[get_str_weekday($pdkey)]=$pdkey;
+  }
+  my $oneadded=0;
+  for (my $k=0;$k<$#srtdarr+1;$k++)
+  {
+    if($srtdarr[$k] ne "")
+    {
+      if(($without_WKEND) && (($srtdarr[$k] eq "SA") || ($srtdarr[$k] eq "SU")))
+      {
+        next;
+      }
+      if ($oneadded)
+      {
+        $bywkday =  $bywkday.",".$srtdarr[$k];
+      }
+      else
+      {
+        $bywkday =  $bywkday.$srtdarr[$k];
+        $oneadded=1;
+      }
+    }
+  }
+  return $bywkday;
+}
+
+#create weekly RRULE
+sub get_weekly_rrule
+{
+  my $wkdaylist=shift;
+  my $wkendcnt= shift;
+  my $stwkday= shift;
+  my $enwkday = shift;
+  my $twkltd_exlist=shift;
+  my $strwkday= &get_weekday_str($stwkday);
+  my %weekday_pattern_list=();
+  my $wdctr=0;
+  my $patternfound=1;
+  my @exceptionlist=();
+  my $occur_ctr=0;
+  my $patternclaculated=0;
+  #Create pattern list
+  foreach my $wdkey (keys %$wkdaylist)
+  {
+    my @wdarr =@{$wkdaylist->{$wdkey}};
+    my $wkdctr=0;
+    $patternclaculated=0;
+    for (my $i=0;$i<$#wdarr+1;$i++)
+    {
+      print "$wdkey: $wdarr[$i]\n";
+      $occur_ctr++;
+      if ($i>0)
+      {
+        my $dt1= get_datepart_from_icsdt($wdarr[$i-1]);
+        my $dt2= get_datepart_from_icsdt($wdarr[$i]);
+        my $ddf=get_date_diff($dt1,$dt2);
+        #create pattern list
+        push @{$weekday_pattern_list{$wdkey}}, $ddf;
+        my $wkday=get_weekday($dt1)+1;# +1 to adjsut for weekend calc
+        my $wkdayctr=get_weekdaycount($wdarr[$i-1],$wdarr[$i],$wkday);
+        print "weekday count: $wkdayctr \n";
+        $patternclaculated=1;
+      }#end if (i>0)
+    }#end for loop
+    if (!$patternclaculated)
+    {
+      return -1;
+    }
+    print "\n\n";
+  }#end foreach
+  
+  #check for pattern consistency
+  my %awkdaypattern_list=();
+  foreach my $pkey (keys %weekday_pattern_list)
+  {
+    my $locpattern=0;
+    my $isfailed=0;
+    #pattern arr for each wkday
+    my @parr =@{$weekday_pattern_list{$pkey}};
+    for(my $i=0;$i<$#parr+1;$i++)
+    {
+      if ($i>0)
+      {
+        #if pattern is broken any time, it will not be considered
+        if ($parr[$i] ne $parr[$i-1])
+        {
+          $locpattern=0;
+          $isfailed=1;
+        }#end if ($parr[$i] ne
+        else
+        {
+          if((!$isfailed)&&(($parr[$i] % 7) eq 0))
+          {
+            $locpattern=1;
+          }
+        }
+      }#end if (i>0)
+    }#end for loop
+    #how many weekdays have patterns
+    if ($locpattern)
+    {
+      $awkdaypattern_list{$pkey}=$parr[0];
+    }
+    else
+    {
+      $awkdaypattern_list{$pkey}=-1;
+    }
+  }#end foreach loop
+  
+  #check how many pattern days found
+  my $HasWkendException=0;
+  my $excp_ctr=0;
+  foreach my $pdkey (keys %awkdaypattern_list)
+  {
+    my $tpattern =0;
+    my $prvpattern =$tpattern;
+    $tpattern = $awkdaypattern_list{$pdkey};
+    #if weekend day has no pattern, we treat it as ok, it should go to exception list
+    if ($tpattern eq -1)
+    {
+      #add weekend dates to exeption list
+      if(IsWeekendDay($pdkey))
+      {
+        my @twdarr =@{$wkdaylist->{$pdkey}};
+        for (my $j=0;$j<$#twdarr+1;$j++)
+        {
+          $twkltd_exlist->[$excp_ctr++]=$twdarr[$j];
+          $HasWkendException=1;
+          $occur_ctr--;
+        }
+        delete $awkdaypattern_list{$pdkey};
+      }
+      else
+      {
+        $patternfound =0;
+      }
+    }
+    print "$tpattern \n";
+  }
+
+  my $wklyRrule="RRULE:FREQ=WEEKLY;COUNT=$occur_ctr";
+  my $byday=";BYDAY=";
+  my $interval=1;
+  #build RRULE
+  if ($patternfound)
+  {
+    my $pkctr=0;
+    my $pkcount = keys %awkdaypattern_list;
+    my @srtwkarr=("","","","","","","");
+    foreach my $pdkey (keys %awkdaypattern_list)
+    {
+      $srtwkarr[get_str_weekday($pdkey)]=$pdkey;
+      $interval = (($awkdaypattern_list{$pdkey})/7);
+    }
+    
+    my $oneadded=0;
+    for (my $k=0;$k<$#srtwkarr+1;$k++)
+    {
+      if($srtwkarr[$k] ne "")
+      {
+        if ($oneadded)
+        {
+          $byday =  $byday.",".$srtwkarr[$k];
+        }
+        else
+        {
+          $byday =  $byday.$srtwkarr[$k];
+          $oneadded=1;
+        }
+      }
+    }
+
+    
+    $wklyRrule= $wklyRrule.";INTERVAL=".$interval.$byday;
+    if ($pkcount eq 0)
+    {
+      $patternfound=0;
+    }
+  }
+
+  if ($patternfound)
+  {
+    return $wklyRrule;
+  }
+  else
+  {
+    return -1;
+  }
+  #my $newrrule= "RRULE:FREQ=$freq;COUNT=$delta_days;INTERVAL=$interval";
+  #create expected day list on base of start and end date for date series.
+  #it wll be used to compare the calcuated weekdays ctr. If same, it weekly recurrence
+  #else.....
+  #check for if weekends are included
+  
+}
+
+#input startdate, enddate, weekday; whose count to be found
+#date format : ICS date with DTSTART or RDATE
+#Weekday representation
+#1...Sunday
+#2...Monday
+#3...Tuesday
+#4...Wednesday
+#5...Thursday
+#6...Friday
+#7...Saturday
+sub get_weekdaycount
+{
+  my $A1=shift;
+  $A1=get_datepart_from_icsdt($A1);
+  my $A2=shift;
+  $A2=get_datepart_from_icsdt($A2);
+  my $wkday=shift;
+  
+  #INT((WEEKDAY($A$1-2)-$A$1+$A2)/7)
+  my $dt= get_date_by_days($A1,-$wkday);
+  my $wkday= get_weekday($dt)+1;
+  my $adjustedA1= get_date_by_days($A1,-$wkday);
+  my $wkdayscount =  abs (int((get_date_diff($A2,$adjustedA1))/7));
+  return $wkdayscount;
+}
+
+#check for only ST and SU string
+sub IsWeekendDay
+{
+  my $wkday=shift;
+  if (($wkday eq "SA")||($wkday eq "SU"))
+  {
+    return 1;
+  }
+  else
+  {
+    return 0;
+  }
+}
+
+#get by weekday number corresponding string representation
+sub get_str_weekday
+{
+  my $stwkday = shift;
+  my $iwkday= "NA";
+  if ($stwkday eq "MO")
+  {
+    $iwkday=1;
+  }
+  elsif ($stwkday eq "TU")
+  {
+    $iwkday=2;
+  }
+  elsif ($stwkday eq "WE")
+  {
+    $iwkday=3;
+  }
+  elsif ($stwkday eq "TH")
+  {
+    $iwkday=4;
+  }
+  elsif ($stwkday eq "FR")
+  {
+    $iwkday=5;
+  }
+  elsif ($stwkday eq "SA")
+  {
+    $iwkday=6;
+  }
+  elsif ($stwkday eq "SU")
+  {
+    $iwkday=7;
+  }
+  return $iwkday;
+}
+
+#get string representation of weekday by day number
+sub get_weekday_str
+{
+  my $stwkday = shift;
+  my $strwkday= "NA";
+  if ($stwkday eq 1)
+  {
+    $strwkday="MO";
+  }
+  elsif ($stwkday eq 2)
+  {
+    $strwkday="TU";
+  }
+  elsif ($stwkday eq 3)
+  {
+    $strwkday="WE";
+  }
+  elsif ($stwkday eq 4)
+  {
+    $strwkday="TH";
+  }
+  elsif ($stwkday eq 5)
+  {
+    $strwkday="FR";
+  }
+  elsif ($stwkday eq 6)
+  {
+    $strwkday="SA";
+  }
+  elsif ($stwkday eq 7)
+  {
+    $strwkday="SU";
+  }
+  return $strwkday;
+}
+
+#replace the ics date time by new date time
+#input icsdt e.g. DTSTART;TZID=(GMT+03.00) Kuwait / Riyadh:20090411T190000,
+#       newdt =  20090411T190000
+sub replaceicsdatetimeby
+{
+  my $oldicsdt= shift;
+  my $newdt=shift;
+  
+  my $tidx= rindex($oldicsdt,':');
+  my $ndt = substr($oldicsdt,0,$tidx);
+  
+  $tidx = rindex($newdt,':');
+  $newdt=substr($newdt,$tidx+1,(length($newdt)-$tidx));
+  
+  $ndt = $ndt.':'.$newdt;
+  return $ndt;
+}
+#get date part from RADTE or DTSTART format string
+#input param: ics date
+sub get_datepart_from_icsdt
+{
+  my $icsdate= shift;
+  my $tidx= rindex($icsdate,':');
+  if($tidx == -1)
+  {
+    return $icsdate;
+  }
+  else
+  {
+    my $ndt = substr($icsdate,$tidx+1);
+    my $ldt = substr($icsdate,0,$tidx);
+    return $ndt;
+  }
+}
+
+#get date by adding days into date
+sub get_date_by_days
+{
+  my $tdate= @_[0];
+  my $tdays = @_[1];
+  
+  my @darr = split(/T/, $tdate);
+  my $tdt= $darr[0];
+  my $yr= substr($tdt,0,4);
+  my $mm= substr($tdt,4,2);
+  my $dd= substr($tdt,6,2);
+
+  (my $y2, my $m2, my $d2)= Add_Delta_Days($yr,$mm,$dd, $tdays);
+  my $newdt  = sprintf("%d%02d%02d", $y2, $m2, $d2);
+  if($darr[1])
+  {
+    $newdt = $newdt.'T'.$darr[1];
+  }
+  return $newdt;
+}
+
+sub get_weeks_by_date_range
+{
+  my $fdt= shift;
+  my $ldt= shift;
+  my $days=get_date_diff($fdt, $ldt);
+  my $nweeks= ($days / 7);
+  return $nweeks;
+}
+
+#takes dates in yyyymmdd/yyyymmddThhmmss format and return number of days
+sub get_date_diff
+{
+  #format: 20070302T153000Z, 20070406
+  #check for Timezone format, presence of T
+  my $fd=@_[0];
+  my $ld=@_[1];
+  my @darr = split(/T/, $fd);
+  my $stdate= $darr[0];
+  @darr =();
+  @darr = split(/T/, $ld);
+  my $endate= $darr[0];
+  my $yr1= substr($stdate,0,4);
+  my $mm1= substr($stdate,4,2);
+  my $dd1= substr($stdate,6,2);
+
+  my $yr2= substr($endate,0,4);
+  my $mm2= substr($endate,4,2);
+  my $dd2= substr($endate,6,2);
+  my @date1 = ($yr1, $mm1, $dd1);
+  my @date2  = ($yr2, $mm2, $dd2);
+  
+  my $diff = &Delta_Days(@date1, @date2);
+  
+  return $diff;
+}
+
+#Input format: 20070302T153000Z, 20070406
+#returns Week Day
+#'1' for Monday, '2' for Tuesday and so on until '7' for Sunday.
+sub get_weekday
+{
+  my $dt=shift;
+  my @darr = split(/T/, $dt);
+  $dt= $darr[0];
+  my $yr1= substr($dt,0,4);
+  my $mm1= substr($dt,4,2);
+  my $dd1= substr($dt,6,2);
+  my $dow=Day_of_Week($yr1,$mm1,$dd1);
+  my $tdow = Day_of_Week_to_Text($dow);
+  return $dow;
+}
+
+#Input format 20070302T153000Z, 20070406
+#Compare 2 date-time components for eqality
+sub istime_equal
+{
+  my $tm=shift;
+  my @tarr = split(/T/, $tm);
+  my $dt= $tarr[1];
+  my $hr1= substr($dt,0,2);
+  my $mn1= substr($dt,2,2);
+  my $ss1= substr($dt,4,2);
+  
+  $tm=shift;
+  @tarr= split(/T/, $tm);
+  $dt= $tarr[1];
+  my $hr2= substr($dt,0,2);
+  my $mn2= substr($dt,2,2);
+  my $ss2= substr($dt,4,2);
+  if(($hr1==$hr2)&&($mn1==$mn2)&&($ss1==$ss2))
+  {
+    return 1;
+  }
+  else
+  {
+    return 0;
+  }
+}
+
+#Input format 20070302T153000Z, 20070406
+#returns DATE part
+sub get_date
+{
+  my $dt=shift;
+  my @darr = split(/T/, $dt);
+  $dt= $darr[0];
+  return $dt;
+}
+
+#Input format 20070302T153000Z, 20070406
+#returns TIME part
+sub get_time
+{
+  my $tm=shift;
+  my @darr = split(/T/, $tm);
+  $tm= $darr[1];
+  return $tm;
+}
+
+#get date part from icsdt
+sub get_date_part
+{
+  my $dt=shift;
+  $dt = get_date($dt);
+  $dt = substr($dt,6,2);
+  return $dt;
+}
+
+#Input format 20070302T153000Z, 20070406
+#returns month
+sub get_month
+{
+  my $dt=shift;
+  $dt = get_date($dt);
+  my $mn= substr($dt,4,2);
+  return $mn;
+}
+
+#Input format 20070302T153000Z, 20070406
+#returns year
+sub get_year
+{
+  my $dt=shift;
+  $dt = get_date($dt);
+  my $yr= substr($dt,0,4);
+  return $yr;
+}
+
+sub print_outfile
+{
+  my $str=@_[0];
+  chomp($str);
+  print OTHANDLE "$str\n";
+}
+
+sub print_invalidfile
+{
+  my $str=@_[0];
+  chomp($str);
+  print IVHANDLE "$str\n";
+
+}
+#test function
+#input param: hash list
+sub print_hlist
+{
+  my %tmphlist = @_;
+  foreach my $uid ( sort keys %tmphlist)
+  {
+    &log_message("$uid");
+    foreach my $rec ( @{$tmphlist{$uid}} )
+    {
+      if ($rec->{'MASTER_VEVENT'})
+      {
+        &log_message("MASTER VEVENT");
+        my $rdarr= $rec->{$uid}{'RDATE'};
+        for my $trdate (@$rdarr)
+        {
+          &log_message("RDATEs: $trdate");
+        }
+      }
+      &log_message("    $rec->{'RECURRENCE-ID'}");
+    }
+  }
+}
+
+#test function
+sub print_srtdnewrecarr
+{
+  my %tmphlist = @_;
+  foreach my $srdate ( sort keys %tmphlist)
+  {
+    &log_message("$srdate");
+  }
+}
+
+# trim function to remove whitespace from the start and end of the string
+sub trim($)
+{
+	my $string = shift;
+	$string =~ s/^\s+//;
+	$string =~ s/\s+$//;
+	return $string;
+}
+# Left trim function to remove leading whitespace
+sub ltrim($)
+{
+	my $string = shift;
+	$string =~ s/^\s+//;
+	return $string;
+}
+# Right trim function to remove trailing whitespace
+sub rtrim($)
+{
+	my $string = shift;
+	$string =~ s/\s+$//;
+	return $string;
+}
+
+#add METHOD:PUBLISH
+sub Add_METHOD_PUBLISH
+{
+  print_outfile("METHOD:PUBLISH");
+}
+
+#get weekend days(SA N SU) lying in between two dates
+sub get_weekenddayscountByDateRange
+{
+  my $fdt=shift;
+  my $ldt = shift;
+  my $retval=0;
+
+  $fdt = get_date($fdt);
+  my $yr1= substr($fdt,0,4);
+  my $mm1= substr($fdt,4,2);
+  my $dd1= substr($fdt,6,2);
+  
+  $ldt = get_date($ldt);
+  my $yr2= substr($ldt,0,4);
+  my $mm2= substr($ldt,4,2);
+  my $dd2= substr($ldt,6,2);
+
+  my $y2=0, my $m2=0, my $d2=0; my $tdays=0;
+  while (!(($yr2 == $y2) && ($mm2 == $m2) && ($dd2 == $d2)))
+  {
+    ($y2, $m2, $d2)= Add_Delta_Days($yr1,$mm1,$dd1, $tdays);
+
+    my $dowk = Day_of_Week($y2,$m2,$d2);
+    #if SA or SU
+    if(($dowk == 6) || ($dowk== 7))
+    {
+      $retval++;
+    }
+    $tdays++;
+  }
+  return $retval;
+}
+
+sub GetDomainFromATTENDEE
+{
+  my $attendee=shift;
+  if($attendee =~/mailto:/)
+  {
+    my $tmtosidx=index($attendee,"mailto:");
+    my $tmteidx=index($attendee,";",$tmtosidx);
+    if($tmteidx == -1)
+    {
+      my $atlen=length($attendee);
+      $tmteidx = $atlen;
+    }
+    else
+    {
+      $tmteidx = $tmteidx-1;
+    }
+    my $strmail = substr($attendee,$tmtosidx+7,$tmteidx);
+    if($strmail ne "")
+    {
+      my $atidx=index($strmail,"@");
+      my $strdomain = substr($strmail,$atidx+1,length($strmail));
+      return $strdomain;
+    }
+    else
+    {
+      return ""
+    }
+  }
+  else
+  {
+    return "";
+  }
+}
+#*********TimeZone processing*****************>>>>>>>>>>>
+
+#initialize the time zone array with available TZID
+sub init_TZRec
+{
+  my $TZRec;
+  my $stdtz=0;my $dyltz=0;
+  while (<TZFHANDLE>)
+  {
+    if($_=~/^BEGIN:VTIMEZONE/)
+    {
+      $TZRec=();
+      $TZRec->{'STDTZOFFSETTO'}=-1;
+      $TZRec->{'DYLTZOFFSETTO'}=-1;
+      $TZRec->{'STDBYMONTH'}=-1;
+      $TZRec->{'DYLBYMONTH'}=-1;
+      $TZRec->{'STDBYDAY'}=-1;
+      $TZRec->{'DYLBYDAY'}=-1;
+      $TZRec->{'TZID'}=-1;
+      $TZRec->{'RRULE'}=-1;
+    }
+    elsif($_=~/^TZID:/)
+    {
+      $TZRec->{'TZID'}=$_;
+    }
+    elsif($_=~/^BEGIN:STANDARD/)
+    {
+      $stdtz=1;
+    }
+    elsif($_=~/^END:STANDARD/)
+    {
+      $stdtz=0;
+    }
+    elsif($_=~/^BEGIN:DAYLIGHT/)
+    {
+      $dyltz=1;
+    }
+    elsif($_=~/^END:DAYLIGHT/)
+    {
+      $dyltz=0;
+    }
+    elsif($_=~/^TZOFFSETTO/)
+    {
+      my $len=length($_);
+      my $ridx= rindex($_,':');
+      my $tzto=substr($_,($ridx+1),($len-$ridx));
+      if($stdtz)
+      {
+        $TZRec->{'STDTZOFFSETTO'}=$tzto;
+      }
+      elsif($dyltz)
+      {
+        $TZRec->{'DYLTZOFFSETTO'}=$tzto;
+      }
+      else
+      {
+        &log_message("FATAL ERROR--No TZ Component available for offset assignment.");
+      }
+    }
+    elsif($_=~/^RRULE:/) #get RRULE for TZIds
+    {
+      $TZRec->{'RRULE'}=$_;
+      my $len=length($_);
+      #get STDBYDAY
+      my $bydridx= rindex($_,';BYDAY');
+      my $stbyday=substr($_,($bydridx+1),($len-$bydridx));
+      my @bydarr=split(/=/, $stbyday);
+
+      #get STDBYMONTH
+      my $bymridx= rindex($_,';BYMONTH');
+      my $stbymonth=substr($_,($bymridx+1),($bydridx-$bymridx-1));
+      my @bymarr=split(/=/, $stbymonth);
+      if($stdtz)
+      {
+        $TZRec->{'STDBYDAY'}=$bydarr[1];
+        $TZRec->{'STDBYMONTH'}=$bymarr[1];
+      }
+      elsif($dyltz)
+      {
+        $TZRec->{'DYLBYDAY'}=$bydarr[1];
+        $TZRec->{'DYLBYMONTH'}=$bymarr[1];
+      }
+      else
+      {
+        &log_message("FATAL ERROR!!! No TZ Component available for RRULE assignment.");
+      }
+    }
+    elsif($_=~/^END:VTIMEZONE/)
+    {
+      $TZIDHash{$TZRec->{'TZID'}}= $TZRec;
+    }
+  } #end while<TZFHANDLE>
+}
+
+#Get the TZ offset on the base of STANDARD and DAYLIGHT RRULE
+sub Get_TZoffset
+{
+  my $iTzRec = shift;
+  my $iicsdt = shift;
+  my $tzoffset;
+  #no RRULE means only single Standard time available
+  if ($iTzRec->{'RRULE'} eq -1)
+  {
+    $tzoffset= $iTzRec->{'STDTZOFFSETTO'};
+  }
+  else #else check date for STANDARD or DAYLIGHT time segment
+  {
+    my $dt=$iicsdt;#get_date($iicsdt);
+    my $stdbd=$iTzRec->{'STDBYDAY'};
+    my $stdbm=$iTzRec->{'STDBYMONTH'};
+    my $yr=get_year($dt);
+    #get STANDARD TZ date
+    my $stddt= Get_Date_By_Weekday_Month_Year($stdbd,$stdbm,$yr);
+    #&log_message("$stddt");
+    
+    my $dylbd=$iTzRec->{'DYLBYDAY'};
+    my $dylbm=$iTzRec->{'DYLBYMONTH'};
+    my $dyldt= Get_Date_By_Weekday_Month_Year($dylbd,$dylbm,$yr);
+    #&log_message("Standard Starts at: $stddt DayLight Starts at: $dyldt");
+    
+    my $std_offset= $iTzRec->{'STDTZOFFSETTO'};
+    if(IsDateInSTANDARDTZRange($stddt,$dyldt,$dt,$std_offset))
+    {
+      #STANDARD TZ
+      $tzoffset= $iTzRec->{'STDTZOFFSETTO'};
+    }
+    else
+    {
+      #DAYLIGHT TZ
+      $tzoffset= $iTzRec->{'DYLTZOFFSETTO'};
+    }
+    if($DEBUG)
+    {
+      #&log_message("Standard Starts at: $stddt DayLight Starts at: $dyldt Offset: $tzoffset");
+    }
+  }
+  my $newTzoffset;
+  my $noffset=substr($tzoffset,0,1);
+  $noffset = trim($noffset);
+  if($noffset ne '-')
+  {
+    $newTzoffset= substr($tzoffset,0,3);
+    $newTzoffset = $newTzoffset.'.'.substr($tzoffset,3,2);
+  }
+  else
+  {
+    $newTzoffset= substr($tzoffset,0,3);
+    $newTzoffset = $newTzoffset.'.'.substr($tzoffset,3,2);
+  }
+  return $newTzoffset;
+}
+
+#find if dates are in given range
+#Input date1, date2, date to test and standard TZ offset to test if local date
+  #doesnt move to previous TZ after adjustment
+#date can be in format of icsdt e.g. 20080402T120000, 20080903
+#returns 1 if in range or 0 if not in range
+sub IsDateInSTANDARDTZRange
+{
+  my @STD_MONTHS=();
+  my $stddt=shift;
+  my $dyldt=shift;
+  my $ms_date=shift;
+  my $std_offset=shift;
+  #adjust date to see if it doesnt move back to another TimeZone
+  #e.g. 1st day of daylight can move back to last day of standard
+  #after applying offset
+  $ms_date = get_DeltaDHMS($ms_date,$std_offset);
+
+  my $sdt = substr($stddt,6,2);
+  my $smth= substr($stddt,4,2);
+  my $syr= substr($stddt,0,4);
+  
+  my $ddt = substr($dyldt,6,2);
+  my $dmth=  substr($dyldt,4,2);
+  my $dyr= substr($dyldt,0,4);
+  
+  my $mdt = substr($ms_date,6,2);
+  my $mmth = substr($ms_date,4,2);
+  my $myr = substr($ms_date,0,4);
+  
+  # if STANDARD starts at end of year e.g. 11
+  if ($smth>$dmth)
+  {
+    my $totmths= (12-$smth)+$dmth;
+    for(my $i=$smth;$i<=($smth+$totmths);$i++)
+    {
+      if($i eq 12)
+      {
+        $STD_MONTHS[($i-$smth)]=12;
+      }
+      else
+      {
+        $STD_MONTHS[($i-$smth)]= ($i % 12);
+      }
+    }
+  }
+  else #if STANDARD is in same year e.g 3 to 10
+  {
+    for (my $i=$smth;$i<=$dmth;$i++)
+    {
+      $STD_MONTHS[($i-$smth)]=$i;
+    }
+  }
+  #if month is in STANDARD month list, continue else..
+  my $cont=0;
+  for (my $i=0; $i<=$#STD_MONTHS;$i++)
+  {
+    if($mmth == $STD_MONTHS[$i])
+    {
+      $cont=1;
+      last;
+    }
+  }
+  #for edge case. If month is same then check for dates
+  if($cont)
+  {
+    if($smth == $mmth)
+    {
+      if(!($mdt ge $sdt))
+      {
+        $cont=0;
+      }
+    }
+    elsif($dmth == $mmth)
+    {
+      if(!($mdt le $ddt))
+      {
+        $cont=0;
+      }
+    }
+  }
+  return $cont;
+}
+
+#get the date by weekday, monthe and year
+#e.g. weekdays can be 1SU, -1SA, 2SU
+#input weekday,month,icsdate
+#returns Date e.g. 20080303
+sub Get_Date_By_Weekday_Month_Year
+{
+  my $weekday = shift;
+  my $month = shift;
+  my $icsdtyear= shift;
+  my $newdt=-1;
+  my $nweek=substr($weekday,0,1);
+  $nweek = trim($nweek);
+  if($nweek ne '-')#going forward in week
+  {
+    #get first day of week
+    my $firstday=1;
+    my $wday = Day_of_Week($icsdtyear, $month, $firstday);#7 for sunday
+    my $wkday=substr($weekday,1,2);
+    $wkday=trim($wkday);
+
+    #get weekday number
+    my $nwkday= get_str_weekday($wkday);
+
+    my $dt= (7*($nweek-1))+1+($nwkday - $wday);
+    $newdt=sprintf("%d%02d%02d", $icsdtyear,$month,$dt);
+  }
+  else #else going backward in week
+  {
+    $nweek=substr($weekday,1,1);
+    $nweek = trim($nweek);
+    my $ndaysmth=Days_in_Month($icsdtyear,$month);
+    my $wday = Day_of_Week($icsdtyear, $month, $ndaysmth);#7 for sunday
+    my $wkday=substr($weekday,2,2);
+    $wkday=trim($wkday);
+    #get weekday number
+    my $nwkday= get_str_weekday($wkday);
+
+    my $dt;
+    #if month-end wkday is less then what we need to go
+    if($wday<$nwkday)
+    {
+      $dt= $ndaysmth - ((7*($nweek-1))+ (7-$nwkday+$wday));
+    }
+    else
+    {
+      $dt = $ndaysmth - ((7*($nweek-1))+($wday-$nwkday));
+    }
+
+    $newdt=sprintf("%d%02d%02d", $icsdtyear,$month,$dt);
+  }
+  return $newdt;
+}
+
+#print TZID Values for users choice
+sub print_TZIDs
+{
+  foreach my $tzid (sort keys %TZIDHash)
+  {
+    my $tzrec= $TZIDHash{$tzid};
+    print "$tzrec->{'TZID'}";
+  }
+}
+
+#Get TZRec on the basis of TZID
+sub get_chosed_TZRec
+{
+  my $tzchoice=shift;
+  my $retval; my $tzfound=0;
+TRY_AGAIN:
+  foreach my $tzid (keys %TZIDHash)
+  {
+    my $tzrec= $TZIDHash{$tzid};
+    my $sindex = index( lc( $tzrec->{'TZID'} ), lc($tzchoice) );
+    if ($sindex !=-1)
+    {
+      $retval = $tzrec;
+      $tzfound=1;
+      last;
+    }
+  }
+  if(!$tzfound)
+  {
+    &log_message("$tzchoice not found. Switching to default TZID ((GMT-08.00) Pacific Time (US & Canada))");
+    $tzchoice = "TZID:(GMT-08.00) Pacific Time (US & Canada)";
+    goto TRY_AGAIN;
+  }
+  return $retval;
+}
+
+#Add chosen VTIMEZONE component to output file
+sub print_TZINFObyTZID
+{
+  #reset to start of file
+  seek(TZFHANDLE, 0, 0);
+  my $tzid= shift;
+  $tzid=trim($tzid);
+  my $tzf_pos=0;
+  my $tzinfofound=0;
+  my $prv_pos=0;
+  my $tmpdlr= $_;
+  while (<TZFHANDLE>)
+  {
+    if ($_ =~/^BEGIN:VTIMEZONE/)
+    {
+      $tzf_pos = tell TZFHANDLE;
+      $tzf_pos =$prv_pos;
+    }
+    if(trim($_) eq $tzid)
+    {
+      seek TZFHANDLE, $tzf_pos, 0;
+      while (<TZFHANDLE>)
+      {
+        print_outfile("$_");
+        if($_=~/^END:VTIMEZONE/)
+        {
+          last;
+        }
+      }
+    }
+    $prv_pos =tell TZFHANDLE;
+  } #end while<TZFHANDLE>
+  $_=$tmpdlr;
+}
+
+#input icsdate with or without TZTag and TZRec
+#Rules to offset the given time as per RFC2445
+#floating date-time shouldnt be offset (19980118T230000)
+#UTC date-time should not have TZID at all (19980119T070000Z)
+#Local date-time with TZ info should represent the local time with TZID
+#   (TZID=America/New_York:19980119T020000)
+
+sub get_offset_datetime
+{
+  my $icsdt= shift;
+  $icsdt = trim($icsdt);
+  my $tidx= rindex($icsdt,':');
+  my $ndt = substr($icsdt,$tidx+1);
+  my $ldt = substr($icsdt,0,$tidx+1);
+  
+  my $strlen=length ($icsdt);
+  my $lastchr= substr($icsdt,$strlen-1,1);
+  my $offsdt;
+  #UTC time->convert to local by offset and add TZID
+  if (($lastchr eq "Z")&&($useTZcomponent))
+  {
+    my $calculated_tzoffset=Get_TZoffset($GTZRec,$ndt);
+    $offsdt=get_DeltaDHMS($ndt,$calculated_tzoffset);
+  }
+  else #local time? Add just TZID
+  {
+    $offsdt=$ndt;
+  }
+  $ldt=~ s/TZID:/TZID=/;
+  chomp($ldt);
+  chomp($offsdt);
+  my $newdt=sprintf("%s%s", $ldt,$offsdt);
+  return $newdt;
+}
+
+#Input DateTime format 20070302T153000Z, 20070302T153000,20070406
+#Input TZ Offset -/+HR.MN([-/+]hour.minute)
+#returns
+sub get_DeltaDHMS
+{
+  my $dttm=shift;
+  my $tzoffset =shift;
+
+  #DATETIME Info
+  my @darr = split(/T/, $dttm);
+  my $tdt= $darr[0];
+  my $yr= substr($tdt,0,4);
+  my $mm= substr($tdt,4,2);
+  my $dy= substr($tdt,6,2);
+
+  my $dt= $darr[1];
+  my $hh= substr($dt,0,2);
+  my $mn= substr($dt,2,2);
+  my $ss= substr($dt,4,2);
+
+  #TZ offset info
+  my $sgn= substr($tzoffset,0,1);
+  my $Dd =0;
+  my $Dh= substr($tzoffset,1,2);
+  my $Dm= substr($tzoffset,4,2);
+  my $Ds=0;
+
+  my $yr2, my $mm2, my $dy2, my $h2, my $m2, my $s2;
+  ($yr2, $mm2, $dy2, $h2, $m2, $s2) =
+    Add_Delta_DHMS( $yr, $mm, $dy, $hh, $mn, $ss,
+                $Dd, $sgn.$Dh, $sgn.$Dm, $Ds );
+  my $newdt=sprintf("%d%02d%02dT%02d%02d%02d", $yr2,$mm2,$dy2,$h2,$m2,$s2);
+  return $newdt;
+}
+#*********TimeZone processing*****************<<<<<<<<<<<<<<<<
+

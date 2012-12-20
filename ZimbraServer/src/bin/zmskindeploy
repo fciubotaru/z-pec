@@ -1,0 +1,188 @@
+#!/bin/bash
+# 
+# ***** BEGIN LICENSE BLOCK *****
+# Zimbra Collaboration Suite Server
+# Copyright (C) 2007, 2008, 2009, 2010 Zimbra, Inc.
+# 
+# The contents of this file are subject to the Zimbra Public License
+# Version 1.3 ("License"); you may not use this file except in
+# compliance with the License.  You may obtain a copy of the License at
+# http://www.zimbra.com/license.
+# 
+# Software distributed under the License is distributed on an "AS IS"
+# basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+# ***** END LICENSE BLOCK *****
+# 
+
+# Set up the environment
+BIN_ROOT=`dirname $0`
+
+source ${BIN_ROOT}/zmshutil || exit 1
+zmsetvars \
+  zimbra_home \
+  mailboxd_directory \
+  skins_directory
+
+usage() {
+    echo "Usage: "`basename $0`" <path/to/skin/dir/or/zipfile>" >&2
+    echo ""
+    echo "    -h, --help      Print usage information" >&2
+    echo ""
+#    echo "  -v              verbose" >&2
+#    echo "  -n              make this deploy non-authoritative" >&2
+#    echo "  -d              mark the package as defined" >&2
+#    echo "  -p <prefix>     prefix to use on the output files (default '"$PREFIX"')" >&2
+#    #echo "  -i <input dir>  base template input directory (defaults to .)" >&2
+#    #echo "  -o <output dir> skin output directory (defaults to .)" >&2
+    exit 2
+}
+
+
+SKIN_SRC=""
+while [ $# -gt 0 ]
+do
+    case $1 in
+        -h | --help)
+            usage
+            exit
+            ;;
+        -*)
+            echo "ERROR: Unknown option $1"
+            usage
+            exit -1
+            ;;
+        *)
+            if [ "${SKIN_SRC}x" != "x" ]
+            then
+                echo "ERROR: Invalid number arguments" >&2
+                usage
+                exit -1
+            else
+                SKIN_SRC=$1
+            fi
+            shift
+            ;;
+    esac
+done
+
+
+SIMPLE_DATE=`date +%y%m%d%H%M%S`
+
+SKIN_WORK_BASE=`dirname "${skins_directory}"`
+
+BASE_URL=/`basename "${SKIN_WORK_BASE}"`
+
+CP="${zimbra_home}/lib/jars/zimbracommon.jar:${SKIN_WORK_BASE}/WEB-INF/classes"
+
+# Make sure source exists, and copy it to working dir
+if [ -d "$SKIN_SRC" ]; then
+    SKIN_SRC_DIR=`cd $SKIN_SRC && pwd -P`
+    SKIN_NAME=`basename $SKIN_SRC`
+    SKIN_WORK_DIR="${SKIN_WORK_BASE}/skins/${SKIN_NAME}"
+    if [ -d "${SKIN_WORK_DIR}" ]; then
+        SKIN_WORK_DIR=`cd ${SKIN_WORK_DIR} && pwd -P`
+    else
+        if mkdir -p "${SKIN_WORK_DIR}"; then
+            SKIN_WORK_DIR=`cd ${SKIN_WORK_DIR} && pwd -P`
+        else
+            echo "Failed to create ${SKIN_WORK_DIR}" 1>&2
+            exit 1
+        fi
+    fi
+
+    if [ "$SKIN_WORK_DIR" != "$SKIN_SRC_DIR" ]; then
+        if [ -e "$SKIN_WORK_DIR" ]; then
+            rm -rf "$SKIN_WORK_DIR"
+        fi
+        cp -r "$SKIN_SRC_DIR" "$SKIN_WORK_DIR"
+    fi
+elif [ -f "$SKIN_SRC" ]; then
+    # For now, assuming it is a .zip file.  Do we need to handle .tgz?
+    SKIN_NAME=`basename $SKIN_SRC .zip`
+    SKIN_WORK_DIR="${SKIN_WORK_BASE}/skins/${SKIN_NAME}"
+    if [ -e $SKIN_WORK_DIR ]; then
+        rm -rf $SKIN_WORK_DIR
+    fi
+    mkdir -p $SKIN_WORK_DIR
+
+    # Macs add a resource dir to zip files, and "-n" prevents prompting
+    # to overwrite it
+    unzip -n -q $SKIN_SRC -d "$SKIN_WORK_DIR/.."
+else
+    echo "Invalid skin '$SKIN_SRC'" >&2
+    usage
+fi
+
+
+
+SKIN_DEST_DIR="${SKIN_WORK_BASE}/skins/${SKIN_NAME}"
+
+#if [ -e ${SKIN_DEST_DIR} ]; then
+#    rm -rf ${SKIN_DEST_DIR}
+#fi
+#mkdir -p ${SKIN_DEST_DIR}
+
+pushd $SKIN_WORK_DIR > /dev/null
+
+TEMPLATES=`find . -type f -name \*.template`
+if [ -n "${TEMPLATES}" ]; then
+    echo "Processing templates..."
+    ${BIN_ROOT}/zmjava -cp "$CP" com.zimbra.common.util.TemplateCompiler \
+        --prefix "${SKIN_NAME}" \
+        --authoritative \
+        --inputdir "${SKIN_WORK_DIR}" \
+        --outputdir "${SKIN_WORK_DIR}" \
+        -- \
+        ${TEMPLATES} > /dev/null
+fi
+
+if [ -d img ]; then
+    IMAGE_SUBDIRS=
+    for E in `find img -mindepth 1 -maxdepth 1 -type d | grep -v _`; do
+        if [ -n "${IMAGE_SUBDIRS}" ]; then
+            IMAGE_SUBDIRS="${IMAGE_SUBDIRS};"
+        fi
+        IMAGE_SUBDIRS="${IMAGE_SUBDIRS}${E}"
+    done
+
+    if [ -n "${IMAGE_SUBDIRS}" ]; then
+        echo "Processing images..."
+        ${BIN_ROOT}/zmjava -cp "$CP" com.zimbra.kabuki.tools.img.ImageMerger \
+            --css-path "${BASE_URL}/skins/${SKIN_NAME}/img/" \
+            --css-file "images.css" \
+            --js-file "images.css.js" \
+            --no-append \
+            --output "${SKIN_DEST_DIR}/img" \
+            --input "${IMAGE_SUBDIRS}" > /dev/null
+        perl -pi -e 's/\@jsVersion\@/'$SIMPLE_DATE'/g' "${SKIN_DEST_DIR}/img/images.css"
+    fi
+
+    for LOCID in `find img -mindepth 1 -maxdepth 1 -type d | perl -ne 'print "$1\n" if /_(..(_..)?)$/;' | sort | uniq`; do
+        echo "Processing images for locale ${LOCID}..."
+        IMAGE_SUBDIRS=
+        for E in `ls -d img/*_${LOCID}`; do
+            if [ -n "${IMAGE_SUBDIRS}" ]; then
+                IMAGE_SUBDIRS="${IMAGE_SUBDIRS};"
+            fi
+            IMAGE_SUBDIRS="${IMAGE_SUBDIRS}${E}"
+        done
+        ${BIN_ROOT}/zmjava -cp "$CP" com.zimbra.kabuki.tools.img.ImageMerger \
+            --css-path "${BASE_URL}/skins/${SKIN_NAME}/img/" \
+            --css-file "images_${LOCID}.css" \
+            --js-file "images.css.js" \
+            --no-append \
+            --output "${SKIN_DEST_DIR}/img" \
+            --input "${IMAGE_SUBDIRS}" > /dev/null
+        perl -pi -e 's/\@jsVersion\@/'$SIMPLE_DATE'/g' "${SKIN_DEST_DIR}/img/images_${LOCID}.css"
+    done
+fi
+
+popd > /dev/null
+
+${BIN_ROOT}/zmprov mcf +ZimbraInstalledSkin ${SKIN_NAME}
+
+if [ $? = 0 ]; then
+  echo "${SKIN_NAME} successfully installed." 
+  echo "mailboxd restart is required to fully activate skin ${SKIN_NAME}"
+fi
+
