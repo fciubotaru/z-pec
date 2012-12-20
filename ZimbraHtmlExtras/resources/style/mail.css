@@ -1,0 +1,348 @@
+:link, :visited, :active {
+	color: rgb(0,0,204);
+}
+
+.topbar {
+	font-size: 75%;
+	border-bottom: 1px solid rgb(195,217,255);
+	padding: 2px 5px;
+}
+
+.username {
+	font-weight: bold;
+}
+
+.leftPane {
+	width: 150px;
+}
+
+.error {
+	font-weight: bold;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.searchOptions :link {
+	white-space: nowrap;
+	font-size: 85%;
+}
+
+.cellSeparator {
+	padding: 0 3;
+}
+
+.unread {
+	font-weight: bold;
+}
+
+.quota {
+	text-align: center;
+	color: rgb(0, 102, 51);
+	font-weight: bold;
+	font-size: 80%;
+}
+
+.folder, .folder :link, .folder :visited, .folder :active {
+	line-height: 13pt;
+	padding-left: 4px;
+	white-space: nowrap;
+}
+
+.folderSelected {
+	background-color: rgb(195, 217, 255);
+	font-weight: bold;
+}
+
+.sharedFolder :link, .sharedFolder :visited, .sharedFolder :active {
+	color: orange;
+}
+
+.labelContent, .labelContent :link,  .labelContent :visited, .labelContent :active {
+	color: rgb(0, 102, 51);
+}
+
+.labelEdit {
+	text-align: right;
+	padding-bottom: 2px;
+	background-color: white;
+}
+
+.labelSmall {
+	font-size: 85%;
+	color: rgb(0, 102, 51);
+	font-weight: normal;
+}
+
+.inbox {
+	padding-left: 9px;
+}
+
+.inboxContent {
+	background-color: rgb(232, 238, 247);
+}
+
+.toolbar {
+	padding: 0 8 5 0;
+	white-space: nowrap;
+}
+
+.actions, .actions :link, .actions :visited, .actions :active {
+	text-decoration: none;
+	padding-bottom: 5px;
+}
+
+.actionOption {
+	padding-left: 15px;
+}
+
+.subjLink:link, .subjLink:active, .subjLink:visited {
+	text-decoration: none;
+	color: #000000;
+	cursor: pointer;
+}
+
+.convCell {
+	border-bottom-width: 1;
+	border-bottom-style: solid;
+	border-bottom-color: rgb(187, 187, 187);
+}
+
+.convSubj {
+	/*white-space: nowrap;*/
+	overflow: hidden;
+}
+
+.convParts {
+	width: 187px;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.convDate {
+	width: 90px;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.convHeader {
+	font-size: 150%;
+	font-weight: bold;
+}
+
+.convContent {
+	background-color: #FFFFFF;
+	padding: 2 10 10 8;
+}
+
+.convTopContent {
+	padding: 5 10 0 15;
+}
+
+.convBotContent {
+	padding: 20;
+}
+
+.msgHeaderCell {
+	color: rgb(0,104,28);
+	font-weight: bold;
+	font-size: 80%;
+	white-space: nowrap;
+}
+
+.msgFrag, .msgFrag :link, .msgFrag :visited, .msgFrag :active {
+	color: rgb(102, 102, 102);
+	text-decoration: none;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.msgText {
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.msgOptions, .msgOptions :link, .msgOptions :visited, .msgOptions :active {
+	color: rgb(0, 0, 204);
+	white-space: nowrap;
+	font-size: 80%;
+	padding: 0 5 0 3;
+}
+
+.msgActionContainer {
+	height: 100%;
+}
+
+.msgActionLink {
+	padding: 0 8;
+	text-decoration: underline;
+	cursor: pointer;
+	white-space: nowrap;
+	font-size: 95%;
+	font-weight: bold;
+	color: rgb(0, 0, 204);
+}
+
+.msgActionTextArea {
+	padding: 5px;
+	width: 100%;
+}
+
+.msgAttachSep {
+	width: 50%;
+	border-top: 2px solid rgb(170, 170, 170);
+}
+
+.msgAttachContainer {
+	padding: 5px;
+}
+
+.msgAttachImage {
+	border: 2px solid rgb(195, 217, 255);
+	padding: 5px;
+	width: 200px;
+	height: 160px;
+}
+
+.sidebarLink {
+	padding: 2 0 2 0;
+}
+
+.noResults {
+	text-align: center;
+	background-color: white;
+}
+
+.composeBtn {
+	font-size: 95%;
+}
+
+.composeContent {
+	background-color: rgb(224, 236, 255);
+}
+
+.composeLabel {
+	font-weight: bold;
+	text-align: right;
+	vertical-align: top;
+	white-space: nowrap;
+	overflow: hidden;
+	padding-left: 5px;
+}
+
+.composeActionLink {
+	text-decoration: underline;
+	cursor: pointer;
+	white-space: nowrap;
+	color: rgb(0, 0, 204);
+}
+
+.composeBody {
+	width: 100%;
+	height: 100%;
+	padding: 5px;
+}
+
+.rowSelect {
+	background-color: #FFFFCC;
+}
+
+
+/***************/
+/* card styles */
+/***************/
+.cTop {
+	background-color: transparent;
+	background-image: url('../images/card_top.gif');
+	background-attachment: scroll;
+	background-position: top center;
+}
+
+.cTopLeft {
+	background-color: transparent;
+	background-image: url('../images/card_tl.gif');
+	background-attachment: scroll;
+	background-position: top left;
+}
+
+.cTopRight {
+	background-color: transparent;
+	background-image: url('../images/card_tr.gif');
+	background-attachment: scroll;
+	background-position: top right;
+}
+
+.cConnector {
+	background-color: transparent;
+	background-image: url('../images/card_stl.gif');
+	background-attachment: scroll;
+	background-position: top left;
+}
+
+.cTop, .cBot {
+	padding: 1;
+	width: 100%;
+	background-repeat: repeat-x;
+}
+
+.cTopLeft, .cBotLeft, .cConnector {
+	padding: 0 10 0 0;
+	background-repeat: no-repeat;
+}
+
+.cTopRight, .cBotRight {
+	padding: 0 9 0 0;
+	background-repeat: no-repeat;
+}
+
+.cBot {
+	background-image: url('../images/card_bot.gif');
+	background-position: bottom center;
+}
+
+.cBotLeft {
+	background-color: transparent;
+	background-image: url('../images/card_bl.gif');
+	background-position: bottom left;
+}
+
+.cBotRight {
+	background-image: url('../images/card_br.gif');
+	background-position: bottom right;
+}
+
+.cMiddle, .cActionMiddle {
+	background-position: left center;
+	background-repeat: repeat-y;
+	border-right-width: 1px;
+	border-right-style: solid;
+	border-right-color: rgb(232, 232, 232);
+}
+
+.cMiddle {
+	background-image: url('../images/card_left.gif');
+}
+
+.cActionMiddle {
+	background-image: url('../images/card_left2.gif');
+	background-color: rgb(238, 238, 238);
+	padding: 0 10 5 10;
+}
+
+.cGray {
+	background-color: rgb(238, 238, 238);
+}
+
+
+.ZhAC {position:relative;}
+.ZhACB { font-weight: bold; }
+.ZhACCont {position:absolute;bottom:0;}
+.ZhACCont .yui-ac-content {position:absolute;border:1px solid #404040;background:#fff;overflow:hidden;z-index:9050;}
+.ZhACCont .yui-ac-shadow {position:absolute;margin:.3em;background:#a0a0a0;z-index:9010;}
+.ZhACCont ul {margin: 0; padding:1px 0; list-style: none}
+.ZhACCont li { margin: 0; padding:0 1px;cursor:default;white-space:nowrap;}
+.ZhACCont li.yui-ac-highlight { background-color: rgb(195, 217, 255); }
+.ZhACCont li.yui-ac-prehighlight {background:#FFFFCC;}
+
+.ZhACTo {z-index:9050;}
+.ZhACCc {z-index:9040;}
+.ZhACBcc {z-index:9030;}
