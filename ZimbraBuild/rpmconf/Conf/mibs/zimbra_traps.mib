@@ -1,0 +1,11 @@
+ZIMBRA-TRAP-MIB DEFINITIONS ::= BEGIN
+        IMPORTS zimbra FROM ZIMBRA-MIB;
+
+zmtraps OBJECT IDENTIFIER ::= { zimbra 0 }
+
+zmServiceStatusTrap NOTIFICATION-TYPE
+        STATUS current
+        DESCRIPTION "Service Status Change"
+        ::= { zmtraps 0 }
+
+END               

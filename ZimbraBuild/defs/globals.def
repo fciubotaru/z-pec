@@ -1,0 +1,180 @@
+
+BUILD_PLATFORM := $(shell sh $(BUILD_ROOT)/rpmconf/Build/get_plat_tag.sh)
+
+HOST    := $(shell hostname)
+DATE    := $(shell date +%Y%m%d%H%M%S)
+ifeq ($(RELEASE), )
+    RELEASE := $(DATE)$(TAG)
+else
+	RELEASE := $(RELEASE)$(TAG)
+	DATE   := $(RELEASE)
+endif
+
+MAJOR	:= $(shell cat RE/MAJOR)
+MINOR	:= $(shell cat RE/MINOR)
+MICRO	:= $(shell cat RE/MICRO)
+BUILDNUM	:= $(shell cat RE/BUILD)
+
+VERSION_STRING := $(MAJOR).$(MINOR).$(MICRO)
+SOURCE_TAG := $(MAJOR).$(MINOR).$(MICRO)_$(BUILDNUM)
+VERSION_TAG := $(MAJOR).$(MINOR).$(MICRO)_$(BUILDNUM).$(BUILD_PLATFORM)
+RELEASE_VERSION_TAG := $(MAJOR).$(MINOR).$(MICRO)_$(BUILDNUM).$(BUILD_PLATFORM)
+
+ifeq (DEBIAN,$(findstring DEBIAN,$(BUILD_PLATFORM)))
+	XVERSION_TAG := $(subst _,.,${VERSION_TAG})
+	VERSION_TAG := ${XVERSION_TAG}
+endif
+
+ifeq (UBUNTU,$(findstring UBUNTU,$(BUILD_PLATFORM)))
+	XVERSION_TAG := $(subst _,.,${VERSION_TAG})
+	VERSION_TAG := ${XVERSION_TAG}
+endif
+
+MTA_PROVIDES	:= smtpdaemon
+
+ifeq (SLES,$(findstring SLES,$(BUILD_PLATFORM)))
+	MTA_PROVIDES	:= smtp_daemon
+endif
+
+ifeq ($(BUILD_PLATFORM), SuSEES10)
+	MTA_PROVIDES	:= smtp_daemon
+endif
+
+ARCH := i386
+
+ifeq ($(BUILD_PLATFORM), RHEL4_64)
+	ARCH := x86_64
+endif
+
+ifeq ($(BUILD_PLATFORM), RHEL5_64)
+	ARCH := x86_64
+endif
+
+ifeq ($(BUILD_PLATFORM), RHEL6_64)
+	ARCH := x86_64
+endif
+
+ifeq ($(BUILD_PLATFORM), CentOS4_64)
+	ARCH := x86_64
+endif
+
+ifeq ($(BUILD_PLATFORM), CentOS5_64)
+	ARCH := x86_64
+endif
+
+ifeq ($(BUILD_PLATFORM), CentOS6_64)
+	ARCH := x86_64
+endif
+
+ifeq ($(BUILD_PLATFORM), SLES11_64)
+	ARCH := x86_64
+endif
+
+ifeq ($(BUILD_PLATFORM), SLES10_64)
+	ARCH := x86_64
+endif
+
+ifeq ($(BUILD_PLATFORM), F11_64)
+	ARCH := x86_64
+endif
+
+ifeq ($(BUILD_PLATFORM), F13_64)
+	ARCH := x86_64
+endif
+
+ifeq ($(BUILD_PLATFORM), UBUNTU6_64)
+	ARCH := amd64
+endif
+
+ifeq ($(BUILD_PLATFORM), UBUNTU7_64)
+	ARCH := amd64
+endif
+
+ifeq ($(BUILD_PLATFORM), UBUNTU8_64)
+	ARCH := amd64
+endif
+
+ifeq ($(BUILD_PLATFORM), UBUNTU10_64)
+	ARCH := amd64
+endif
+
+ifeq ($(BUILD_PLATFORM), UBUNTU12_64)
+	ARCH := amd64
+endif
+
+ifeq ($(BUILD_PLATFORM), DEBIAN4.0_64)
+	ARCH := amd64
+endif
+
+ifeq ($(BUILD_PLATFORM), DEBIAN5_64)
+	ARCH := amd64
+endif
+
+ifeq ($(BUILD_PLATFORM), DEBIAN6_64)
+	ARCH := amd64
+endif
+
+ifeq ($(BUILD_PLATFORM), MACOSX)
+	ARCH := ppc
+endif
+
+ifeq ($(BUILD_PLATFORM), MACOSXx86_10.6)
+	ARCH := x86_64
+endif
+
+ifeq ($(BUILD_PLATFORM), MACOSXx86_10.7)
+	ARCH := x86_64
+endif
+
+ifeq ($(TAG), )
+	TAG := HEAD
+else
+	TAG	:= $(shell echo $$TAG)
+endif
+
+USER := $(shell id -un)
+
+# EXECUTABLES
+
+PERL 	:= $(shell which perl)
+
+ifeq ($(PERL), )
+	$(error perl not found - exiting)
+endif
+
+ANT		?= $(shell which ant)
+CP    ?= $(shell which cp)
+MKDIR ?= $(shell which mkdir)
+CHMOD ?= $(shell which chmod)
+ECHO	?= $(shell which echo)
+TAR		?= $(shell which tar)
+JAR 	?= $(shell which jar)
+CAT		?= $(shell which cat)
+SED		?= $(shell which sed)
+
+ifeq ($(ANT), )
+	$(error ant not found - exiting)
+endif
+
+ANT_DEBUG ?= -Ddebug=false
+
+
+PACKAGE_CONF_DIR	:= $(BUILD_ROOT)/rpmconf
+
+BUILD_LOG           := $(BUILD_ROOT)/log-$(RELEASE).txt
+PROFILE_SOURCE      := $(PACKAGE_CONF_DIR)/Env/zimbra.bash_profile
+PROFILE_DEST        := .bash_profile
+ENV_FILE_SOURCE     := $(PACKAGE_CONF_DIR)/Env/zimbra.bashrc
+ENV_FILE_DEST       := .bashrc
+EXRC_SOURCE         := $(PACKAGE_CONF_DIR)/Env/zimbra.exrc
+EXRC_DEST           := .exrc
+VIMINFO_SOURCE      := $(PACKAGE_CONF_DIR)/Env/zimbra.viminfo
+VIMINFO_DEST        := .viminfo
+LDAPRC_SOURCE       := $(PACKAGE_CONF_DIR)/Env/zimbra.ldaprc
+LDAPRC_DEST         := .ldaprc
+PLATFORM_DOT_SOURCE := $(PACKAGE_CONF_DIR)/Env/zimbra.platform
+PLATFORM_DOT_DEST   := .platform
+
+JAVA_HOME       ?= /usr/local/java
+export JAVA_HOME
+

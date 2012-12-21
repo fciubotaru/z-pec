@@ -1,0 +1,79 @@
+
+# __PROXY
+
+proxy: CUR_DEST_ROOT := $(PROXY_DEST_ROOT)
+proxy: CUR_PACKAGE_SPEC := $(BUILD_ROOT)/zimbra-proxy.spec
+proxy: CUR_PACKAGE_NAME := zimbra-proxy
+proxy: $(PACKAGE_DIR) proxy_stage proxy_pkg_spec_$(PACKAGE_EXT)
+	(cd $(CUR_DEST_ROOT); \
+	$(PACKAGING_COMMAND) $(PACKAGING_OPTIONS) )
+
+proxy_pkg_spec_pkg: $(BUILD_ROOT)/resources/zimbra-proxy $(BUILD_ROOT)/zimbra-proxy.Info.plist $(BUILD_ROOT)/zimbra-proxy.Description.plist 
+
+$(BUILD_ROOT)/zimbra-proxy.Description.plist:
+	cat $(PACKAGE_CONF_DIR)/Spec/zimbra-proxy.Description.plist | \
+		sed -e 's/@@VERSION@@/$(VERSION_TAG)/' \
+		-e 's/@@RELEASE@@/$(RELEASE)/' \
+		-e 's/@@MAJOR@@/$(MAJOR)/' \
+		-e 's/@@MICRO@@/$(MICRO)/' \
+		-e 's/@@MINOR@@/$(MINOR)/' > $@
+
+$(BUILD_ROOT)/zimbra-proxy.Info.plist:
+	cat $(PACKAGE_CONF_DIR)/Spec/zimbra-proxy.Info.plist | \
+		sed -e 's/@@VERSION@@/$(VERSION_TAG)/' \
+		-e 's/@@RELEASE@@/$(RELEASE)/' \
+		-e 's/@@MAJOR@@/$(MAJOR)/' \
+		-e 's/@@MICRO@@/$(MICRO)/' \
+		-e 's/@@BUILDNUM@@/$(BUILDNUM)/' \
+		-e 's/@@MINOR@@/$(MINOR)/' > $@
+
+$(BUILD_ROOT)/resources/zimbra-proxy:
+	mkdir -p $@
+	cp $(PACKAGE_CONF_DIR)/Spec/Scripts/zimbra-proxy.postinstall $@/postinstall
+	chmod 755 $@/postinstall
+	cp $(PACKAGE_CONF_DIR)/Spec/Scripts/zimbra-proxy.postupgrade $@/postupgrade
+	chmod 755 $@/postupgrade
+
+
+proxy_pkg_spec_deb: $(PROXY_DEST_ROOT)/DEBIAN/control
+
+$(PROXY_DEST_ROOT)/DEBIAN: force
+	mkdir -p $@
+	cp $(PACKAGE_CONF_DIR)/Spec/Scripts/zimbra-proxy.pre $@/preinst
+	cat $(PACKAGE_CONF_DIR)/Spec/Scripts/zimbra-proxy.post >> $@/postinst
+	chmod 555 $@/*
+
+$(PROXY_DEST_ROOT)/DEBIAN/control: $(PROXY_DEST_ROOT)/DEBIAN force
+	cat $(PACKAGE_CONF_DIR)/Spec/zimbra-proxy.deb | \
+	sed -e 's/@@VERSION@@/$(VERSION_TAG)/' \
+	-e 's/@@RELEASE@@/$(RELEASE)/' \
+	-e 's/@@ARCH@@/$(ARCH)/' > $@
+
+proxy_pkg_spec_ccs:
+
+proxy_pkg_spec_rpm: $(BUILD_ROOT)/zimbra-proxy.spec
+
+$(BUILD_ROOT)/zimbra-proxy.spec:
+	cp $(PACKAGE_CONF_DIR)/Spec/Scripts/zimbra-proxy.pre $(BUILD_ROOT)
+	cp $(PACKAGE_CONF_DIR)/Spec/Scripts/zimbra-proxy.post $(BUILD_ROOT)
+	cat $(PACKAGE_CONF_DIR)/Spec/zimbra-proxy.spec | \
+		sed -e 's/@@VERSION@@/$(VERSION_TAG)/' \
+		-e 's/@@RELEASE@@/$(RELEASE)/' \
+		-e 's/^Copyright:/$(RPMCOPYRIGHTSTR):/' \
+		-e '/^%pre$$/ r zimbra-proxy.pre' \
+		-e '/^%post$$/ r zimbra-proxy.post' > $(BUILD_ROOT)/zimbra-proxy.spec
+	rm -f zimbra-proxy.pre
+	rm -f zimbra-proxy.post
+	echo "%attr(-, root, root) /opt/zimbra/nginx-$(NGINX_VERSION)" >> \
+		$(BUILD_ROOT)/zimbra-proxy.spec
+	echo "" >> $(BUILD_ROOT)/zimbra-proxy.spec
+	echo "%clean" >> $(BUILD_ROOT)/zimbra-proxy.spec
+
+proxy_stage: $(PROXY_COMPONENTS)
+
+$(PROXY_DEST_DIR):
+	mkdir -p $@
+
+$(PROXY_DEST_DIR)/$(NGINX_DIR): $(PROXY_DEST_DIR)
+	@echo "*** Creating nginx"
+	(cd $(PROXY_DEST_DIR); tar xzf $(NGINX_SOURCE).tgz;)

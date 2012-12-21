@@ -1,0 +1,27 @@
+ZIMBRA-MIB DEFINITIONS ::= BEGIN
+	IMPORTS
+		enterprises
+		FROM SNMPv2-SMI;
+
+zimbra OBJECT IDENTIFIER ::= { enterprises 666 }
+
+zmStatus OBJECT IDENTIFIER ::= { zimbra 1 }
+
+zmServiceName OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE(1..32))
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Service Name"
+    ::= { zmStatus 0 }
+
+zmServiceStatus OBJECT-TYPE
+    SYNTAX      INTEGEER
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Service Status"
+    ::= { zmStatus 1 }
+
+
+END

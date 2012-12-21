@@ -1,0 +1,29 @@
+SERVICE mta "Zimbra MTA" postfix,saslauthd,mtaconfig
+
+APPLICATION postfix test_server "9999" normal "Postfix mta"
+CONTROL_SYNTAX zimbrasyntax postfix_start "/opt/zimbra/bin/postfix start"
+CONTROL_SYNTAX zimbrasyntax postfix_stop "/opt/zimbra/bin/postfix stop"
+CONTROL_SYNTAX zimbrasyntax postfix_status "SMTP"
+
+SERVICE antispam "Zimbra MTA" amavisd,mtaconfig
+SERVICE antivirus "Zimbra MTA" amavisd,clamd,mtaconfig
+
+APPLICATION amavisd test_server "9999" normal "Postfix mta"
+CONTROL_SYNTAX zimbrasyntax amavisd_start "/opt/zimbra/bin/zmamavisdctl start"
+CONTROL_SYNTAX zimbrasyntax amavisd_stop "/opt/zimbra/bin/zmamavisdctl stop"
+CONTROL_SYNTAX zimbrasyntax amavisd_status "/opt/zimbra/bin/zmamavisdctl status"
+
+APPLICATION clamd test_server "9999" normal "Postfix mta"
+CONTROL_SYNTAX zimbrasyntax clamd_start "/opt/zimbra/bin/zmclamdctl start"
+CONTROL_SYNTAX zimbrasyntax clamd_stop "/opt/zimbra/bin/zmclamdctl stop"
+CONTROL_SYNTAX zimbrasyntax clamd_status "/opt/zimbra/bin/zmclamdctl status"
+
+APPLICATION mtaconfig test_server "9999" normal "MTA Configuration Daemon"
+CONTROL_SYNTAX zimbrasyntax mtaconfig_start "/opt/zimbra/bin/zmmtaconfigctl start"
+CONTROL_SYNTAX zimbrasyntax mtaconfig_stop "/opt/zimbra/bin/zmmtaconfigctl stop"
+CONTROL_SYNTAX zimbrasyntax mtaconfig_status "/opt/zimbra/bin/zmmtaconfigctl status"
+
+APPLICATION saslauthd test_server "9999" normal "SASL Auth Daemon"
+CONTROL_SYNTAX zimbrasyntax saslauthd_start "/opt/zimbra/bin/zmsaslauthdctl start"
+CONTROL_SYNTAX zimbrasyntax saslauthd_stop "/opt/zimbra/bin/zmsaslauthdctl stop"
+CONTROL_SYNTAX zimbrasyntax saslauthd_status "/opt/zimbra/bin/zmsaslauthdctl status"
