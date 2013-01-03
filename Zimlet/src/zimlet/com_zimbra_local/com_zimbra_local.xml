@@ -1,0 +1,31 @@
+<zimlet name="com_zimbra_local" version="3.1" label="${msg.label}" description="${msg.description}">
+	<include>local.js</include>
+    <include>yahoomaps.js</include>
+    <include>upcoming.js</include>
+    <include>YLocalDialog.js</include>
+
+	<includeCSS>yahoomaps.css</includeCSS>
+    <includeCSS>local.css</includeCSS>
+
+	<handlerObject>Com_Zimbra_Local</handlerObject>
+
+	<zimletPanelItem label="Yahoo! Local" icon="YLogo">
+		<toolTipText>${msg.panelTooltip}</toolTipText>
+		<contextMenu>
+			<menuItem label="${msg.menuItemSearch}" id="SEARCH" />
+			<menuItem label="${msg.menuItemSearchAddress}" id="SEARCH_ADDR" />
+			<menuItem label="${msg.menuItemTraffic}" id="TRAFFIC" />
+			<menuItem label="${msg.menuItemUpcoming}" id="UPCOMING"/>
+			<menuItem label="${msg.menuItemMyLocation}" id="MY_LOCATION" />
+			<menuItem label="${msg.menuItemChangeLocation}" id="MANUAL_LOCAION"/>
+			<menuItem label="${msg.menuItemChangeLocationByZip}" id="MANULA_LOCATION_ZIP"/>
+			<menuItem label="${msg.menuItemPreferences}" id="PREFERENCES"/>
+		</contextMenu>
+	</zimletPanelItem>
+
+	<userProperties>
+		<property type="string" name="latitude" maxLength="32" label="${msg.latitude}" />
+		<property type="string" name="longitude" maxLength="32" label="${msg.longitude}" />
+		<property type="boolean" name="manuallocation" label="${msg.manualLocation}"/>
+	</userProperties>
+</zimlet>

@@ -1,0 +1,7 @@
+<zimlet name="com_zimbra_attachcontacts" version="1.0" target="main compose-window view-window" label="${msg.label}" description="${msg.description}">
+	<include>attachcontacts.js</include>
+	<include>ACZimletNavToolBar.js</include>
+	<include>AttachContactsTabView.js</include>
+	<includeCSS>attachcontacts.css</includeCSS>
+	<handlerObject>com_zimbra_attachcontacts_HandlerObject</handlerObject>
+</zimlet>

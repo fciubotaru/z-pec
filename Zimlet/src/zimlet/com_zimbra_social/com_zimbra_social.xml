@@ -1,0 +1,34 @@
+<zimlet name="com_zimbra_social" version="3.6" label="${msg.label}" description="${msg.description}">
+    <include>socialTwitter.js</include>
+    <include>socialFacebook.js</include>
+    <include>socialTweetMeme.js</include>
+    <include>socialPreferences.js</include>
+    <include>socialDigg.js</include>
+    <include>socialMiniDlg.js</include>
+    <include>socialOAuth.js</include>
+    <include>social.js</include>
+    <include>SocialcastAddAccountDlg.js</include>
+    <include>socialcast.js</include>
+    <include>base64.js</include>
+    <include>json2.js</include>
+    <include>templates/Social.template.js</include>
+    <include>templates/OAuth.template.js</include>
+
+    <includeCSS>social.css</includeCSS>
+    <resource>social-icon.png</resource>
+    <handlerObject>com_zimbra_social_handlerObject</handlerObject>
+
+    <userProperties>
+        <property type="string" name="social_pref_tweetmemePopularIsOn" value="true"/>
+        <property type="string" name="social_pref_trendsPopularIsOn" value="true"/>
+        <property type="string" name="social_pref_diggPopularIsOn" value="true"/>
+        <property type="string" name="social_pref_SocialMailUpdateOn" value="true"/>
+        <property type="string" name="social_pref_dontShowWelcomeScreenOn" value="false"/>
+        <property type="string" name="social_pref_showTweetAlertsOn" value="true"/>
+        <property type="string" name="social_pref_cardWidthList" value="400px"/>
+        <property type="string" name="social_pref_autoShortenURLOn" value="true"/>
+        <property type="string" name="social_pref_socializeBtnOn" value="false"/>
+        <property type="string" name="social_pref_numberofTweetsToReturn" value="50"/>
+        <property type="string" name="social_pref_numberofTweetsSearchesToReturn" value="50"/>
+    </userProperties>
+</zimlet>

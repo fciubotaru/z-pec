@@ -1,0 +1,15 @@
+<zimlet name="com_zimbra_ytraffic" version="1.0" description="View traffic information using Yahoo! Maps.">
+	<include>ytraffic.js</include>
+	<includeCSS>ytraffic.css</includeCSS>
+	<resource>ytraffic.gif</resource>
+	<handlerObject>Com_Zimbra_YTraffic</handlerObject>
+	<zimletPanelItem label="Traffic" icon="YTraffic-panelIcon">		
+		<toolTipText>Double-click to wiew traffic information using Yahoo! Maps.</toolTipText>
+		<contextMenu>
+			<menuItem label="Visit Yahoo! Maps for Traffic Info" id="TRAFFIC.YAHOO.COM" icon="YTraffic-panelIcon">
+				<canvas type="window" width="800" height="600" />
+				<actionUrl target="http://maps.yahoo.com/beta/index.php#trf=1"/>
+			</menuItem>
+		</contextMenu>
+	</zimletPanelItem>
+</zimlet>

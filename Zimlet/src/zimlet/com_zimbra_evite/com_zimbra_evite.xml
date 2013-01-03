@@ -1,0 +1,22 @@
+<zimlet name="com_zimbra_evite" version="1.5" label="${msg.label}" description="${msg.description}">
+  <include>evite.js</include>
+  <includeCSS>evite.css</includeCSS>
+  <handlerObject>Com_Zimbra_Evite_HandlerObject</handlerObject>
+  <zimletPanelItem label="${msg.EviteZimlet_label}" icon="Evite-panelIcon">
+    <toolTipText>${msg.EviteZimlet_panelTooltip}</toolTipText>
+    <contextMenu>
+      <menuItem label="${msg.EviteZimlet_syncWithEvite}" id="sync" icon="Refresh"/>
+      <menuItem label="${msg.EviteZimlet_Preferences}" id="pref" icon="Preferences"/>
+      <menuItem />
+      <menuItem label="${msg.EviteZimlet_MyEvite}" id="myevite" icon="Evite-panelIcon">
+        <canvas type="window" width="800" height="600" />
+        <actionUrl target="http://www.evite.com/pages/myevite/myEvite.jsp" />
+      </menuItem>
+    </contextMenu>
+  </zimletPanelItem>
+
+  <userProperties>
+    <property type="string" name="user" minLength="4" maxLength="32" label="${msg.EviteZimlet_UserId}" />
+    <property type="password" name="passwd" minLength="4" maxLength="32" label="${msg.EviteZimlet_Password}" />
+  </userProperties>
+</zimlet>

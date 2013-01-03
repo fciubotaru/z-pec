@@ -1,0 +1,6 @@
+<zimletConfig name="com_zimbra_phone" version="2.7">
+	<global>
+		<property name="defaultContactField">companyPhone</property>
+	</global>
+</zimletConfig>
+

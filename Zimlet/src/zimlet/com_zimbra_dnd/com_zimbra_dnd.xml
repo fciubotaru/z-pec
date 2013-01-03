@@ -1,0 +1,4 @@
+<zimlet name="com_zimbra_dnd" version="1.2" label="${msg.zimletLabel}" target="main compose-window view-window" description="${msg.description}">
+	<include>dnd.js</include>
+	<handlerObject>Com_Zimbra_DnD</handlerObject>
+</zimlet>

@@ -1,0 +1,45 @@
+<zimlet name="com_flightexplorer_fasttrack" version="5.0" description="Finds flight status using Flight Explorer FastTrack service">
+	<include>com_flightexplorer_fasttrack.js</include>
+	<include>FlightStatusDlg.js</include>	
+	<resource>permission.txt</resource>
+	<resource>ymaps.gif</resource>
+	<resource>blank.gif</resource>	
+	<resource>na.gif</resource>				
+	<resource>partlycloudy.gif</resource>	
+	<resource>mostlycloudy.gif</resource>		
+	<resource>rain.gif</resource>	
+	<resource>overcast.gif</resource>		
+	<resource>clear.gif</resource>		
+	<resource>thunderstorms.gif</resource>			
+	<resource>snow.gif</resource>						
+	<resource>ice.gif</resource>						
+	<resource>hail.gif</resource>		
+	<resource>fog.gif</resource>			
+	<resource>dust.gif</resource>				
+	<resource>smoke.gif</resource>					
+	<resource>haze.gif</resource>	
+	<resource>wait.gif</resource>						
+	<resource>imgna.gif</resource>						
+	<includeCSS>com_flightexplorer_fasttrack.css</includeCSS>	
+	<handlerObject>Com_Flightexplorer_Fasttrack</handlerObject>
+	<serverExtension hasKeyword="flight" regex="/((^[A-Z]{1}[0-9]{1})|([\s\n\t\)\(\]\[\}\{.,\-]{1}[A-Z]{1}[0-9]{1})|(^[A-Z]{2,3})|([\s\n\t\)\(\]\[\}\{.,\-]{1}[A-Z]{2,3})|(^[0-9]{1}[A-Z]{2})|([\s\n\t\)\(\]\[\}\{.,\-]{1}[0-9]{1}[A-Z]{2}))(([\s]?[0-9]{1,4}[\s\n\t\)\(\]\[\}\{.,\-]{1})|([\s]?[0-9]{1,4}$))/g"/>
+	<contentObject type="flight">
+		<matchOn>
+			<regex attrs="g">((^[A-Z]{1}[0-9]{1})|(^[A-Z]{2,3})|([\s\n\t\)\(\]\[\}\{.,\-]{1}[A-Z]{2,3})|(^[0-9]{1}[A-Z]{2})|([\s\n\t\)\(\]\[\}\{.,\-]{1}[0-9]{1}[A-Z]{2}))(([\s]?[0-9]{1,4}[\s\n\t\)\(\]\[\}\{.,\-]{1})|([\s]?[0-9]{1,4}$))</regex>
+		</matchOn>
+		<toolTip>
+			Track a flight in real time
+		</toolTip>
+	</contentObject>	
+	<zimletPanelItem label="Flight status" icon="Flightstatus-panelIcon" >
+		<toolTipText>Click to search flight status</toolTipText>
+		<contextMenu>
+			<menuItem label="Preferences..." id="PREFERENCES" />
+		</contextMenu>			
+	</zimletPanelItem>
+	<userProperties>
+		<property type="string" minLength="1" maxLength="256"  name="username" label="Web service username" visible="true" value=""/>
+		<property type="string" minLength="1" maxLength="256"  name="password" label="Web service password" visible="true" value=""/>
+	</userProperties>
+</zimlet>
+

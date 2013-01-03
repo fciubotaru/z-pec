@@ -1,0 +1,20 @@
+<zimlet name="com_zimbra_ybabelfish" version="1.2" label="${msg.label}" description="${msg.description}">
+	<include>ybabelfish.js</include>
+	<include>YBabelfishPrefsDialog.js</include>
+	<includeCSS>ybabelfish.css</includeCSS>
+	<resource>babelfish-icon.gif</resource>
+	<handlerObject>Com_Zimbra_Ybabelfish</handlerObject>
+
+	<zimletPanelItem label="Yahoo! Translator" icon="Babelfish-panelIcon">
+		<toolTipText>Drag-and-drop a conversation or message to translate using Yahoo! Translator.</toolTipText>
+		<dragSource type="ZmConv" />
+		<dragSource type="ZmMailMsg" />
+	    <contextMenu>
+	      <menuItem label="Preferences..." id="prefs"/>
+		</contextMenu>
+	</zimletPanelItem>
+	
+	<userProperties>
+		<property type="string" name="trans_language" label="Default Language" value="default"/>
+	</userProperties>
+</zimlet>

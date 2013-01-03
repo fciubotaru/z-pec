@@ -1,0 +1,14 @@
+<zimlet name="com_zimbra_supporttool" version="0.4" label="${msg.label}" description="${msg.description}">
+  <include>com_zimbra_supporttool.js</include>
+  <includeCSS>com_zimbra_supporttool.css</includeCSS>
+  <handlerObject>com_zimbra_supporttool_HandlerObject</handlerObject>
+
+  <zimletPanelItem label="${msg.SupportToolZimlet_label}" icon="supporttool-panelIcon">
+    <toolTipText>${msg.SupportToolZimlet_tooltip}</toolTipText>
+  </zimletPanelItem>
+
+	<userProperties>
+		<property type="string" name="supporttool_currentVersion" value=""/>
+		<property type="string" name="supporttool_previousVersions" value=""/>
+	</userProperties>
+</zimlet>

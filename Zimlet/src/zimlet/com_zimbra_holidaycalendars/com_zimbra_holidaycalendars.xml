@@ -1,0 +1,8 @@
+<zimlet name="com_zimbra_holidaycalendars" version="0.4" label="${msg.label}" description="${msg.description}">
+  <include>holidaycalendars.js</include>
+  <includeCSS>holidaycalendars.css</includeCSS>
+  <handlerObject>com_zimbra_holidaycalendars_HandlerObject</handlerObject>
+  <zimletPanelItem label="${msg.HolidayCalendarsZimlet_panel_label}" icon="holidaycalendars-panelIcon">
+    <toolTipText>${msg.HolidayCalendarsZimlet_panel_tooltip}</toolTipText>
+  </zimletPanelItem>
+</zimlet>

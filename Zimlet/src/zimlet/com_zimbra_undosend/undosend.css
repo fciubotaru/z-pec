@@ -1,0 +1,13 @@
+.ImgUndoSend-panelIcon {
+  background: url("undosend-icon.png") no-repeat 0 0;
+  width: 16px;
+  height: 16px;
+  overflow: hidden;
+}
+
+.undosend_yellow {
+    background: #FFFFCC;
+    border-bottom: 1px solid #6E6E6E;
+    border-right: 1px solid #6E6E6E;
+	padding:7px;
+}

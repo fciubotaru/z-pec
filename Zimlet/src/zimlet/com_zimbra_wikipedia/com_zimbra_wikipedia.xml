@@ -1,0 +1,25 @@
+<zimlet name="com_zimbra_wikipedia" version="1.0" label="${msg.label}" description="${msg.description}">
+	<include>wiki.js</include>
+	<includeCSS>wikipedia.css</includeCSS>
+	<handlerObject>com_zimbra_wikipedia_HandlerObject</handlerObject>
+	<contentObject type="wikipedia">
+		<matchOn>
+			<regex attrs="ig">\[Wikipedia: ([a-zA-Z 0-9_-]+)\]</regex>
+		</matchOn>
+		<onClick>
+			<canvas type="window" width="800" height="600" />
+			<actionUrl target="http://www.wikipedia.org/search-redirect.php" method="post">
+				<param name="search">${src.$1}</param>
+				<param name="language">en</param>
+				<param name="go">Go</param>
+			</actionUrl>
+		</onClick>
+		<toolTip>
+			Click to search Wikipedia for "&lt;b&gt;${src.$1}&lt;/b&gt;"
+		</toolTip>
+	</contentObject>
+
+	<zimletPanelItem label="${msg.WikipediaZimlet_panel_label}" icon="Wikipedia-panelIcon">
+		<toolTipText>${msg.WikipediaZimlet_panel_tooltip}</toolTipText>
+	</zimletPanelItem>
+</zimlet>

@@ -1,0 +1,20 @@
+<zimlet name="com_zimbra_discover" version="0.6" label="${msg.label}" description="${msg.description}">
+  <include>discover.js</include>
+  <includeCSS>discover.css</includeCSS>
+  <handlerObject>com_zimbra_discover_HandlerObject</handlerObject>
+  <zimletPanelItem label="${msg.DiscoverZimlet_panel_label}" icon="dy-panelIcon">
+    <toolTipText>${msg.DiscoverZimlet_panel_tooltip}</toolTipText>
+  </zimletPanelItem>
+  <userProperties>
+   <property type="string" name="dy_usingFirstTime" value="true"/>
+   <property type="string" name="dy_discoverBtnClickedOnExternalWindow" value="false"/>
+   <property type="string" name="turnONDiscoverZimletNew" value="false"/>
+   <property type="string" name="dy_pref_art" value="false"/>
+   <property type="string" name="dy_pref_business" value="false"/>
+   <property type="string" name="dy_pref_entertainment" value="false"/>
+   <property type="string" name="dy_pref_humor" value="false"/>
+   <property type="string" name="dy_pref_politics" value="false"/>
+   <property type="string" name="dy_pref_technology" value="false"/>
+   <property type="string" name="dy_pref_sports" value="false"/>
+  </userProperties>
+</zimlet>

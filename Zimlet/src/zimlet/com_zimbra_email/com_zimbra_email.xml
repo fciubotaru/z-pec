@@ -1,0 +1,24 @@
+<zimlet name="com_zimbra_email" version="11.10" target="main view-window" label="${msg.zimletLabel}" description="${msg.description}">
+	<include>templates/Email1.template.js</include>
+	<include>email.js</include>
+	<include>EmailToolTipSlideShow.js</include>
+	<include>EmailToolTipslide.js</include>
+	<include>EmailToolTipPrefDialog.js</include>
+	<include>SeriesAnimation.js</include>
+	<include>UnknownPersonSlide.js</include>
+	<includeCSS>email.css</includeCSS>
+	<handlerObject>com_zimbra_email_handlerObject</handlerObject>
+	<contentObject type="email">
+		<matchOn>
+			<regex attrs="ig">\b(mailto:[ ]*)?([0-9a-zA-Z]+[.&amp;#!$%'*+-/=?^_`{}|~])*[0-9a-zA-Z_-]+@([-0-9a-zA-Z]+[.])+[a-zA-Z]{2,6}([\w/_\.]*(\?\S+)?)\b</regex>
+		</matchOn>
+		<contextMenu>
+			<menuItem label="${msg.findEmails}" icon="Search" id="SEARCHEMAILS"/>
+			<menuItem label="${msg.newEmail}" icon="NewMessage" id="NEWEMAIL"/>
+			<menuItem label="${msg.newIM}" icon="ImAvailable" id="NEWIM"/>
+			<menuItem label="${msg.newContact}" icon="Edit" id="NEWCONTACT"/>
+			<menuItem label="${msg.addToFilter}" icon="AddFilter" id="ADDTOFILTER"/>
+			<menuItem label="${msg.goToUrl}" icon="URL" id="GOTOURL"/>
+		</contextMenu>
+	</contentObject>
+</zimlet>

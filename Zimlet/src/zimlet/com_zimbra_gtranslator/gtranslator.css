@@ -1,0 +1,12 @@
+.ImgGoogle-panelIcon {
+  background: url("google-icon.gif") no-repeat 0 0;
+  width: 16px;
+  height: 16px;
+  overflow: hidden;
+}
+
+.gTranslator_barTbl {
+	padding-right:2px;
+	padding-left:1px;
+	border:0px;
+}

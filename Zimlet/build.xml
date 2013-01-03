@@ -1,0 +1,271 @@
+<project name="Zimlet" default="package">
+
+    <property file='build-custom.properties' />
+
+    <!--
+
+		Use the target reload-zimlets-extra to build all the zimlets, both core and extra,
+		install all the zimlets, then restart the webserver.
+
+	-->
+	<property environment="env"/>
+
+    <property name="zimbra.home.dir" location="/opt/zimbra" />
+    <property name="jetty.home.dir" location="${zimbra.home.dir}/jetty" />
+    <property name="zimlet.webinf.dir" location="${jetty.home.dir}/webapps/zimlet/WEB-INF" />
+    <property name="webserver.name" value="jetty"/>
+    <property name="webserver.root.dir" location="${zimbra.home.dir}/${webserver.name}"/>
+
+	<property name="deploy.dir" value="${webserver.root.dir}/webapps"/>
+	<property name="deploy.lib.path" value="/zimlet/WEB-INF"/>
+	<property name="deploy.jsp.path" value="/zimlet/jsp"/>
+
+	<property name="build.dir" location="build" />
+	<property name="build.classes.dir" location="${build.dir}/classes" />
+	<property name="dist.dir" location="${build.dir}/dist" />
+	<property name="dist.conf.dir" location="${dist.dir}/conf" />
+	<property name="dist.jsp.dir" location="${dist.dir}/jsp" />
+	<property name="dist.lib.dir" location="${dist.dir}/lib" />
+	<property name="dist.zimlet.dir" location="${dist.dir}/zimlets" />
+	<property name="dist.zimlet-extra.dir" location="${dist.dir}/zimlets-extra" />
+    <property name="dist.zimlet-experimental.dir" location="${dist.dir}/zimlets-experimental" />
+    <property name="dist.zimlet-offline.dir" location="${dist.dir}/zimlets-offline" />
+
+	<property name="common.dir" location="../ZimbraCommon" />
+	<property name="common.jars.dir" location="${common.dir}/jars" />
+	<property name="common.classes.dir" location="../ZimbraCommon/build/classes" />
+
+    <property name="soap.dir" location="../ZimbraSoap"/>
+    <property name="soap.classes.dir" location="${soap.dir}/build/classes"/>
+
+    <property name="client.dir" location="../ZimbraClient"/>
+    <property name="client.classes.dir" location="${client.dir}/build/classes"/>
+
+	<property name="webinf.dir" location="WebRoot/WEB-INF" />
+	<property name="server.dir" location="../ZimbraServer" />
+	<property name="server.classes.dir" location="${server.dir}/build/classes" />
+	<property name="jars.dir" location="jars" />
+	<property name="config.dir" location="conf" />
+	<property name="src.dir" location="src" />
+	<property name="src.zimlet.dir" location="${src.dir}/zimlet" />
+	<property name="src.java.dir" location="${src.dir}/java" />
+	<property name="src.jsp.dir" location="${src.dir}/jsp" />
+
+	<property name="generated.dir" location="${build.dir}/generated" />
+	<property name="generated.java.dir" location="${generated.dir}/src/java" />
+
+	<property name="zimlets" value="com_zimbra_phone,com_zimbra_url,com_zimbra_email,com_zimbra_date,com_zimbra_ymemoticons,com_zimbra_attachmail,com_zimbra_attachcontacts,com_zimbra_srchhighlighter,com_zimbra_webex"/>
+	<property name="zimlets-offline" value=""/>
+	<property name="zimlets-example" value="com_zimbra_example_*"/>
+    <property name="zimlets-experimental" value="com_zimbra_amzn,com_zimbra_asterisk,com_zimbra_asteriskmwi,com_zimbra_blog,com_zimbra_browserperf,com_zimbra_edu,com_zimbra_evite,com_zimbra_html,com_zimbra_jspsample,com_zimbra_photo,com_zimbra_po,com_zimbra_videos,com_zimbra_webex,com_zimbra_wikipedia,com_zimbra_xslt,com_zimbra_ytraffic,com_zimbra_calscheduler,com_zimbra_ybabelfish,com_zimbra_speak"/>
+
+    <!-- zimlets-extra is anything not in zimlets, not in zimlets-example, and not in zimlets-experimental -->
+	<dirset id='zimlets-extra.dirset' dir='${src.zimlet.dir}' includes='*' excludes='${zimlets},${zimlets-experimental},${zimlets-example}'/>
+	<pathconvert property='zimlets-extra' refid='zimlets-extra.dirset' pathsep=",">
+		<flattenmapper />
+	</pathconvert>
+
+	<condition property="is-windows">
+		<os family="windows" />
+	</condition>
+	<condition property="is-unix">
+		<not><os family="windows" /></not>
+	</condition>
+
+	<path id="all.java.path">
+		<pathelement location="${src.java.dir}" />
+		<pathelement location="${generated.java.dir}" />
+	</path>
+	<path id="class.path">
+		<pathelement location="${common.classes.dir}" />
+		<pathelement location="${server.classes.dir}" />
+		<pathelement location="${soap.classes.dir}"/> 
+                <pathelement location="${client.classes.dir}"/>
+		<pathelement location="${build.classes.dir}" />
+		<fileset dir="${jars.dir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${common.jars.dir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+		<classpath>
+			<pathelement location="jars/ant-contrib-1.0b1.jar"/>
+		</classpath>
+	</taskdef>
+
+	<target name="dev-sync" depends="jar">
+		<copy verbose="true" todir="${deploy.dir}${deploy.jsp.path}">
+			<fileset dir="${src.jsp.dir}"/>
+		</copy>
+		<copy verbose="true" todir="${deploy.dir}${deploy.lib.path}">
+			<fileset dir="${config.dir}"/>
+		</copy>
+		<copy verbose="true" todir="${deploy.dir}${deploy.lib.path}/lib">
+			<fileset dir="${dist.lib.dir}"/>
+		</copy>
+	</target>
+
+	<target name="clean" description="Removes any temporary files">
+		<delete dir="${build.dir}" />
+	</target>
+
+	<target name="build-init" depends="set-buildinfo-vars">
+		<mkdir dir="${build.classes.dir}" />
+		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${jars.dir}" />
+		<mkdir dir="${dist.lib.dir}" />
+		<mkdir dir="${dist.zimlet.dir}" />
+		<mkdir dir="${dist.zimlet-extra.dir}" />
+        <mkdir dir="${dist.zimlet-experimental.dir}" />
+        <mkdir dir="${dist.zimlet-offline.dir}" />
+		<mkdir dir="${generated.java.dir}" />
+	</target>
+
+	<target name="compile" depends="build-init">
+		<javac destdir="${build.classes.dir}" debug="true" classpathref="class.path">
+			<src refid="all.java.path" />
+		</javac>
+	</target>
+
+    <target name="deploy" depends="deploy-webinf,deploy-zimlets"/>
+	
+    <target name="deploy-webinf">
+        <copy todir="${zimlet.webinf.dir}">
+            <fileset dir="${webinf.dir}" includes="*"/>
+        </copy>
+    </target>
+	
+	<target name="package" depends="jar,package-zimlets">
+		<copy todir="${dist.conf.dir}">
+			<fileset dir="${config.dir}" includes="*"/>
+		</copy>
+	</target>
+
+	<target name="jar" depends="compile">
+		<jar destfile="${dist.lib.dir}/zimbrataglib.jar" basedir="${build.classes.dir}" excludes="**/zimlet/**" />
+	</target>
+
+	<target name="reload-zimlets" depends="deploy-zimlets,restart-webserver" description="Reload Zimlets"/>
+	<target name="reload-zimlets-extra" depends="deploy-zimlets-extra,restart-webserver" description="Reload Zimlets Extra"/>
+    <target name="reload-zimlets-experimental" depends="deploy-zimlets-experimental,restart-webserver" description="Reload Zimlets Experimental"/>
+
+	<target name="package-zimlets" depends="build-init,compile">
+		<foreach list="${zimlets}" target="package-zimlet" param="zimlet">
+	        <param name="tempdir" value="${generated.dir}/zimlets" />
+	        <param name="destdir" value="${dist.zimlet.dir}" />
+            <param name="zimlet.version" value="${zimlet.version}" />
+            <param name="TS" value="${TS}" />
+		</foreach>
+		<zip destfile="${dist.zimlet.dir}/com_zimbra_phone.zip" update="true">
+			<fileset dir="${build.classes.dir}" includes="**/NANPHandler.class"/>
+		</zip>
+		<echo message="dist.zimlet.dir=${dist.zimlet.dir}" file="${dist.dir}/build.properties"/>
+	</target>
+	<target name="package-zimlets-extra" depends="build-init,compile">
+        <foreach list="${zimlets-extra}" target="package-zimlet" param="zimlet">
+            <param name="tempdir" value="${generated.dir}/zimlets" />
+            <param name="destdir" value="${dist.zimlet-extra.dir}" />
+            <param name="zimlet.version" value="${zimlet.version}" />
+            <param name="TS" value="${TS}" />
+        </foreach>
+		<zip destfile="${dist.zimlet-extra.dir}/com_zimbra_tracking.zip" update="true">
+			<fileset dir="${build.classes.dir}" includes="**/TrackingHandler.class"/>
+		</zip>
+	</target>
+    <target name="package-zimlets-experimental" depends="build-init,compile">
+        <foreach list="${zimlets-experimental}" target="package-zimlet" param="zimlet">
+            <param name="tempdir" value="${generated.dir}/zimlets" />
+            <param name="destdir" value="${dist.zimlet-experimental.dir}" />
+            <param name="zimlet.version" value="${zimlet.version}" />
+            <param name="TS" value="${TS}" />
+        </foreach>
+	</target>
+    <target name="package-zimlets-offline" depends="build-init,compile">
+        <foreach list="${zimlets-offline}" target="package-zimlet" param="zimlet">
+            <param name="tempdir" value="${generated.dir}/zimlets" />
+            <param name="destdir" value="${dist.zimlet-offline.dir}" />
+            <param name="zimlet.version" value="${zimlet.version}" />
+            <param name="TS" value="${TS}" />
+        </foreach>
+	</target>
+
+	<target name="package-zimlet">
+		<echo>${zimlet}</echo>
+        <copy todir="${tempdir}/${zimlet}" overwrite="true">
+            <fileset dir="${src.zimlet.dir}/${zimlet}"/>
+        </copy>
+        <replaceregexp file="${tempdir}/${zimlet}/${zimlet}.xml" match='version="(\d+(\.\d+)*)"' replace='version="\1_${zimlet.version}.${TS}"' byline="true"/>
+		<zip destfile="${destdir}/${zimlet}.zip" update="true" >
+			<fileset dir="${tempdir}/${zimlet}" />
+		</zip>
+	</target>
+
+	<target name="deploy-zimlets" depends="package-zimlets">
+		<foreach list="${zimlets}" target="install-zimlet" param="zimlet">
+			<param name="action" value="deploy"/>
+			<param name="dir" value="${dist.zimlet.dir}"/>
+		</foreach>
+	</target>
+	<target name="install-zimlets" depends="package-zimlets">
+		<foreach list="${zimlets}" target="install-zimlet" param="zimlet">
+			<param name="action" value="install"/>
+			<param name="dir" value="${dist.zimlet.dir}"/>
+		</foreach>
+	</target>
+
+	<target name="deploy-zimlets-extra" depends="package-zimlets-extra,deploy-zimlets">
+		<foreach list="${zimlets-extra}" target="install-zimlet" param="zimlet">
+			<param name="action" value="deploy"/>
+			<param name="dir" value="${dist.zimlet-extra.dir}"/>
+		</foreach>
+	</target>
+	<target name="install-zimlets-extra" depends="install-zimlets">
+		<foreach list="${zimlets-extra}" target="install-zimlet" param="zimlet">
+			<param name="action" value="install"/>
+			<param name="dir" value="${dist.zimlet-extra.dir}"/>
+		</foreach>
+	</target>
+
+    <target name="deploy-zimlets-experimental" depends="package-zimlets-experimental,deploy-zimlets">
+		<foreach list="${zimlets-experimental}" target="install-zimlet" param="zimlet">
+			<param name="action" value="deploy"/>
+			<param name="dir" value="${dist.zimlet-experimental.dir}"/>
+		</foreach>
+	</target>
+	<target name="install-zimlets-experimental" depends="install-zimlets">
+		<foreach list="${zimlets-experimental}" target="install-zimlet" param="zimlet">
+			<param name="action" value="install"/>
+			<param name="dir" value="${dist.zimlet-experimental.dir}"/>
+		</foreach>
+	</target>
+
+    <target name="install-zimlet">
+		<echo>${action} ${zimlet}</echo>
+		<java classname="com.zimbra.cs.zimlet.ZimletUtil" fork="true" classpathref="class.path" failonerror="true">
+			<arg line="-q" />
+			<arg line="${action}" />
+			<arg file="${dir}/${zimlet}.zip" />
+		</java>
+	</target>
+
+	<target name="restart-webserver">
+		<ant dir="${server.dir}" target="restart-webserver"/>
+	</target>
+	
+    <target name="set-buildinfo-vars">
+        <tstamp>
+        	<format property="TS" pattern="yyyyMMdd.hhmmss" />
+        </tstamp>
+        <condition property="zimbra.buildinfo.version" value="6.0.0_test">
+            <not><isset property="${zimbra.buildinfo.version}"/></not>
+        </condition>
+    	<propertyregex property="zimlet.version" 
+    	   input="${zimbra.buildinfo.version}"
+    	   regexp="([0-9]+\.[0-9]+\.[0-9]+)" select="\1" casesensitive="false" />
+    	<echo>Version: ${zimlet.version}.${TS}</echo>
+    </target>
+	
+</project>

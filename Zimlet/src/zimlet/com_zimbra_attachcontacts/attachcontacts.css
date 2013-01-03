@@ -1,0 +1,22 @@
+
+.AttachContactsTabBox {
+	background-color:#FDFCFA;
+    border-right:1px solid #E0E0E0;
+}
+
+table.AttachContacts_table input[type="text"]{
+	border-color:#3A73AB;
+	border-width:1;
+	border-style:solid;
+	width:200px;
+	height:20px;
+	padding:2px 4px;
+}
+
+.AttachContactRow {
+    border-style: solid;
+    border-width: 1px 0;
+    cursor: pointer;
+    border-color: #E0E0E0;
+    padding: 3px 0;
+}

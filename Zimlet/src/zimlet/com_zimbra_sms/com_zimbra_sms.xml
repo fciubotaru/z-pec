@@ -1,0 +1,25 @@
+<zimlet name="com_zimbra_sms" version="2.2" description="Send SMS when composing a message; drag-and-drop a message, contact or appointment to send as SMS.">
+	<include>sms.js</include>
+	<includeCSS>sms.css</includeCSS>
+	<handlerObject>Com_Zimbra_sms</handlerObject>
+	<zimletPanelItem label="SMS" icon="Mobile">
+		<toolTipText>Send SMS when composing a message; drag-and-drop a message, contact or appointment to send as SMS.</toolTipText>
+		<dragSource type="ZmContact" />
+		<dragSource type="ZmMailMsg" />
+		<dragSource type="ZmConv" />
+		<dragSource type="ZmAppt" />
+		<contextMenu>
+			<menuItem label="SMS Zimlet Preferences" id="PREFERENCES" />
+		</contextMenu>
+	</zimletPanelItem>
+
+	<userProperties>
+		<!-- upside wireless prefs -->
+		<property type="string" name="sms_smsUsername" value=""/>
+		<property type="string" name="sms_smsPassword" value=""/>
+		<!-- send and sms prefs -->
+		<property type="string" name="sms_showSendAndSMSButton" value="false"/>
+		<property type="string" name="sms_alsoSendEmail" value="false"/>
+		<property type="string" name="turnOnZimlet_SMS" value="false"/>
+	</userProperties>
+</zimlet>

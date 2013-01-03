@@ -1,0 +1,14 @@
+<zimlet name="com_zimbra_rssfeeds" version="0.6" label="${msg.label}" description="${msg.description}">
+  <include>rssfeeds.js</include>
+  <includeCSS>rssfeeds.css</includeCSS>
+  <handlerObject>com_zimbra_rssfeeds_HandlerObject</handlerObject>
+  <zimletPanelItem label="${msg.RssFeedsZimlet_panel_label}" icon="rssfeeds-panelIcon">
+    <toolTipText>${msg.RssFeedsZimlet_panel_tooltip}</toolTipText>
+    <contextMenu>
+      <menuItem label="${msg.RssFeedsZimlet_panel_menu_prefs}" id="MENU_ID_PREFERENCES" />
+    </contextMenu>
+  </zimletPanelItem>
+  <userProperties>
+    <property type="string" label="${msg.RssFeedsZimlet_userproperty_rssFeedsFolder}" name="rssFeedsFolder" required="true" value="RSS Feeds"/>
+  </userProperties>
+</zimlet>
