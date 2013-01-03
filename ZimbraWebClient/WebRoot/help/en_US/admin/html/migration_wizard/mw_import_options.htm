@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <meta name="generator" content="Adobe RoboHelp 10" />
+<title>Import Options</title>
+<link rel="StyleSheet" href="../default.css" type="text/css" />
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="../whmsg.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript" src="../whver.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whutils.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whlang.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic.js" charset="utf-8"></script>
+
+</head>
+<body><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.gbWhTopic)
+{
+	var strUrl = document.location.href;
+	var bc = 0;
+	var n = strUrl.toLowerCase().indexOf("bc-");
+	if(n != -1)
+	{
+		document.location.href = strUrl.substring(0, n);
+		bc = strUrl.substring(n+3);
+	}
+
+	if (window.addTocInfo)
+	{
+	addButton("show",BTN_TEXT,"Show TOC","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	
+	
+}
+else
+	if (window.gbIE4)
+		document.location.reload();
+
+onLoadHandler = function()
+{
+  if (window.setRelStartPage)
+	{
+	setTimeout("setRelStartPage('../administration_console_help.htm');", 1)
+
+    setTimeout("UpdateBreadCrumbsMarker();", 1);
+	}
+}
+
+if (window.addEventListener){  
+	window.addEventListener('load', onLoadHandler, false);   
+} else if (window.attachEvent){  
+	window.attachEvent('onload', onLoadHandler);  
+}
+
+function onSetStartPage()
+{
+  autoSync(1);
+  sendSyncInfo();
+  sendAveInfoOut();
+}
+//-->
+//]]></script>
+<script type="text/javascript" src="../ehlpdhtm.js" language="JavaScript1.2"></script>
+
+
+<h1>Import Options</h1>
+<p>When you import account files with the Migration Wizard, only email messages, calendar and contacts are imported. Other types, such as meeting requests, notes/journal, tasks, rules and alerts, personal distribution lists, and files are not imported.</p>
+<p>The Import Options dialog is used to set rules about what files should be imported.</p>
+<ol>
+<li class="p" style="list-style: decimal;">
+<p>The checkboxes for <span style="font-weight: bold;">Import Junk-Mail Folder</span> and <span style="font-weight: bold;">Import Deleted Items Folder</span> determine whether or not to include mail currently in those folders in <span style="font-style: italic;"><i>Outlook</i></span>.</p>
+</li>
+<li class="p" style="list-style: decimal;">
+<p>The check box for <span style="font-weight: bold;">Ignore previously imported items</span> can be used in cases where an earlier import operation was interrupted. If checked, the import process picks up where it left off, rather than importing duplicates.</p>
+</li>
+<li class="p" style="list-style: decimal;">
+<p>Check the <span style="font-weight: bold;">Date Filter</span> check box to import mail only after a certain date. Enter the date. Messages before that date are not imported. This option lets you discard older messages.</p>
+</li>
+<li class="p" style="list-style: decimal;">
+<p>In the <span style="font-weight: bold;">Number of Mailboxes to import simultaneously</span> field, set the import concurrence level. Since the import is likely to happen while both Exchange and Zimbra servers continue to service other mail accounts, you should use care when increasing this number, as it may affect server performance.</p>
+</li>
+<li class="p" style="list-style: decimal;">
+<p>For Domino migration, check <span style="font-weight: bold;">Old-email ID</span>, if the old email address of the account should be replaced by the new Zimbra email address in all the meetings organized by that user</p>
+</li>
+</ol>
+<p style="margin-left: 40px;">For Exchange migration, Two Calendar options can be set. Check the first box, if the old email address of the user should be replaced by the new email address in all the meetings organized by the user. &#160;Check the second box, if users' private appointments should be migrated. These appointments will not be marked as private on the Zimbra server.</p>
+<ol start="6" style="list-style: decimal;">
+<li class="p">
+<p>Click <span style="font-weight: bold;">Next</span>. &#160;The <span style="font-weight: bold;">Begin Import Process?</span> Message box is displayed. Click <span style="font-weight: bold;">OK</span> to begin importing.</p>
+</li>
+</ol>
+<p style="font-weight: bold;">&#160;</p>
+<ul>
+<li class="p-note">
+<p class="note">Important: Users can continue to work in their mailbox while their mail is being imported, although any operation they do after that mail or folder has been imported are not be picked up on the Zimbra side. To ensure that the imported mailbox is consistent with the old mailbox, users should be informed that their mailboxes is not available over some scheduled downtime period.</p>
+</li>
+</ul>
+<p>&#160;</p>
+<script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+
+
+highlightSearch();
+//-->
+//]]></script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<%@ page buffer="8kb" autoFlush="true" %>
+<%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="zm" uri="com.zimbra.zm" %>
+<%@ taglib prefix="app" uri="com.zimbra.htmlclient" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="com.zimbra.i18n" %>
+<app:handleError>
+    <zm:getMailbox var="mailbox"/>
+    ${zm:refreshPrefs(mailbox)}
+    <c:choose>
+    <c:when test="${not empty mailbox.prefs.locale}">
+        <fmt:setLocale value='${mailbox.prefs.locale}' scope='request' />
+    </c:when>
+    <c:otherwise>
+        <fmt:setLocale value='${pageContext.request.locale}' scope='request' />
+    </c:otherwise>
+    </c:choose>
+    <fmt:setBundle basename="/messages/ZhMsg" scope="request"/>
+    <c:set var="convIds" value="${fn:join(paramValues.id, ',')}"/>
+    <zm:computeSearchContext var="context" usecache="true" types="conversation" query="*"/>
+
+</app:handleError>
+<html>
+<app:head mailbox="${mailbox}"/>
+<body style='background:white;'>
+<div class='ZhCallListPrintView'>
+    <table><tr>
+        <td><b><fmt:message key="zimbraTitle"/></b></td>
+        <c:set var="mailboxName" value="${(not empty param.acct ? param.acct : mailbox.name)}" />
+        <td nowrap width='1%'><c:if test="${mailboxName ne 'local@host.local'}"><b>${fn:escapeXml(mailboxName)}</b></c:if></td>
+    </tr></table>
+</div>
+<hr/>
+<div class="ZPrintMsgs">
+<c:forEach items="${convIds}" var="cid" varStatus="status">
+<zm:searchConv var="convSearchResult" id="${cid}" context="${context}"  markread="false" fetch="all"/>
+<table cellpadding="0" cellspacing="5"  width="100%">
+    <tr>
+        <td>
+            <div class="ZhPrintSubject">${convSearchResult.hits[0].subject}</div><hr/>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <c:forEach items="${convSearchResult.hits}" var="hit" varStatus="status">
+                         <zm:getMessage var="message" id="${hit.id}" markread="false" neuterimages="${empty param.xim}" />
+                         <app:messagePrintView mailbox="${mailbox}" message="${message}" />
+            </c:forEach>
+        </td>
+    </tr>
+</table>
+</c:forEach>
+</div>
+
+<c:if test="${empty convIds}">
+<div class='NoResults'><fmt:message key="noResultsFound"/></div>
+</c:if>
+
+<style type="text/css">
+    .ZhCallListPrintView td, .zPrintMsgs *{
+        font-family:Tahoma,Arial,Helvetica,sans-serif;
+        font-size:${mailbox.prefs.defaultPrintFontSize};
+    }
+    .ZhPrintSubject {
+        padding: 10px;
+        font-weight: bold;
+    }
+</style>
+<script type="text/javascript">
+<!--
+        setTimeout('window.print()', 1000);
+//-->
+</script>
+</body>
+</html>

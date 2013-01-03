@@ -1,0 +1,521 @@
+<html>
+<title>Theme Color Picker</title>
+<style type='text/css'>
+* 	{	font-family:Verdana; }
+TD	{	font-size:12px;	}
+
+body {
+	background-color:#e8dcc1;
+}
+
+.title {
+	font-size:24px;
+	font-weight:bold;
+}
+
+.instructions {
+	/*font-style:italic;*/
+}
+
+.colorChip	{
+	width:5; height:20px;
+	border:1px solid black;
+	border-right-width:0px;
+	cursor:pointer;
+}
+
+.baseColor {
+	width:30px;
+}
+
+#display td {
+	font-size:9px;
+	color:#666666;
+}
+
+#display div {
+	font-size:9px;
+	color:black;
+}
+
+
+#clipboard {
+	width:100%; height:100%;
+	font-family:monaco,monospace;
+	font-size:10px;
+}
+
+.label {
+	font-weight:bold;
+	width:80;
+	text-align:right;
+}
+
+.field {
+	width:100;
+}
+
+input {
+	width:80;
+}
+
+.focused {
+	background-color:yellow;
+}
+
+#picker {
+	Xposition:absolute;
+	border:2px solid black;
+	background-color:white;
+	Xright:50; top:0;
+}
+
+#pickerGrid {}
+#huePicker{}
+
+.pickerCell {
+	width:12; height:12;
+	cursor:pointer;
+}
+
+.hueCell {
+	width:20; height:2; font-size:1px;
+	cursor:pointer;
+}
+
+</style>
+<script language=JavaScript>
+/*****
+ *	Generic color math routines
+ *****/
+function darken(hex, amount) {
+	var rgb = hex2rgb(hex);
+	var darker = {};
+	
+	darker.r = Math.round(rgb.r * ((100-amount)/100));
+	darker.g = Math.round(rgb.g * ((100-amount)/100));
+	darker.b = Math.round(rgb.b * ((100-amount)/100));
+
+	return rgb2hex(darker);
+}
+
+function lighten(hex, amount) {
+	rgb = hex2rgb(hex);
+	var lighter = {};
+	
+	lighter.r = Math.round(rgb.r + (255 - rgb.r) * (amount/100));
+	lighter.g = Math.round(rgb.g + (255 - rgb.g) * (amount/100));
+	lighter.b = Math.round(rgb.b + (255 - rgb.b) * (amount/100));
+
+	return rgb2hex(lighter);
+}
+
+
+hexdig='0123456789abcdef';
+function Dec2Hex(d) {
+	return hexdig.charAt((d-(d%16))/16)+hexdig.charAt(d%16);
+}
+function Hex2Dec(h) {
+	h=h.toLowerCase();
+	d=0;
+	for (i=0;i<h.length;i++) {
+		d=d*16;
+		d+=hexdig.indexOf(h.charAt(i));
+	}
+	return d;
+}
+
+function rgb2Hex(r,g,b) {
+	return Dec2Hex(r)+Dec2Hex(g)+Dec2Hex(b);
+}
+
+
+function HueShift(h,s) {
+	h+=s;
+	while (h>=360.0) h-=360.0;
+	while (h<0.0) h+=360.0;
+	return h;
+}
+
+
+function hex2rgb(hex) {
+	var r = Hex2Dec(hex.charAt(0) + hex.charAt(1));
+	var g = Hex2Dec(hex.charAt(2) + hex.charAt(3));
+	var b = Hex2Dec(hex.charAt(4) + hex.charAt(5));
+	return {r: r, g: g, b:b};
+}
+
+function rgb2hex(rgb) {
+	return Dec2Hex(rgb.r) + Dec2Hex(rgb.g) + Dec2Hex(rgb.b);
+}
+
+function hex2hsv(hex) {
+	return rgb2hsv(hex2rgb(hex));
+}
+
+function hsv2hex(hsv) {
+	return rgb2hex(hsv2rgb(hsv));
+}
+
+
+function hsv2rgb(hsv){
+	// hsv2rgb function adapted from Dojo Toolkit v. 0.43
+	// Released under the Academic Free License, 
+	//		see : 	http://dojotoolkit.org/about/license
+	//			:	http://dojotoolkit.org/downloads
+	//			:	http://opensource.org/licenses/afl-3.0.php
+	//
+	// Based on C Code in "Computer Graphics -- Principles and Practice,"
+	// Foley et al, 1996, p. 592. 
+	//
+	// hsv =	{
+	// 				h : [0..360] 	(corresponding to 0..360 degrees around hexcone)
+	// 				s : [0..100] 	(0 = gray, 100 = pure color)
+	//	 			v : [0..100]	(0 = black, 100 = white)
+	//			}
+	//
+	// returns  {
+	//				r : [0..255],
+	//				g : [0..255],
+	//				b : [0..255]
+	//			}
+	//
+
+ 	var h = hsv.h,
+ 		s = hsv.s / 100,
+ 		v = hsv.v / 100
+ 	;
+
+	if (h == 360){ h = 0;}
+
+	var r = null;
+	var g = null;
+	var b = null;
+
+	if (s == 0){
+		// color is on black-and-white center line, i.e. a shade of gray (achromatic)
+		r = v;
+		g = v;
+		b = v;
+	} else {
+		var hTemp = h / 60;			// h is now IN [0,6]
+		var i = Math.floor(hTemp);	// largest integer <= h
+		var f = hTemp - i;			// fractional part of h
+
+		var p = v * (1 - s);
+		var q = v * (1 - (s * f));
+		var t = v * (1 - (s * (1 - f)));
+
+		switch(i){
+			case 0: r = v; g = t; b = p; break;
+			case 1: r = q; g = v; b = p; break;
+			case 2: r = p; g = v; b = t; break;
+			case 3: r = p; g = q; b = v; break;
+			case 4: r = t; g = p; b = v; break;
+			case 5: r = v; g = p; b = q; break;
+		}
+	}
+
+	return {
+		r : Math.ceil(r * 255),
+		g : Math.ceil(g * 255),
+		b : Math.ceil(b * 255)
+	};
+}
+
+
+function rgb2hsv(rgb){
+	// rgb2hsv function adapted from Dojo Toolkit v. 0.43
+	// Released under the Academic Free License, 
+	//		see : 	http://dojotoolkit.org/about/license
+	//			:	http://dojotoolkit.org/downloads
+	//			:	http://opensource.org/licenses/afl-3.0.php
+	//
+	// Based on C Code in "Computer Graphics -- Principles and Practice,"
+	// Foley et al, 1996, p. 592. 
+	//
+	// rgb =	{
+	//				r : [0..255],
+	//				g : [0..255],
+	//				b : [0..255]
+	//			}
+	//
+	// returns  {
+	// 				h : [0..360] 	(corresponding to 0..360 degrees around hexcone)
+	// 				s : [0..100] 	(0 = gray, 100 = pure color)
+	//	 			v : [0..100]	(0 = black, 100 = white)
+	//			}
+	//
+
+	var r = rgb.r,
+		g = rgb.g,
+		b = rgb.b
+	;
+
+	var h = null;
+	var s = null;
+	var v = null;
+
+	var min = Math.min(r, g, b);
+	v = Math.max(r, g, b);
+
+	var delta = v - min;
+
+	// calculate saturation (0 if r, g and b are all 0)
+
+	s = (v == 0) ? 0 : delta/v;
+
+	if (s == 0){
+		// achromatic: when saturation is 0, hue is undefined
+		h = 0;
+	}else{
+		// chromatic
+		if (r == v) {						// between yellow and magenta
+			h = 60 * (g - b) / delta;
+		} else if (g == v) {				// between cyan and yellow
+			h = 120 + 60 * (b - r) / delta;
+		} else if (b == v) {				// between magenta and cyan
+			h = 240 + 60 * (r - g) / delta;
+		}
+		if (h < 0){
+			h += 360;
+		}
+	}
+	
+	if (h == 360) h = 0;
+
+	return {
+		h : Math.round(h),
+ 		s : Math.round(s * 100),
+ 		v : Math.round((v / 255)* 100)
+	}
+}
+
+
+function $(id) {
+	return document.getElementById(id);
+}
+</script>
+
+<script language='javascript'>
+/*****
+ *	App-specific stuff
+ *****/
+
+function initPicker() {
+	var picker = document.getElementById("picker");
+	picker.innerHTML = 	"<table><tr><td><div id='pickerGrid'><\/div><\/td><td><div id='huePicker'><\/div><\/td><\/tr><\/table>";
+
+	drawHues(drawHues);	
+	focusInColorField(1);
+}
+
+
+function pickColor(color) {
+	setFocusColor(color);
+	drawCurrentColors();
+}
+
+function pickHue(hue) {
+	drawShades(hue);
+
+	var hsv = hex2hsv(getFocusColor());
+	hsv.h = hue;
+	setFocusColor(hsv2hex(hsv));
+}
+
+var currentColorField = 'colorRGB1';
+function focusInColorField(num) {
+	var id = "colorRGB"+num;
+	setCurrentFocus(id);
+	var hex = $(id).value;
+	var hsv = hex2hsv(hex);
+	pickHue(hsv.h);
+}
+
+function setCurrentFocus(id) {
+	currentColorField = id;
+	hilightFocusedField();
+}
+
+function hilightFocusedField() {
+	$('colorRGB1').className = (currentColorField == 'colorRGB1' ? "focused" : "");
+	$('colorRGB2').className = (currentColorField == 'colorRGB2' ? "focused" : "");
+	$('colorRGB3').className = (currentColorField == 'colorRGB3' ? "focused" : "");
+}
+
+function getFocusColor() {
+	return safeColor($(currentColorField).value);
+}
+function safeColor(color) {
+	if (color.charAt(0) == "#") color = color.substr(1);
+	return color;
+}
+
+function setFocusColor(hex) {
+	$(currentColorField).value = hex;
+	drawCurrentColors();
+}
+
+function getColorName(baseName, modifier) {
+	if (modifier == null) return baseName;
+	return baseName + modifier;
+}
+
+function getPropertiesString(name, value) {
+	return "\t"+name + "\t\t=\t#" + value;
+}
+
+
+function drawCurrentColors() {
+	var clipboard = document.getElementById('clipboard');
+	clipboard.value = "##########################################################################\n"+
+					  "#                               Skin Colors                              #\n"+
+					  "#------------------------------------------------------------------------#\n#\n";
+	drawCurrentColor(1, "AppC", "#### Base color and variants ####");
+	drawCurrentColor(2, "AltC", "#### Alternate color and variants ####");	
+	drawCurrentColor(3, "SelC", "#### Selection color and variants ####");	
+	clipboard.value += "#\n#========================================================================#\n"
+	hilightFocusedField();
+}
+
+function drawCurrentColor(num, name, jsHeader) {
+	var baseColor = safeColor($('colorRGB'+num).value);
+	var darkJS = [jsHeader,getPropertiesString(getColorName(name), baseColor)];
+	var lightJS = [];
+
+	var html = 
+		["<table cellspacing=0 cellpadding=0 style='border-right:1px solid black' onclick='focusInColorField("+num+")'>",
+			"<tr>",
+		];
+
+	for (var i = 95; i >= 5; i-=5) {
+		var darkColor  = darken(baseColor, i);
+		var darkName = getColorName(name, "+"+ (i < 10 ? "0"+i : i));
+
+		html.push([
+				"<td><div class='colorChip' style='background-color:", darkColor, "'><\/div><\/td>",
+			].join(""));
+
+		darkJS.push(getPropertiesString(darkName, darkColor));
+	}
+
+	html.push([
+				"<td><div class='colorChip baseColor' style='background-color:", baseColor, "'><\/div><\/td>",
+			].join(""));
+
+	for (var i = 5; i <= 95; i+=5) {
+		var lightColor = lighten(baseColor, i);
+		var lightName = getColorName(name, "-" + (i < 10 ? "0"+i : i));
+
+		html.push([
+				"<td><div class='colorChip' style='background-color:", lightColor, "'><\/div><\/td>",
+			].join(""));
+
+		lightJS.push(getPropertiesString(lightName, lightColor));
+	}
+	html.push("<\/tr><\/table>");
+	
+	var display = document.getElementById('display'+num);
+	display.innerHTML = html.join("\n");
+
+	var clipboard = document.getElementById('clipboard');
+	clipboard.value += darkJS.join("\n") + "\n" + lightJS.join("\n") + "\n";
+}
+
+function drawShades(hue) {
+	var hsv = {};
+
+	var html = ["<table cellspacing=0 cellpadding=0>"];
+
+	for (var v = 100; v >= 0; v -=5) {
+		html.push("<tr>");
+		for (var s = 0; s <= 100; s+= 5) {
+			hsv.h = hue;
+			hsv.s = s;
+			hsv.v = v;
+			var color = rgb2hex(hsv2rgb(hsv));
+			html.push("<td><div class=pickerCell onclick='pickColor(\"", color, "\")' style='background-color:", color, "'><\/div><\/td>");
+		}
+		html.push("<\/tr>");
+	}
+	html.push("<\/table>");
+	
+	var picker = document.getElementById("pickerGrid");
+	picker.innerHTML = html.join("");
+}
+
+
+function drawHues() {
+	var html = ["<table cellspacing=0 cellpadding=0 height=100%>"];
+
+	var hsv = {};
+	
+	for (var hue = 0; hue <= 360; hue += 3) {
+		hsv.h = hue;
+		hsv.s = 100;
+		hsv.v = 100;
+		var color = rgb2hex(hsv2rgb(hsv));
+		html.push("<\/tr><td><div class=hueCell onclick='pickHue(\"", hue, "\")' style='background-color:", color, "'><\/div><\/td><\/tr>");
+	}
+	html.push("<\/table>");
+	
+	var huePicker = document.getElementById("huePicker");
+	huePicker.innerHTML = html.join("");
+}
+
+</script>
+<body onload='initPicker();drawCurrentColors();'>
+<table width=100% height=100% border=0>
+	<tr><td colspan=4 class=title colspan=2>Theme Color Picker</td>
+		<td rowspan=5>
+			<div id=picker></div>
+		</td>
+	</tr>
+	<tr><td colspan=3 class='instructions'>
+			For information about how to use this file to create a theme,
+			please see the <a href=http://wiki.zimbra.com/index.php?title=Themes>Zimbra Wiki</a>.
+			<br><br>
+			<b>Note: this file works best in <a href=http://www.mozilla.com/firefox/ target=_blank>Mozilla FireFox</a></b><br><br>
+			Each Zimbra Theme is composed of three families of colors:
+			<ul>
+				<li>the "AppC" used for the main body of the application, and</li>
+				<li>the "AltC" used for accent colors within the app, and</li>
+				<li>the "SelC" used to indicate selection, (eg: the background color of the selected message).</li>
+			</ul>
+			<h2>To pick these colors for your theme:</h2>
+			
+			<b>1)</b> Click in the appropriate "RGB Value" box below and either paste a color value
+			or pick one from the gradient to the right.
+		</td>
+	</tr>
+
+	<tr>
+		<td class=label>AppC:</td>
+		<td class=field><input class=rgbField id='colorRGB1' value='e8dcc1'  onfocus='focusInColorField(1)' onblur='drawCurrentColors()'></td>
+		<td><div id='display1'></div></td>
+	</tr>
+
+
+	<tr>
+		<td class=label>AltC:</td>
+		<td class=field><input class=rgbField id='colorRGB2' value='c6e5f5'  onfocus='focusInColorField(2)' onblur='drawCurrentColors()'></td>
+		<td><div id='display2'></div></td>
+	</tr>
+
+	<tr>
+		<td class=label>SelC:</td>
+		<td class=field><input class=rgbField id='colorRGB3' value='fffccc'  onfocus='focusInColorField(3)' onblur='drawCurrentColors()'></td>
+		<td><div id='display3'></div></td>
+	</tr>
+
+	<tr><td colspan=3 class='instructions'>
+			<b>2)</b> Then copy and paste the text below into your <b>skin.properties</b> file.<br><br>
+		</td>
+	</tr>
+
+	<tr><td colspan=6 height=100%><textarea id='clipboard' onfocus='this.select()'></textarea></td></tr>
+</table>
+
+</body>
+</html>

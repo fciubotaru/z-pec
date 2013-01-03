@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <meta name="generator" content="Adobe RoboHelp 10" />
+<title>Managing a Resource Account</title>
+<link rel="StyleSheet" href="../default.css" type="text/css" />
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="../whmsg.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript" src="../whver.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whutils.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whlang.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic.js" charset="utf-8"></script>
+
+</head>
+<body><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.gbWhTopic)
+{
+	var strUrl = document.location.href;
+	var bc = 0;
+	var n = strUrl.toLowerCase().indexOf("bc-");
+	if(n != -1)
+	{
+		document.location.href = strUrl.substring(0, n);
+		bc = strUrl.substring(n+3);
+	}
+
+	if (window.addTocInfo)
+	{
+	addTocInfo("Managing Resources\nManaging a Resource Account");
+addButton("show",BTN_TEXT,"Show TOC","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	
+	
+}
+else
+	if (window.gbIE4)
+		document.location.reload();
+
+onLoadHandler = function()
+{
+  if (window.setRelStartPage)
+	{
+	setTimeout("setRelStartPage('../administration_console_help.htm');", 1)
+
+    setTimeout("UpdateBreadCrumbsMarker();", 1);
+	}
+}
+
+if (window.addEventListener){  
+	window.addEventListener('load', onLoadHandler, false);   
+} else if (window.attachEvent){  
+	window.attachEvent('onload', onLoadHandler);  
+}
+
+function onSetStartPage()
+{
+  autoSync(1);
+  sendSyncInfo();
+  sendAveInfoOut();
+}
+//-->
+//]]></script>
+<script type="text/javascript" src="../ehlpdhtm.js" language="JavaScript1.2"></script>
+
+
+<h1>Managing a Resource Account</h1>
+<p>A resource account is set up for either a location or piece of equipment that can be scheduled for a meeting. The resource has its own mailbox and can accept or reject invitations automatically based on availability. &#160;The administrator does not need to monitor these mailboxes on a regular basis. The contents of the resource mailboxes are purged according to the mail purge policies.</p>
+<p>When you create a resource account, a directory account is created on the LDAP server.</p>
+<p style="font-weight: bold;">Procedure</p>
+<ol style="list-style: decimal;">
+<li style="font-weight: normal;">
+<p style="font-weight: normal;">Go to the <span style="font-weight: bold;">Manage&gt;Resources</span> page and in the gear icon select <span style="font-weight: bold;">New</span>.</p>
+</li>
+<li style="font-weight: normal;">
+<p style="font-weight: normal;">In the <span style="font-size: 10pt; font-weight: bold;"><font size="2" style="font-size:10pt;">Resource Name</font></span> text box type a descriptive name for the locatio or equipment. The email field is automatically populated with the name. You can change this.</p>
+</li>
+<li style="font-weight: normal;">
+<p style="font-weight: normal;">Select the type of resource, either location or equipment.</p>
+</li>
+<li style="font-weight: normal;">
+<p style="font-weight: normal;">Select the class of service. &#160;If many resources are going to be created, you might want to set up a separate COS for resources and configure the COS with only the features the resource account needs.</p>
+</li>
+<li style="font-weight: normal;">
+<p style="font-weight: normal;">The <span style="font-weight: bold;">Status</span> can be active or unavailable. An active resource can be scheduled. When a resource status is <a href="taking_a_resource_out_of_service.htm">unavailable</a>, the resource is not included in the resource list.</p>
+</li>
+<li style="font-weight: normal;">
+<p style="font-weight: normal;">Check <span style="font-weight: bold;">Auto decline all recurring appointments</span> when the resource can be scheduled for only one meeting at a time, no recurring appointments can be scheduled for this resource.</p>
+</li>
+<li style="font-weight: normal;">
+<p style="font-weight: normal;">Set the scheduling policy. The scheduling policy establishes how the resource's calendar is maintained.</p>
+</li>
+</ol>
+
+<table style="padding-left: 6.00pt; padding-top: 6.00pt; padding-right: 6.00pt; padding-bottom: 4.00pt; margin-left: 18.00pt;" cellspacing="0" width="80%">
+<col width="364" />
+<col width="576" />
+<tr style="height: 32px;" bgcolor="#B2B2B2">
+<th style="border-top: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;" bgcolor="#B2B2B2">
+<p class="FM_option">Option</p>
+</th>
+<th style="border-top: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;" bgcolor="#B2B2B2">
+<p class="FM_Description">Description</p>
+</th>
+</tr>
+<tr style="height: 57px;">
+<td style="border-bottom: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+<p class="FM_CellBodyoption" style="font-weight: bold;">Auto accept if available, auto decline on conflict</p>
+</td>
+<td style="border-bottom: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;"><span style="font-size: 10pt;"><font size="2" style="font-size:10pt;">Automatically accept appointments unless the resource is already scheduled. The free/busy times can be viewed. You can modify the auto-decline rule to accept some meetings that conflict.</font></span></td>
+</tr>
+<tr style="height: 59px;">
+<td style="border-bottom: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+<p class="FM_CellBodyoption" style="font-weight: bold;">Manual accept, auto decline on conflict</p>
+</td>
+<td style="border-bottom: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+<p class="FM_CellBody">Appointments that create a conflict are declined. All other appointments must be manually accepted. Appointment requests that do not conflict are marked as tentative in the resource calendar and must be manually accepted. If you use this policy, configure the forwarding address so a copy of the invite is sent to the account that manages this resource. You can modify the auto-decline rule to accept some meetings that conflict.</p>
+</td>
+</tr>
+<tr style="height: 43px;">
+<td style="border-bottom: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+<p class="FM_CellBodyoption" style="font-weight: bold;">Auto accept always</p>
+</td>
+<td style="border-bottom: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;"><span style="font-size: 10pt;"><font size="2" style="font-size:10pt;">The resource automatically accepts all appointments that are scheduled. &#160;In this case free/busy information is not maintained, thus more than one meeting could schedule the resource for the same time. Because the resource always stays free, the suggested use for this policy would be for a frequently used location off premises so that the location address can be included in the invite to attendees.</font></span></td>
+</tr>
+<tr style="height: 43px;">
+<td style="border-bottom: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+<p class="FM_CellBodyoption" style="font-weight: bold;">No auto accept or decline</p>
+</td>
+<td style="border-bottom: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;"><span style="font-size: 10pt;"><font size="2" style="font-size:10pt;">The resource scheduling policy is to manually mange the resource. A delegated user logs into the resource account and accepts or declines the reservation request.</font></span></td>
+</tr>
+</table>
+
+<p style="font-weight: normal;">&#160;</p>
+<ol start="7" style="list-style: decimal;">
+<li>
+<p style="font-weight: normal;">For <span style="font-weight: bold;">Auto accept if available,</span> <span style="font-weight: bold;">auto decline on conflict</span> and &#160;<span style="font-weight: bold;">Manual accept, auto decline on conflict</span>, the scheduling policy can be set up with conflict rules for recurring appointments. You can set up a threshold so that some instances of&#160;recurring appointments can be available for this resource. The resource accepts appointments even if there are conflicts until either the number of conflicts reaches the maximum allowed or the maximum percentage of conflicts allowed. In order for partial acceptance of a series to work, both fields must be set to nonzero values.</p>
+</li>
+<li>
+<p style="font-weight: normal;">&#160;You can specify the mail server where the resource account is created. The default is to have the resource created on any of the servers listed in the <a href="../cos/assigning_accounts_to_different_servers.htm">COS server pool</a>.</p>
+</li>
+<li>
+<p style="font-weight: normal;"><span style="font-weight: normal;">In</span> <span style="font-weight: bold;">Forward calendar invitations to these addresses</span><span style="font-weight: normal;">, you can add one or more forwarding addresses of users who manage the resource's Calendar.</span></p>
+</li>
+</ol>
+<ol start="10" style="list-style: decimal;">
+<li>
+<p style="font-weight: normal;">Enter the <span style="font-weight: bold;">password</span> for this account.</p>
+</li>
+<li>
+<p style="font-weight: normal;"><span style="font-weight: normal;">In the</span> <span style="font-weight: bold;">Description</span> <span style="font-weight: normal;">text box add a description that can be helpful information about the resource such as room layout, number of occupants, or type of projector, etc. Details in Description are shown to users as a note attached to the resource</span></p>
+</li>
+<li>
+<p style="font-weight: normal;">Notes can be used to record any type of information. Details in Notes are not exposed to users.</p>
+</li>
+<li>
+<p style="font-weight: normal;">Click <span style="font-weight: bold;">Next</span> to add location information and signature configuration details, or click <span style="font-weight: bold;">Finish</span> to create the resource account.</p>
+</li>
+</ol>
+<p>&#160;</p>
+<p style="font-weight: bold;">Location and Contact Information Page</p>
+<p>Resource location includes, site details, capacity and street, city, state address. The information from Building, Floor, and Room fields is automatically populated to the Location Display Name field, if <span style="font-weight: bold;">auto</span> is checked. If auto is not checked, you can enter a location display name. &#160;The content of this field appears as the location information for the resource.</p>
+<p>Contact information, including name, email address, and phone number. This information is not exposed to the user.</p>
+<p style="font-weight: bold;">Signature Configuration</p>
+<p style="font-weight: normal;">You can customize the auto response email message.</p>
+<ol style="list-style: decimal;">
+<li style="font-weight: normal;">
+<p style="font-weight: normal;">In the <span style="font-weight: bold;">Name</span> text box enter the name that describes the email message. For example, accept message.</p>
+</li>
+<li style="font-weight: normal;">
+<p style="font-weight: normal;">In the <span style="font-weight: bold;">Content</span> text box, type the message that should be sent.</p>
+</li>
+<li style="font-weight: normal;">
+<p style="font-weight: normal;">If you are setting up different messages for accept, decline and deny, click <span style="font-weight: bold;">Add Signature</span> and add a new signature and message.</p>
+</li>
+<li style="font-weight: normal;">
+<p style="font-weight: normal;">In the <span style="font-weight: bold;">Auto accept signature name</span> menu, select the name of the message that should be sent when accepting a resource request.</p>
+</li>
+<li style="font-weight: normal;">
+<p style="font-weight: normal;">In the <span style="font-weight: bold;">Auto decline signature name</span> menu, select the&#160;name of the message that should be sent when declining a resource request.</p>
+</li>
+<li style="font-weight: normal;">
+<p style="font-weight: normal;">In the <span style="font-weight: bold;">Auto deny signature name</span> menu, select the&#160;name of the message that should be sent when denying a resource request.</p>
+</li>
+<li style="font-weight: normal;">
+<p style="font-weight: normal;">Click <span style="font-weight: bold;">Finish</span>.</p>
+</li>
+</ol>
+<p>This information can be changed in the resource account.</p>
+<script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+
+
+highlightSearch();
+//-->
+//]]></script>
+</body>
+</html>

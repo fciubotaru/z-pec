@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <meta name="generator" content="Adobe RoboHelp 10" />
+<title>Account Email Validation</title>
+<link rel="StyleSheet" href="../default.css" type="text/css" />
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="../whmsg.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript" src="../whver.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whutils.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whlang.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic.js" charset="utf-8"></script>
+
+</head>
+<body><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.gbWhTopic)
+{
+	var strUrl = document.location.href;
+	var bc = 0;
+	var n = strUrl.toLowerCase().indexOf("bc-");
+	if(n != -1)
+	{
+		document.location.href = strUrl.substring(0, n);
+		bc = strUrl.substring(n+3);
+	}
+
+	if (window.addTocInfo)
+	{
+	addButton("show",BTN_TEXT,"Show TOC","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	
+	
+}
+else
+	if (window.gbIE4)
+		document.location.reload();
+
+onLoadHandler = function()
+{
+  if (window.setRelStartPage)
+	{
+	setTimeout("setRelStartPage('../administration_console_help.htm');", 1)
+
+    setTimeout("UpdateBreadCrumbsMarker();", 1);
+	}
+}
+
+if (window.addEventListener){  
+	window.addEventListener('load', onLoadHandler, false);   
+} else if (window.attachEvent){  
+	window.attachEvent('onload', onLoadHandler);  
+}
+
+function onSetStartPage()
+{
+  autoSync(1);
+  sendSyncInfo();
+  sendAveInfoOut();
+}
+//-->
+//]]></script>
+<script type="text/javascript" src="../ehlpdhtm.js" language="JavaScript1.2"></script>
+
+
+<h1>Setting Email Validation Rules</h1>
+<p>You can define email validation rules to validate email addresses for messages sent from the advanced Zimbra Web Client. If an address is invalid based on the regular expression rules, users are notified that the address is invalid.</p>
+<p>Examples of regular expressions:</p>
+<ul style="list-style: disc;">
+<li>
+<p><span style="font-weight: bold;">test@\\d+.com</span>. &#160;This regular expression identifies email addresses with a number in the domain name as invalid. &#160;That is test@123.com or test@1.com are not valid addresses.</p>
+</li>
+<li>
+<p><span style="font-weight: bold;">mail@donotreply.com</span> (any specific address). This type of regular expression identifies a specific email address that is invalid.</p>
+</li>
+</ul>
+<ul>
+<li class="P-note">
+<p class="note">Email validation does not work when messages are sent from the standard Zimbra Web Client.</p>
+</li>
+</ul>
+<p>&#160;</p>
+<p style="font-weight: bold;">Procedure</p>
+<ol style="list-style: decimal;">
+<li>
+<p>&#160;Go to the&#160;<span style="font-weight: bold;">Configure&gt;Global Settings&gt;Advanced page</span> or Configure&gt;<span style="font-weight: bold;">Domains&gt;Advanced</span> page.</p>
+</li>
+<li>
+<p>In the <span style="font-weight: bold;">Account Email Validation Settings</span> section, <span style="font-weight: bold;">Regular expression for invalid email address</span> field enter a regular expression (regex) to filter out email addresses that should be considered invalid. You can add multiple regular expressions.</p>
+</li>
+<li>
+<p>Click <span style="font-weight: bold;">Save</span>.</p>
+</li>
+</ol>
+<p>&#160;</p>
+<script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+
+
+highlightSearch();
+//-->
+//]]></script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Adobe RoboHelp 10" />
+<title>Creating Classes of Service</title>
+<link rel="StyleSheet" href="../default.css" type="text/css" />
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="../whmsg.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript" src="../whver.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whutils.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whlang.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic.js" charset="utf-8"></script>
+
+</head>
+<body><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.gbWhTopic)
+{
+	var strUrl = document.location.href;
+	var bc = 0;
+	var n = strUrl.toLowerCase().indexOf("bc-");
+	if(n != -1)
+	{
+		document.location.href = strUrl.substring(0, n);
+		bc = strUrl.substring(n+3);
+	}
+
+	if (window.addTocInfo)
+	{
+	addTocInfo("Managing COS\nCreating or Deleting Classes of Service");
+addButton("show",BTN_TEXT,"Show TOC","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	
+	
+}
+else
+	if (window.gbIE4)
+		document.location.reload();
+
+onLoadHandler = function()
+{
+  if (window.setRelStartPage)
+	{
+	setTimeout("setRelStartPage('../administration_console_help.htm');", 1)
+
+    setTimeout("UpdateBreadCrumbsMarker();", 1);
+	}
+}
+
+if (window.addEventListener){  
+	window.addEventListener('load', onLoadHandler, false);   
+} else if (window.attachEvent){  
+	window.attachEvent('onload', onLoadHandler);  
+}
+
+function onSetStartPage()
+{
+  autoSync(1);
+  sendSyncInfo();
+  sendAveInfoOut();
+}
+//-->
+//]]></script>
+<script type="text/javascript" src="../ehlpdhtm.js" language="JavaScript1.2"></script>
+
+
+<h1>Creating Classes of Service</h1>
+<p>Class of Service (COS) determines which default attributes a mail account has and which features are added or denied. You can create different COS types to manage features different user types can have. Before you create the COS for your mail system, consider the types of end users and what type of features they might need.</p>
+<p>There is no limit to the number of COSs you can create. A COS is a global object and is not restricted to a particular domain or set of domains.</p>
+<h6>Procedure</h6>
+<ol class="whs2" style="list-style: decimal;">
+<li class="p">
+<p>Go to <span style="font-weight: bold;">Configure&gt;Class of Service</span>.</p>
+</li>
+<li class="p">
+<p>In the gear icon select <b><span style="font-weight: bold;">New</span><span style="font-weight: normal;">.</span></b></p>
+</li>
+<li class="p">
+<p>In the <span class="attribute">General Information</span> page, enter the COS display name and a description of the type of COS. The display name cannot contain any spaces. You can use the Notes area to keep a record of changes to the COS.</p>
+</li>
+<li class="p">
+<p><span class="attribute" style="font-weight: normal;">In the</span> <span class="attribute">Features</span> page all the features available for the COS are displayed. Select the &#160;<a href="../managing_accounts/user_interface_features.htm" target="_blank" id="a2">features</a> to include in the COS.</p>
+</li>
+<li class="p">
+<p><span class="attribute" style="font-weight: normal;">In the</span> <span class="attribute">Preferences</span> page, define the initial <a href="../managing_accounts/preferences.htm" target="_blank" id="a4">preferences</a> for how messages are saved and viewed. You can also select a specific locale for the ZWC view. If a locale is not specified, the browser locale is the default.</p>
+<ul style="list-style: url('../blue_right.jpg');">
+<li class="p-note">
+<p class="note">Users can change the preferences from the Zimbra Web Client.</p>
+</li>
+</ul>
+</li>
+<li class="p" style="font-weight: normal;">
+<p style="font-weight: normal;"><span class="attribute" style="font-weight: normal;">In the</span> <span class="attribute">Themes</span> <span class="attribute" style="font-weight: normal;">page, select which <a href="../ui_themes/defining_theme_for_the_zimbra_web_client_ui.htm" target="_blank" id="a1">themes</a> should be available in user accounts. In order for themes to be used, the Change UI themes feature must be enabled in the Features page. &#160;Note: If you limit the themes, one of the themes you select must be listed as the default theme.</span></p>
+</li>
+<li class="p" style="font-weight: normal;">
+<p style="font-weight: normal;"><span class="attribute" style="font-weight: normal;">In the</span> <span class="attribute">Zimlets</span> <span class="attribute" style="font-weight: normal;">page all Zimlets that have been deployed are listed. You can select which <a href="../zimlets/about_zimlets.htm" target="_blank" id="a3">Zimlets</a> should be mandatory for all users, which are enabled and users can manage usage from their Zimlets Preferences page, and which Zimlets should be disabled.&#160;&#160;Zimlets that are marked as mandatory are not listed in the user's Zimlets Preferences page.</span></p>
+</li>
+<li class="p">
+<p><span class="attribute" style="font-weight: normal;">In the</span> <span class="attribute">Server Pool</span> page, select which servers to include in the pool. The servers in the pool are randomly assigned new accounts.</p>
+<ul style="list-style: url('../blue_right.jpg');">
+<li class="p-note">
+<p class="note">When you create an account, you can override this action and assign the account to a specific mail server.</p>
+</li>
+</ul>
+</li>
+<li class="p">
+<p><span class="attribute" style="font-weight: normal;">In the</span> <span class="attribute">Advanced</span> page, set the <a href="../managing_accounts/account_advanced_features.htm" target="_blank" id="a5">advanced</a> settings including quotas, password constraints, session length, and message lifetimes. The Advanced page is also where you can disable attachment viewing.</p>
+</li>
+
+<li class="p">
+<p>Click <span style="font-weight: bold;"><b>Save</b></span>.</p>
+</li>
+</ol>
+<p>You can edit a COS at any time.</p>
+<p>&#160;</p>
+<p style="margin-left: 40px;">&#160;</p>
+<p>&#160;</p>
+<script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+
+
+highlightSearch();
+//-->
+//]]></script>
+</body>
+</html>

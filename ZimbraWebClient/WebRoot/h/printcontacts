@@ -1,0 +1,149 @@
+<%@ page buffer="8kb" autoFlush="true" %>
+<%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="zm" uri="com.zimbra.zm" %>
+<%@ taglib prefix="app" uri="com.zimbra.htmlclient" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="com.zimbra.i18n" %>
+<app:handleError>
+    <zm:getMailbox var="mailbox"/>
+    ${zm:refreshPrefs(mailbox)}
+    ${zm:clearContactCache(mailbox)}
+    <c:choose>
+        <c:when test="${not empty mailbox.prefs.locale}">
+            <fmt:setLocale value='${mailbox.prefs.locale}' scope='request' />
+        </c:when>
+        <c:otherwise>
+            <fmt:setLocale value='${pageContext.request.locale}' scope='request' />
+        </c:otherwise>
+    </c:choose>
+    <fmt:setBundle basename="/messages/ZhMsg" scope="request"/>
+    <c:set var="contactIds" value="${fn:join(paramValues.id, ',')}"/>
+    <c:if test="${param.st eq 'gal'}">                  <%-- gal contact id contains , so will replace the id's , with | to avoid the conflict with delimiter , used for forEach--%>
+        <c:set var="paraids" value="${fn:join(paramValues.id, '#')}"/>
+        <c:set var="paraids" value="${fn:replace(paraids, ',','|')}"/>
+        <c:set var="contactIds" value="${fn:replace(paraids, '#',',')}"/>
+    </c:if>
+</app:handleError>
+<html>
+<app:head mailbox="${mailbox}"/>
+<body style='background:white;'>
+<style>
+    .ZhCallListPrintView td, .zPrintMsgs *{
+        font-family:Tahoma,Arial,Helvetica,sans-serif;
+    }
+    .ZhCallListPrintView td, .zPrintMsgs .contactHeader {
+        font-size:${mailbox.prefs.defaultPrintFontSize};
+    }
+    .zPrintMsgs RUBY RT, .zPrintMsgs RUBY RP {
+        font-weight: normal;
+    }
+    .companyName{
+        color: #555555 !important;
+    }
+    .sectionLabel{
+        color: gray !important;
+    }
+</style>
+<div class='ZhCallListPrintView'>
+<table><tr>
+    <td><b><fmt:message key="zimbraTitle"/></b></td>
+    <c:set var="mailboxName" value="${(not empty param.acct ? param.acct : mailbox.name)}" />
+    <td nowrap width='1%'><c:if test="${mailboxName ne 'local@host.local'}"><b>${fn:escapeXml(mailboxName)}</b></c:if></td>
+</tr></table>
+<hr/>
+<table cellpadding="0" cellspacing="5" width="99%" align="center">
+<tr>
+<td>
+<c:if test="${not empty contactIds}">
+
+    <c:if test="${param.st eq 'gal'}">
+        <c:forEach items="${contactIds}" var="contactId">
+            <c:if test="${fn:contains(contactId,'|')}">
+                <c:set var="hasGalContacts" value="${true}"/>
+            </c:if>
+        </c:forEach>
+    </c:if>
+
+    <c:if test="${hasGalContacts}">
+        <zm:searchGal var="galResults" query="${empty param.sq ? '*' : param.sq}" type="account"/>
+    </c:if>
+    <c:set var="addRow" value="true"/>
+    <table class="zPrintMsgs" cellpadding="10" cellspacing="10">
+
+    <c:forEach items="${contactIds}" var="contactId" varStatus="status">
+        <c:set var="galContact" value="${hasGalContacts && fn:contains(contactId,'|')}"/>
+        <c:choose>
+            <c:when test="${!galContact}">
+                <zm:getContact id="${contactId}" var="contact"/>
+            </c:when>
+            <c:when test="${galContact}">
+                <c:forEach items="${galResults.contacts}" var="acontact">
+                    <c:if test="${fn:replace(acontact.id,',','|') eq contactId}">
+                        <c:set var="contact" value="${acontact}"/>
+                    </c:if>
+                </c:forEach>
+            </c:when>
+        </c:choose>
+        <c:if test="${addRow}"><tr></c:if>
+        <td style="border:1px solid rgb(204, 204, 204); padding:1px;margin:10px;" width="500px" valign="top">
+            <app:displayContact contact="${contact}"/>
+        </td>
+        <c:set var="addRow" value="${!addRow}"/>
+        <c:if test="${addRow}"></tr></c:if>
+    </c:forEach>
+
+    <c:if test="${!addRow}"></tr></c:if>
+    </table>
+</c:if>
+
+<c:if test="${empty contactIds}">
+
+    <c:if test="${param.st ne 'gal'}">
+        <zm:computeSearchContext var="context" types="contact" limit="1000" usecache="true"/>
+        <c:set var="addRow" value="true"/>
+        <table class="zPrintMsgs" cellpadding="10" cellspacing="10">
+
+        <c:forEach items="${context.searchResult.hits}" var="hit" varStatus="status">
+            <zm:getContact id="${hit.contactHit.id}" var="contact"/>
+            <c:if test="${addRow}"><tr></c:if>
+            <td style="border:1px solid rgb(204, 204, 204); padding:1px;margin:10px;" width="500px" valign="top">
+                <app:displayContact contact="${contact}"/>
+            </td>
+            <c:set var="addRow" value="${!addRow}"/>
+            <c:if test="${addRow}"></tr></c:if>
+        </c:forEach>
+
+        <c:if test="${!addRow}"></tr></c:if>
+        </table>
+    </c:if>
+    <c:if test="${param.st eq 'gal'}">
+        <zm:searchGal var="result" query="${empty param.sq ? '*' : param.sq}" type="account"/>
+        <c:set var="addRow" value="true"/>
+        <table class="zPrintMsgs" cellpadding="10" cellspacing="10">
+
+        <c:forEach items="${result.contacts}" var="contact" varStatus="status">
+            <c:if test="${addRow}"><tr></c:if>
+            <td style="border:1px solid rgb(204, 204, 204); padding:1px;margin:10px;" width="500px" valign="top">
+                <app:displayContact contact="${contact}"/>
+            </td>
+            <c:set var="addRow" value="${!addRow}"/>
+            <c:if test="${addRow}"></tr></c:if>
+        </c:forEach>
+
+        <c:if test="${!addRow}"></tr></c:if>
+        </table>
+    </c:if>
+</c:if>
+</td>
+</tr>
+</table>
+</div>
+<script type="text/javascript">
+    <!--
+    setTimeout('window.print()', 2000);
+
+    // -->
+</script>
+</body>
+</html>

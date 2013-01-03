@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <meta name="generator" content="Adobe RoboHelp 10" />
+<title>Changing Quota Settings</title>
+<link rel="StyleSheet" href="../default.css" type="text/css" />
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="../whmsg.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript" src="../whver.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whutils.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whlang.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic.js" charset="utf-8"></script>
+
+</head>
+<body><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.gbWhTopic)
+{
+	var strUrl = document.location.href;
+	var bc = 0;
+	var n = strUrl.toLowerCase().indexOf("bc-");
+	if(n != -1)
+	{
+		document.location.href = strUrl.substring(0, n);
+		bc = strUrl.substring(n+3);
+	}
+
+	if (window.addTocInfo)
+	{
+	addTocInfo("Managing Accounts\nChanging Quota Settings");
+addButton("show",BTN_TEXT,"Show TOC","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	
+	
+}
+else
+	if (window.gbIE4)
+		document.location.reload();
+
+onLoadHandler = function()
+{
+  if (window.setRelStartPage)
+	{
+	setTimeout("setRelStartPage('../administration_console_help.htm');", 1)
+
+    setTimeout("UpdateBreadCrumbsMarker();", 1);
+	}
+}
+
+if (window.addEventListener){  
+	window.addEventListener('load', onLoadHandler, false);   
+} else if (window.attachEvent){  
+	window.attachEvent('onload', onLoadHandler);  
+}
+
+function onSetStartPage()
+{
+  autoSync(1);
+  sendSyncInfo();
+  sendAveInfoOut();
+}
+//-->
+//]]></script>
+<script type="text/javascript" src="../ehlpdhtm.js" language="JavaScript1.2"></script>
+
+
+<h1>Changing Quota Settings</h1>
+<p>An account quota is the storage limit allowed for an account. Email messages, attachments, address books, calendar appointments, tasks, and files in Briefcase contribute to the quota. Account quotas can be set by COS or per account. &#160;When the quota is reached, all email messages to that account are rejected.</p>
+<ul style="list-style: url('../blue_right.jpg');">
+<li class="p-note">
+<p class="note">By default rejected messages are deferred. The deferred queue is scanned to resend messages. If the message cannot be sent after the specified number of delivery attempts, the message is bounced back to the original owner. You can configure a setting from the zmprov CLI so that when a mailbox quota is reached, messages received to that mailbox are bounced instead of being deferred.</p>
+</li>
+</ul>
+<p>You can configure a warning message to automatically notify users that are close to using their allotted space.</p>
+<p>Users must delete email messages, old calendar appointments, and other files from their account to remove them from the server to get below their quota limit, or you will need to increase the quota setting.</p>
+<p>Users can view their account quota and percentage used in the header on the Zimbra Web Client. You can <a href="../managing_servers/viewing_mailbox_quotas.htm">view mailbox quotas</a> for all accounts from Monitoring&gt;Server Statistics.</p>
+<h6>To change an account quota:</h6>
+<ul style="list-style: disc;">
+<li class="p">
+<p>Select a COS to edit and open the Advanced page. to change the quota for all accounts associated with that COS, select the Advanced tab and change the Account quota field.</p>
+</li>
+<li class="p">
+<p>For an individual account, select the account to edit, click on the Advanced tab and change the Account quota field.</p>
+</li>
+</ul>
+<h6>To configure the warning message</h6>
+<p>If you want to send out a quota warning message, in the Advanced tab configure the following:</p>
+<ol style="list-style: decimal;">
+<li class="p">
+<p>Set the account quota.</p>
+</li>
+<li class="p">
+<p><span style="font-weight: bold;">In the Percentage threshold for quota warning messages</span> field, set the percentage threshold for when a message should be sent. &#160;For example, if you want users to be notified when they are at 90% of their quota, you would enter <span style="font-weight: bold;">90</span>.</p>
+</li>
+<li class="p">
+<p>In the <span style="font-weight: bold;">Minimum duration of time...</span> field, enter how often the quota warning message should be sent. For example, to send the warning daily, enter <span style="font-weight: bold;">1</span> in the field and select <span style="font-weight: bold;">Days</span> as the time frame.</p>
+</li>
+<li class="p">
+<p>(Optional) Edit the text for the message to add additional details to the automatically generated email. Editing the message is not required unless you want to give additional information in the message.</p>
+</li>
+</ol>
+<p>&#160;</p>
+<script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+
+
+highlightSearch();
+//-->
+//]]></script>
+</body>
+</html>

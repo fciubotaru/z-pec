@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Adobe RoboHelp 10" />
+<title>Assigning Accounts to Different Servers</title>
+<link rel="StyleSheet" href="../default.css" type="text/css" />
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="../whmsg.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript" src="../whver.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whutils.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whlang.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic.js" charset="utf-8"></script>
+
+</head>
+<body><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.gbWhTopic)
+{
+	var strUrl = document.location.href;
+	var bc = 0;
+	var n = strUrl.toLowerCase().indexOf("bc-");
+	if(n != -1)
+	{
+		document.location.href = strUrl.substring(0, n);
+		bc = strUrl.substring(n+3);
+	}
+
+	if (window.addTocInfo)
+	{
+	addTocInfo("Managing Servers\nAssigning Accounts to Different Servers");
+addButton("show",BTN_TEXT,"Show TOC","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	
+	
+}
+else
+	if (window.gbIE4)
+		document.location.reload();
+
+onLoadHandler = function()
+{
+  if (window.setRelStartPage)
+	{
+	setTimeout("setRelStartPage('../administration_console_help.htm');", 1)
+
+    setTimeout("UpdateBreadCrumbsMarker();", 1);
+	}
+}
+
+if (window.addEventListener){  
+	window.addEventListener('load', onLoadHandler, false);   
+} else if (window.attachEvent){  
+	window.attachEvent('onload', onLoadHandler);  
+}
+
+function onSetStartPage()
+{
+  autoSync(1);
+  sendSyncInfo();
+  sendAveInfoOut();
+}
+//-->
+//]]></script>
+<script type="text/javascript" src="../ehlpdhtm.js" language="JavaScript1.2"></script>
+
+
+<h1>Assigning Accounts to Different Mail Servers</h1>
+<p>In an environment with multiple mail servers, the Class of Service is used to assign the next account to a mailbox server or you can specify a specific server when you create the account.</p>
+<p>In the COS, the <span style="font-weight: bold;">Server Pool</span> lists the available mailbox servers. you can limit the servers available to the pool for the COS. When a COS is assigned to a new account, a mail server is randomly chosen for the new account from the server pool list associated with that COS.</p>
+<h4>Add Specific Servers to the Server Pool</h4>
+<ol style="list-style: decimal;">
+<li class="p">
+<p>Go to <span style="font-weight: bold;">Configure&gt;Class of Service</span><span>.</span></p>
+</li>
+<li class="p">
+<p>Double-click on the COS to edit and select edit the <span style="font-weight: bold;">Server Pool</span> page.</p>
+</li>
+<li class="p">
+<p>On the Server Pool page, add a check mark to the servers that should be available for creating new users.</p>
+</li>
+<li class="p">
+<p>Click <b><span style="font-weight: bold;">Save</span></b>.</p>
+</li>
+</ol>
+<p>Note: If you select <span style="font-weight: bold;">Do not limit server pool available for creating new users in this COS</span>, all servers are in the server pool.</p>
+<h4>Add a Specific Server When Creating a New Account</h4>
+<ol style="list-style: decimal;">
+<li class="p">
+<p>Go to <span style="font-weight: bold;">Manage&gt;Accounts.</span></p>
+</li>
+<li class="p">
+<p><span>In the gear icon, select</span> <span style="font-weight: bold;">New</span>.</p>
+</li>
+<li class="p">
+<p>On the <span style="font-weight: bold;">General Information</span> dialog box, in the <span style="font-weight: bold;">Server</span> field uncheck <span style="font-weight: bold;">auto</span>.</p>
+</li>
+<li class="p">
+<p>From the drop-down list, select the mail server for the new account.</p>
+</li>
+<li class="p">
+<p>Continue to create the account and click <span style="font-weight: bold;">Finish</span>.</p>
+</li>
+</ol>
+<p>&#160;</p>
+<script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+
+
+highlightSearch();
+//-->
+//]]></script>
+</body>
+</html>

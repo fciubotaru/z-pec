@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <meta name="generator" content="Adobe RoboHelp 10" />
+<title>Anti-Spam Protection</title>
+<link rel="StyleSheet" href="../default.css" type="text/css" />
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="../whmsg.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript" src="../whver.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whutils.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whlang.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic.js" charset="utf-8"></script>
+
+</head>
+<body><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.gbWhTopic)
+{
+	var strUrl = document.location.href;
+	var bc = 0;
+	var n = strUrl.toLowerCase().indexOf("bc-");
+	if(n != -1)
+	{
+		document.location.href = strUrl.substring(0, n);
+		bc = strUrl.substring(n+3);
+	}
+
+	if (window.addTocInfo)
+	{
+	addTocInfo("Global Settings\nAnti-Spam Protection");
+addButton("show",BTN_TEXT,"Show TOC","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	
+	
+}
+else
+	if (window.gbIE4)
+		document.location.reload();
+
+onLoadHandler = function()
+{
+  if (window.setRelStartPage)
+	{
+	setTimeout("setRelStartPage('../administration_console_help.htm');", 1)
+
+    setTimeout("UpdateBreadCrumbsMarker();", 1);
+	}
+}
+
+if (window.addEventListener){  
+	window.addEventListener('load', onLoadHandler, false);   
+} else if (window.attachEvent){  
+	window.attachEvent('onload', onLoadHandler);  
+}
+
+function onSetStartPage()
+{
+  autoSync(1);
+  sendSyncInfo();
+  sendAveInfoOut();
+}
+//-->
+//]]></script>
+<script type="text/javascript" src="../ehlpdhtm.js" language="JavaScript1.2"></script>
+
+
+<h1>Anti-Spam Protection</h1>
+<p>Mass unsolicited emails are referred to as spam or junk email. The Zimbra Collaboration Server installs the SpamAssassin anti-spam software as the mail filter to identify spam mail. At installation, the spam training filter is enabled and two feedback system mailboxes are created to receive mail notification.</p>
+<p>When a message is tagged as spam, the message is delivered to the recipient’s junk folder. Users can view the number of unread messages that are in their junk folder and can open the junk folder to review the messages marked as spam.</p>
+<p>You can set rules for handling spam from the <span style="font-weight: bold;">Global Settings&gt;AS/AV</span> <span>page</span>. How these rules are configured determine how aggressively spam is filtered.</p>
+<p style="font-weight: bold;">Procedure</p>
+<ol style="list-style: decimal;">
+<li style="font-weight: bold;">
+<p style="font-weight: bold;"><span style="font-weight: normal;">To modify the default settings, go to the</span> Configure&gt;Global Settings&gt;AS/AV <span style="font-weight: normal;">page.</span></p>
+</li>
+<li style="font-weight: bold;">
+<p style="font-weight: bold;"><span style="font-weight: normal;">In the</span> Spam checking Settings <span style="font-weight: normal;">section change these settings.</span></p>
+</li>
+</ol>
+<ul style="list-style: disc;">
+<li style="list-style:none;display: inline">
+<ul style="list-style: disc;">
+<li class="p">
+<p><span style="font-weight: bold;">Kill percent.</span> <span>The default is ma</span>il that is scored at 75% is considered spam and is not delivered.</p>
+</li>
+<li class="p">
+<p><span style="font-weight: bold;">Tag percent.</span> &#160;The default is mail that is scored at 33% is considered spam and is delivered to the Junk folder.</p>
+</li>
+</ul>
+</li>
+</ul>
+<ol start="3" style="list-style: decimal;">
+<li>
+<p>&#160;In the <span style="font-weight: bold;">Subject prefix</span> text box, enter the text that should be added to the subject line for messages tagged as spam.</p>
+</li>
+<li>
+<p>Click <span style="font-weight: bold;">Save</span>.</p>
+</li>
+</ol>
+<p>See the Administration Guide for information about the spam training mailboxes.</p>
+<script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+
+
+highlightSearch();
+//-->
+//]]></script>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <meta name="generator" content="Adobe RoboHelp 10" />
+<title>Configure Message Retention and Deletion Policies</title>
+<link rel="StyleSheet" href="../default.css" type="text/css" />
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="JavaScript">//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+        origWidth = innerWidth;
+        origHeight = innerHeight;
+        onresize = reDo;
+}
+onerror = null; 
+//]]></script>
+<script type="text/javascript" language="javascript1.2" src="../whmsg_nc.js"></script>
+<script type="text/javascript" language="javascript" src="../whver_nc.js"></script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy_nc.js"></script>
+<script type="text/javascript" language="javascript1.2" src="../whutils_nc.js"></script>
+<script type="text/javascript" language="javascript1.2" src="../whlang_nc.js"></script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic_nc.js"></script>
+ <script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="../whmsg.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript" src="../whver.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whutils.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whlang.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic.js" charset="utf-8"></script>
+
+</head>
+
+<body><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.gbWhTopic)
+{
+	var strUrl = document.location.href;
+	var bc = 0;
+	var n = strUrl.toLowerCase().indexOf("bc-");
+	if(n != -1)
+	{
+		document.location.href = strUrl.substring(0, n);
+		bc = strUrl.substring(n+3);
+	}
+
+	if (window.addTocInfo)
+	{
+	addButton("show",BTN_TEXT,"Show TOC","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	
+	
+}
+else
+	if (window.gbIE4)
+		document.location.reload();
+
+onLoadHandler = function()
+{
+  if (window.setRelStartPage)
+	{
+	setTimeout("setRelStartPage('../administration_console_help.htm');", 1)
+
+    setTimeout("UpdateBreadCrumbsMarker();", 1);
+	}
+}
+
+if (window.addEventListener){  
+	window.addEventListener('load', onLoadHandler, false);   
+} else if (window.attachEvent){  
+	window.attachEvent('onload', onLoadHandler);  
+}
+
+function onSetStartPage()
+{
+  autoSync(1);
+  sendSyncInfo();
+  sendAveInfoOut();
+}
+//-->
+//]]></script>
+<script type="text/javascript" src="../ehlpdhtm.js" language="JavaScript1.2"></script>
+
+
+<h1>Configure Message Retention and Disposal Policies</h1>
+<p style="font-size: 11.0pt; font-family: Arial, sans-serif; mso-font-width: 100%;">Retention 
+ and deletion policies can be configured as a global setting or you can 
+ configure COS-level policies instead of inheriting from the global settings. 
+ &#160;&#160;</p>
+<p style="font-size: 11.0pt; font-family: Arial, sans-serif; mso-font-width: 100%;">The 
+ policy sets the time threshold for items in the user's folders. &#160;Users 
+ can select these policies to apply to their message folders in their account. 
+ They can also set up their own retention and deletion policies. Users 
+ enable a policy you set up or create their own policies from their folders’ 
+ Edit Properties dialog box.</p>
+<h4>Add Retention Policies</h4>
+<p><span style="font-family: Arial, sans-serif; mso-font-width: 100%;">Note: 
+ To use the COS retention and disposal policies, make sure you check the 
+ box</span> labeled<span class="attribute"> </span><b><span class="attribute">Enable 
+ COS-level policies instead of inheriting from the policy defined in Global 
+ Settings</span></b> <span style="font-family: Arial, sans-serif; mso-font-width: 100%;">on 
+ the</span> <span class="attribute"><b>Class of Service</b></span><span 
+	 class="attribute" style="font-family: Arial, sans-serif; mso-font-width: 100%;"><font 
+	 style="font-size: 11pt;" size="2">,</font></span><span class="attribute"> 
+ </span><b><span class="attribute">Retention Policy</span></b> <span style="font-family: Arial, sans-serif; 
+	 mso-font-width: 100%;">page.</span></p>
+<ol style="list-style: decimal;">
+	<li style="font-size: 11.0pt; font-family: Arial, sans-serif;"><p style="font-size: 11.0pt; 
+		 font-family: Arial, sans-serif; mso-font-width: 100%;">Go to<span 
+	 class="attribute"> <b>Configure &gt; Global Settings</b>, <b>Retention 
+	 Policy</b></span> page.</p></li>
+	<li style="font-size: 11.0pt; font-family: Arial, sans-serif;"><p style="font-size: 11.0pt; 
+		 font-family: Arial, sans-serif; mso-font-width: 100%;">In the 
+	 <b><span class="attribute">Retention Policies</span></b> section, 
+	 click <b><span class="attribute">Add</span></b>.</p></li>
+	<li style="font-size: 11.0pt; font-family: Arial, sans-serif;"><p style="font-size: 11.0pt; 
+		 font-family: Arial, sans-serif; mso-font-width: 100%;">In the 
+	 <b><span class="attribute">Add Retention Policy</span></b> dialog 
+	 box, type a descriptive policy name and set the retention range in 
+	 &#160;days, weeks, months, or years.</p></li>
+	<li style="font-size: 11.0pt; font-family: Arial, sans-serif;"><p style="font-size: 11.0pt; 
+		 font-family: Arial, sans-serif; mso-font-width: 100%;">Click <b><span 
+	 class="attribute">OK</span></b>.</p></li>
+</ol>
+<p><span style="mso-font-width: 100%;">The retention policy is not automatically 
+ enforced on a folder. If users delete an item in a folder that has not 
+ met the threshold of the retention policy, the following message is displayed,</span> 
+ <b><font style="font-size: 10pt;" size="2"><span class="attribute">You 
+ are deleting a message that is within its folder’s retention period. Do 
+ you wish to delete the message</span></font></b>?</p>
+<h4><span style="mso-font-width: 100%;"><font style="font-size: 11pt;" 
+												 size="2">A</font></span>dd 
+ Deletion Policies</h4>
+<ol style="list-style: decimal;">
+	<li style="font-size: 11.0pt; font-family: Arial, sans-serif;"><p style="font-size: 11.0pt; 
+		 font-family: Arial, sans-serif; mso-font-width: 100%;">Go to <span 
+	 class="attribute"><b>Configure &gt; Global Settings</b>, </span><b><span 
+	 class="attribute">Retention Policy</span></b> page.</p></li>
+	<li style="font-size: 11.0pt; font-family: Arial, sans-serif;"><p style="font-size: 11.0pt; 
+		 font-family: Arial, sans-serif; mso-font-width: 100%;">In the<span 
+	 class="attribute"> </span><b><span class="attribute">Disposal Policies</span></b> 
+	 section, click <b><span class="attribute">Add</span></b>.</p></li>
+	<li style="font-size: 11.0pt; font-family: Arial, sans-serif;"><p style="font-size: 11.0pt; 
+		 font-family: Arial, sans-serif; mso-font-width: 100%;">In the 
+	 <b><span class="attribute">Add Retention Policy</span></b> dialog 
+	 box, type a descriptive policy name and set the disposal threshold 
+	 &#160;range in &#160;days, weeks, months, or years.</p></li>
+	<li style="font-size: 11.0pt; font-family: Arial, sans-serif;"><p style="font-size: 11.0pt; 
+		 font-family: Arial, sans-serif; mso-font-width: 100%;">Click <b><span 
+	 class="attribute">OK</span></b>.</p></li>
+</ol>
+<p style="font-size: 11.0pt; font-family: Arial, sans-serif; mso-font-width: 100%;">When 
+ the threshold for the deletion policy is reached, items are deleted from 
+ the account. They are not sent to the Trash folder. If the dumpster feature 
+ is enabled, they are sent to the dumpster, if it is not enabled, they 
+ are purged from the server.</p>
+<p>&#160;</p>
+<script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+
+
+highlightSearch();
+//-->
+//]]></script>
+</body>
+</html>

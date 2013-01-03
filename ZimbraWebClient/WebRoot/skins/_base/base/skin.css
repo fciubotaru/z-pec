@@ -1,0 +1,304 @@
+/*
+ * ***** BEGIN LICENSE BLOCK *****
+ * Zimbra Collaboration Suite Web Client
+ * Copyright (C) 2006, 2007, 2009, 2010 Zimbra, Inc.
+ * 
+ * The contents of this file are subject to the Zimbra Public License
+ * Version 1.3 ("License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
+ * http://www.zimbra.com/license.
+ * 
+ * Software distributed under the License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+ * ***** END LICENSE BLOCK *****
+ */
+
+
+body	{	@ChromeBg@	}
+
+
+/* splash screen outer container */
+#skin_container_splash_screen {
+	position:absolute;
+	left:0;
+	top:0;
+	width:100%;
+	height:100%;
+	z-index:90000000;
+	display:block;
+	@ChromeBg@
+}
+
+/*
+ * Hide parts of the app that may not be shown all the time.
+ * NOTE: Start by hiding the main app view (with tree) as this will flash less when changed.
+ * NOTE: Hiding both the main view and the full screen view messes up FF
+ */
+#skin_outer,							
+/*	#skin_tr_toolbar, 						/* main app (with tree) *
+	#skin_tr_main, 
+*/
+#skin_tr_toolbar_full, 					/* main app (fullscreen) */
+#skin_tr_main_full,	
+#skin_tr_tree_footer					/* mini-calendar */
+	{
+	display:none;
+}
+
+
+
+/* classes for the skin around the various pieces of the app */
+
+.skin_container	{	
+	position:relative;	
+	overflow:hidden; 
+}
+
+.skin_table	{	
+	@FullSize@	
+	border-collapse:collapse; 
+	table-layout:fixed; /* NOTE: removing so skin resizing via sash will work */
+}	
+
+
+
+
+#skin_outer	{	
+	@SkinOuter@ 
+	@FullSize@	
+}
+#skin_outer *	{ 	
+	@FixBoxModel@
+}
+
+
+#skin_table_outer	{}
+
+/*	 all columns are sized with the following classes	*/
+#skin_col_tree, 
+#skin_col_tree_inner,
+#skin_td_outer_tree {	
+	width:170px;	
+}
+
+#skin_col_tree_app_sash,
+#skin_col_tree_app_sash_inner,
+#skin_td_tree_app_sash {	
+	width:8px;		
+}
+
+#skin_col_main,
+#skin_col_main_inner,
+#skin_td_app_main {	
+	width:100%;		
+}
+
+/* top row:  logo, search box, quota */
+#skin_tr_top	{}
+#skin_td_logo	{	
+	text-align:center; 
+	vertical-align:middle;
+}
+#skin_container_logo	{	
+	@SkinBorderLogo@
+	height:35px;
+#IFDEF MSIE
+	/* UGH, IE DOESN'T CENTER PROPERLY WITHOUT THIS */
+    height:100%;
+#ENDIF
+}
+
+
+#skin_td_search	{	
+	vertical-align:top;
+	width:100%;
+	padding:8 15 5px 0;
+}
+#skin_container_search	{	
+	@SkinBorderSearch@
+	height:32;
+	padding:3px 4px 4px 4px;
+}
+
+
+
+#skin_td_username {
+	font-size:10px;
+	padding-top:8px;
+	padding-bottom:1px;
+	text-align:center;
+	padding-right:15px;
+}
+#skin_container_username {	
+	@SkinBorderQuota@
+	width:120px;
+}
+
+
+#skin_td_quota	{
+	text-align:center;
+	padding-right:15px;
+}
+#skin_container_quota	{	
+	@SkinBorderQuota@
+	width:150px;
+}
+
+
+
+#skin_td_help {
+	text-align:left;
+}
+#skin_container_help {
+}
+
+#skin_td_logoff {
+	text-align:right;
+	padding-right:15px
+}
+#skin_container_logoff {
+	text-align:right;
+}
+
+
+/* current app, tree-app sash, top toolbar */
+#skin_tr_toolbar	{}
+#skin_td_current_app	{	
+	padding:0 0 0 0;
+}
+
+
+#skin_td_app_top_toolbar, 
+#skin_td_app_top_toolbar_full,
+#skin_td_app_toolbar_sep	{	
+	padding:0px;	
+}
+
+#skin_container_current_app,
+#skin_container_app_top_toolbar,
+#skin_container_app_toolbar_sep	{	
+ 	@SkinBorderAppToolbar@
+	height:30px;
+	padding:1px 2px 2px 2px;
+}
+#IFDEF MSIE
+#skin_container_app_toolbar_sep	{	
+ 	@SkinBorderAppToolbar@
+	height:30px;
+	padding:4px 2px 2px 2px;
+}
+#ENDIF
+
+#skin_container_app_toolbar_sep {
+	vertical-align:middle;	
+}
+
+#skin_container_app_toolbar_sep .vertSep{
+	margin-top: 2px;	
+}
+
+#skin_container_current_app 	{
+	padding-right:10px;
+}
+
+#skin_td_tree_app_sash	{	
+	text-align:center; 
+	vertical-align:middle;
+}
+#skin_container_tree_app_sash	{
+	@SkinBorderTreeSash@
+	height:100%;
+}
+
+
+#skin_app_toolbar_sep 	{
+	position:relative;
+	height:16px;
+	width:1px;
+	border-left:1px solid @SeparatorColor@;
+}
+
+#skin_td_app_toolbar_sep .vertSep 	{}
+
+/* app chooser, tree, app main */
+
+#skin_tr_main	{}
+
+#skin_td_app_chooser	{	
+	vertical-align:bottom; 
+	text-align:center;	
+	height:25px;	
+	padding:2px 0 0 8px; 
+}
+
+#skin_container_app_chooser	{	
+	@SkinBorderAppChooser@
+	height:100%;
+}
+
+#skin_tr_tree	{}
+#skin_td_tree	{	
+	height:100%;
+	padding:5px 0px 2px 5px;
+}
+#skin_container_tree	{	
+	@SkinBorderTree@
+	height:100%;
+}
+
+
+#skin_tr_tree_footer	{}
+#skin_td_tree_footer	{	
+	vertical-align:top;
+	padding:0px 0px 5px 5px;
+}
+
+#skin_container_tree_footer	{	
+	@SkinBorderMiniCal@
+	height:140;	
+}
+
+
+
+#skin_td_app_main	{	
+	padding:5 5 5 0;	 
+}
+#skin_container_app_main, 
+#skin_container_app_main_full	{	
+	@FullSize@
+	@SkinBorderPage@
+	height:100%;
+}
+
+
+
+.ImgAppBanner	{background-image:url("@AppBannerImg@");  width:@AppBannerWidth@;  height:@AppBannerHeight@;  }
+.ImgLoginBanner	{background-image:url("@LoginBannerImg@");width:@LoginBannerWidth@;height:@LoginBannerHeight@;}	
+
+#IFDEF MSIE
+.ImgAppBanner	{background:none;filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='@AppBannerImg@',sizingMethod='scale');}
+.ImgLoginBanner	{background:none;filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='@LoginBannerImg@',sizingMethod='scale');}
+#ENDIF
+
+
+/* Top ad stuff -- specify the height as TopAdHeight in your skin.properties file */
+#skin_tr_top_ad {
+	display:none;
+}
+#skin_container_top_ad	{	
+	height:@TopAdHeight@;
+}
+
+/* Sidebar ad stuff -- specify the width as SidebarAdWidth in your skin.properties file */
+#skin_td_sidebar_ad		{	
+	display:none;
+	width:@SidebarAdWidth@;	
+	padding-top:5px;	
+}
+
+
+.ZmAppChooser 	{
+	margin:0px;
+}
+
+

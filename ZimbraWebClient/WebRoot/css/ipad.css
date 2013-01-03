@@ -1,0 +1,1638 @@
+/* CSS document for iPad */
+
+/* Browser reset */
+html,body,p,div,table,ul,li,form{
+
+	margin: 0;
+	padding: 0;
+	border: none;
+	word-spacing: 1px;
+}
+
+
+a{
+	outline: none;
+	-webkit-transition: color 0.15s ease-out;
+	color: blue;
+}
+
+a:hover{
+	color: lightslategray;
+} 
+/* Orientation specific styles */
+
+@media (orientation:landscape) {
+
+    .wrap-dlist {
+       height: 570px; /*changed for new ui changes*/
+    }
+
+    .wrap-folder-dlist {
+       height: 620px; /*changed for new ui changes*/
+    }
+
+	.wrap-dcontent {
+       height: 640px;
+    }
+
+    .wrap-dcal {
+       height: 500px;
+    }
+	
+	.wrap-dcallist {
+       height: 280px;
+    }
+    
+    .wrap-dcallview {
+       height: 462px;
+    }
+    
+    .wrap-dcalzoom {
+        height:323px;
+    }
+
+	.emptyBody {
+		min-height: 640px;
+	}
+
+	.msgBody {
+		min-height: 490px;
+	}
+
+    .calBody {
+        min-height: 470px;
+    }
+    
+	.view{
+		height: 665px;
+	}
+	
+	.composeBox{
+		width: 800px;
+	}
+	
+	.search{
+		margin: 15px 10px 0 15px;
+		width: 200px;
+	}
+	
+	ul.ul{
+		margin: 25px 0 0 18%;
+		width: 500px;		
+	}
+	
+	.shell{
+		width: 280px;	
+	}
+	
+	.moreButton{
+		width: 250px;
+	}
+	
+	.copyrights{
+		margin-left: 20%;	
+	}
+	
+    .ZhCalMonthDay, .ZhCalMonthDaySelected {
+        height: 0 !important;
+    }
+	
+	.listViewPane{
+		width: 32%;
+	
+	}
+	
+	.contentViewPane{
+		width: 67.9%;
+	}
+	
+	.menu{
+	    left: 185px;
+	}
+	
+	.arrowHead{
+		left: 88px;	
+	}
+}
+
+@media (orientation:portrait) {
+	.wrap-dlist {
+       height: 825px;   
+    }
+
+    .wrap-folder-dlist {
+       height: 875px; /*changed for new ui changes*/
+    }
+
+    .wrap-dcontent {
+       height: 870px;
+   	}
+
+    .wrap-dcal {
+       height: 753px;
+    }
+    
+    .wrap-dcallist {
+       height: 533px;
+    }
+    
+    .wrap-dcallview {
+       height: 715px;
+    }
+    
+    .wrap-dcalzoom {
+        height:320px;   
+    }
+	.emptyBody {
+		min-height: 870px;
+	}
+	
+	.msgBody {
+		min-height: 736px;
+	}
+
+    .calBody {
+        min-height: 736px;
+    }
+
+	.view{
+		height: 916px;
+	}
+	
+	.composeBox{
+		width: 600px;
+	}
+	
+	.search{
+		margin: 15px 10px 0 5px;
+		width: 160px;
+	}
+
+	ul.ul{
+		margin: 25px 0 0 5%;
+		width: 460px;		
+	}
+	
+	.shell{
+		width: 210px;
+	}
+	.moreButton{
+		width: 170px;
+	}
+
+	.copyrights{
+		margin-left: 10%;	
+	}
+
+    .ZhCalMonthDay, .ZhCalMonthDaySelected {
+        height:111px;
+    }
+	
+	.listViewPane{
+		width: 39%;
+	
+	}
+	
+	.contentViewPane{
+		width: 60.9%;
+	}
+	
+	.menu{
+	    left: 140px;
+	}
+	
+	.arrowHead{
+		left: 88px;
+	}
+}
+
+
+
+/* Chrome*/
+
+html, body{
+	font: normal 13px Arial,Tahoma,helvetica,Verdana,sans-serif;;
+	overflow: hidden;
+}
+
+.ul li{
+	list-style: none;
+	display: inline;
+	margin: 0;
+}
+
+.alignLeft{
+	float: left;
+}
+
+.alignRight{
+	float: right;
+}
+
+.clear{
+	clear: both;
+}
+
+/* Topbar Styles */
+
+.topbar {
+ /*	background: #dbd0b5 url("@AppContextPath@/img/mobile/ipad/topbar-bg.gif?v=@jsVersion@") repeat-x top left; */
+	background-color: #f7ecd2;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#4a4a4a), to(#2A2A2A));  /*from(#f7ecd2), to(#c8bc9e)) from: e8ddc3 to: a49479*/
+	background-image: -moz-linear-gradient(100% 100% 90deg, #f7ecd2, #c8bc9e);
+	height: 50px;
+	overflow: hidden;
+	color: #5f5a4a; 
+
+}
+
+	.topbar a{
+		text-decoration: none;
+
+	}
+
+
+.logo{
+	background: transparent url("@AppContextPath@/img/mobile/ipad/logo.png?v=@jsVersion@") no-repeat top left;
+	width: 80px;
+	height: 20px;
+	float: left;
+	/*margin: 15px 0 0 15px;*/
+	margin: 5px 0 0 10px;
+}
+
+.searchBar {
+ /*	background: #dbd0b5 url("@AppContextPath@/img/mobile/ipad/topbar-bg.gif?v=@jsVersion@") repeat-x top left; */
+	background-color: #fcfdfc;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fcfdfc), to(#c5c4c9));  /*from(#f7ecd2), to(#c8bc9e)) from: e8ddc3 to: a49479*/
+	background-image: -moz-linear-gradient(100% 100% 90deg, #fcfdfc, #c5c4c9);
+	height: 40px;
+	overflow: hidden;
+	color: #5f5a4a; 
+
+}
+
+
+.search input{
+	-webkit-border-radius: 12px;
+	outline: none;
+	padding: 4px 10px;
+	width: 94%;
+	font-size: 12px;
+	background-color: white;
+    color: #333;
+    -webkit-box-shadow: #CCC 0px 0px 3px inset;
+	border-color: transparent;
+}
+
+
+.tab{
+
+}
+
+	 ul.ul li{
+		margin-right: 0px;
+		padding: 10px 20px;
+	}
+	
+		ul.ul li a{ color: #d5d5d5; }
+
+	ul.ul li.sel, ul.ul li:active{
+	/*	background: #7f7b6e url("@AppContextPath@/img/mobile/ipad/tab-selected.gif?v=@jsVersion@") repeat-x top left; */
+		background-color: #9a8d6e;
+		background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f5f5f5), to(#E5E5E5));
+		background-image: -moz-linear-gradient(100% 100% 90deg, #9a8d6e, #564e3c);
+		-webkit-border-top-left-radius: 4px;
+		-webkit-border-top-right-radius: 4px;
+		color: #333333;
+		font-weight: bold;
+	}
+	
+		ul.ul li.sel a, ul.ul li:active a{ color: #333333; } 
+
+
+/* Toolbar Style */
+
+.toolbar{
+ /*	background: #7f7b6f url("@AppContextPath@/img/mobile/ipad/toolbar-bg.gif?v=@jsVersion@") repeat-x bottom left;
+	background-color: #E5E5E5;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#E5E5E5), to(#A0A0A0));
+	background-image: -moz-linear-gradient(100% 100% 90deg, #564e3c, #A0A0A0); */
+	
+	background-color: #8d8d8d;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#8d8d8d), to(#454545));  /*from(#f7ecd2), to(#c8bc9e)) from: e8ddc3 to: a49479*/
+	background-image: -moz-linear-gradient(100% 100% 90deg, #8d8d8d, #454545);
+	height: 45px;
+	overflow: hidden;
+	border: none;
+	padding: 0 !important;
+}
+
+.overviewActions{
+	border-right: 1px solid #999;
+}
+
+.applicationActions{
+	border-left: 1px solid #444;
+}
+
+
+.button{
+ /*	background: #dbd0b5 url("@AppContextPath@/img/mobile/ipad/button-bg.gif?v=@jsVersion@") repeat-x bottom left;
+	background-color: #f6f6f6;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f6f6f6), to(#CCCCCC));
+	background-image: -moz-linear-gradient(100% 100% 90deg, #f6f6f6, #CCCCCC);*/
+	
+	background-color: #bfc3c8;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#bfc3c8), to(#868c98));
+	background-image: -moz-linear-gradient(100% 100% 90deg, #bfc3c8, #868c98);
+	-webkit-border-radius: 6px;
+	box-shadow: 0 1px 0 #c4c4c4;
+	/*-webkit-box-shadow: 0 1px 0 #c4c4c4;*/
+	height: 22px;
+	padding: 8px 4px 0 4px;
+	font-size: 12px;
+	font-weight: bold;
+	text-align: center;
+	/*border: 1px solid #a2a2a2; */
+}
+
+	.button:active{
+	 /* background: #7b7769 url("@AppContextPath@/img/mobile/ipad/button-selected-bg.gif?v=@jsVersion@") repeat-x top left; */
+		background-color: #868c98;
+		background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#868c98), to(#bfc3c8));
+		background-image: -moz-linear-gradient(100% 100% 90deg, #868c98, #bfc3c8);
+		color: white;
+	}
+
+		.button a, .buttonRight a, .buttonRight{
+			text-decoration: none;
+			color: white;
+			vertical-align: middle;
+			text-shadow: #727781 0px 1px;	
+		}
+	
+		.button a:active{
+			color: white;
+		}
+	
+		.button input{
+			background-color: transparent;
+			border: none;
+			color: white;
+			font-weight: bold;
+		}		
+	
+.buttonRight{	
+	float: right;
+	margin-right: 10px;
+	min-width: 60px;
+}
+
+.buttonBottom{
+	background-color: transparent;
+	width: 60px;
+	height: 30px;
+	font-size: 12px;
+	text-align: center;
+	padding: 8px 4px 0 4px; 
+}
+
+	.buttonBottom:hover{
+		background-color: #564e3c;
+		background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#2A2A2A), to(#4a4a4a));
+		background-image: -moz-linear-gradient(100% 100% 90deg, #29251b, #564e3c);
+	}
+	
+	.buttonBottom a{
+		color: #DDDDDD;
+		text-decoration: none;
+	}
+	
+.folder{
+	float: left;
+	margin-left: 10px;
+	 min-width: 50px;
+}
+
+	.folder div{ margin: 4px;}
+
+
+.select{
+	float: right;
+	margin-right: 10px;
+	width: 70px;
+}
+
+	.select select{
+		background: transparent;
+		border: none;
+		width: 70px;
+		color: white;
+		font-weight: bold;
+		margin-top: -3px !important;
+		text-shadow: #727781 0px 1px;
+	}
+
+.menu{
+    position: absolute;
+    top: 55px;
+    -webkit-border-radius: 6px;
+    background-color: #808691;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 18%, from(#808691), to(#242836));
+    z-index:15;
+    width: 200px;
+    min-height: 160px;
+    padding: 6px;
+}
+
+.arrowBox{
+	position: relative;
+}
+	
+	.arrowHead{
+		color: #808691;
+		position: absolute;
+		top: -21px;
+		z-index: 16;
+		font-size: 20px;
+	}
+
+.menuButton{
+	background-color: white;
+	background-image: -webkit-gradient(linear, 0% 50%, 0% 59%, from(#FFFFFF), to(#EBEFF5));
+	font-size: 12px;
+	font-weight: bold;
+	width: 98%;
+	padding: 10px;
+	-webkit-border-radius: 4px;
+	text-shadow: #fff 0px 1px;
+	/*text-transform: uppercase;*/
+	display: inline-block;
+	margin-bottom: 5px;
+	border: none;
+}
+
+	.menuButton a{
+		text-shadow: none;
+		color: black;
+	}
+
+
+.icons{
+	float: right;
+	margin-right: 10px;
+	width: 20px;
+}
+
+
+.compose{
+	float: left;
+	margin-left: 10px;
+	width: 60px;
+}
+
+	.compose div{ margin: 4px;}
+
+
+.actions{
+	float: right;
+	margin-right: 10px;
+	overflow: hidden;
+}
+
+
+.actionLeft, .actionCenter, .actionRight{
+ 	float: left;
+ 	min-width: 60px;
+
+}
+
+
+.actionLeft{
+	-webkit-border-top-left-radius: 6px;
+	-webkit-border-bottom-left-radius: 6px;
+	-webkit-border-top-right-radius: 0;
+	-webkit-border-bottom-right-radius: 0;
+	border-right: 1px solid #FFFFFF;
+}
+ 
+ 
+.actionCenter{
+	-webkit-border-top-left-radius: 0;
+	-webkit-border-bottom-left-radius: 0;
+	-webkit-border-top-right-radius: 0;
+	-webkit-border-bottom-right-radius: 0;
+	border-left: 1px solid #666666;
+	border-right: 1px solid #FFFFFF;
+}
+
+
+.actionRight{
+	-webkit-border-top-left-radius: 0;
+	-webkit-border-bottom-left-radius: 0;
+	-webkit-border-top-right-radius: 6px;
+	-webkit-border-bottom-right-radius: 6px;
+	border-left: 1px solid #666666;
+}
+
+.actionLeft div, .actionCenter div, .actionRight div{
+	margin: 4px;
+}
+
+.moreButton{
+	background-color: #eee;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#eeeeee), to(#c5c5c5));
+	background-image: -moz-linear-gradient(100% 100% 90deg, #eeeeee, #c5c5c5);
+	-webkit-border-radius: 6px;
+	box-shadow: 1px 1px 5px #999;
+	height: 30px;
+	padding: 13px 4px 0 4px;
+	font-size: 12px;
+	font-weight: bold;
+	text-align: center;
+	margin: auto;	
+}
+
+		.moreButton:active{
+		background-color: #666;
+		background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#666), to(#999));
+		background-image: -moz-linear-gradient(100% 100% 90deg, #666, #999);
+			color: white;
+		}
+
+		.moreButton a{
+			text-decoration: none;
+			text-transform: lowercase;
+			color: #3b3b3b	;
+			vertical-align: middle;
+			text-shadow: #f6f6f6 0px 1px;	
+		}
+	
+		.moreButton a:active{
+			color: white;
+		} 
+		
+.footer{
+		height: 30px;
+		position: absolute;
+		z-index: 100;
+		bottom: 0;
+		left: 0;
+		min-width: 100%;
+}
+
+	.footer .copyrights, .footer .userInfo, .footer .quota{
+		height: 30px;
+		font-size: 12px;
+		text-align: center;
+		padding: 8px 4px 0 4px;
+	}
+	
+	.quota{
+		color: #999;
+		font-size: 11px !important;
+	}
+	
+.userInfo{
+	margin-left: 10px;
+}
+
+.copyrights, .copyrights a, .userInfo{
+	color: #DDDDDD;
+	text-decoration: none;
+}
+
+.shell{
+	margin: 1px 0 0 13%;
+	background-color: #564e3c;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#2A2A2A), to(#4a4a4a));  /*from(#f7ecd2), to(#c8bc9e)) from: e8ddc3 to: a49479*/
+	background-image: -moz-linear-gradient(100% 100% 90deg, #29251b, #564e3c);
+	padding: 0;
+	border-radius: 18px;
+	-webkit-border-radius: 18px;
+	height: 8px;
+}
+
+.shell .bar{
+	-webkit-border-radius: 18px;
+	border-radius: 18px;
+	height: 8px;
+	width: 30%;
+	background-color: #e8ddc3;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#E5E5E5), to(#A0A0A0));
+	background-image: -moz-linear-gradient(100% 100% 90deg, #e8ddc3, #a49479);
+}
+		
+/*List view and Content View styles */
+
+.view{
+	width: 100%;
+	overflow: hidden;
+	background-color: white;
+	
+	/*background: transparent url("@AppContextPath@/img/mobile/ipad/pattern.jpg") top left;
+	background-color: #ece4d0;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#999999), to(#666666));
+	background-image: -moz-linear-gradient(100% 100% 90deg, #ece4d0, #d9ceb2);*/
+}
+
+
+.listViewPane{
+	float: left;
+	border-right: 1px solid #999;
+    overflow:hidden;
+    background-color: white;
+    line-height: 16px;
+}
+
+
+ul.list li{
+	list-style: none;
+	display: block;
+	border-bottom: 1px solid #ede8db;
+}
+
+.msgContainer{
+	padding: 10px 4px;
+	overflow: hidden;
+}
+
+.msgContainerSel{
+	padding: 10px 4px;
+	overflow: hidden;
+	background-color: #ece4d0;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#5c88f7), to(#4b60e8));
+	background-image: -moz-linear-gradient(100% 100% 90deg, #ece4d0, #d9ceb2);
+
+}
+
+	.msgContainerSel *{
+		color: white !important;
+	}
+	
+	  
+.infoBg{
+	background-color: InfoBackground ;
+	color: InfoText; 
+}
+
+.contentViewPane{
+	float: left;
+	border-left: 1px solid #444;
+    overflow:hidden;
+}
+
+.convView{
+	padding-left: 10px;
+	background-color: #b0f1c5;
+}
+	.convView .list-row, .convView .list-row-unread{
+		background-color: #f5f5f5;
+	}
+
+.cushion{
+	padding: 10px 10px 0;
+}	
+.checkBox{
+	width: 5%;
+}
+
+.msg{
+	width: 75%;
+	overflow: hidden;
+	margin-left: 10px;
+}
+
+.header{
+	margin: 10px 10px 0 10px;
+	overflow: hidden;
+	padding: 0 5px;
+}
+
+	.header div{
+		padding: 0 !important;
+		margin-bottom: 0 !important;
+	}
+	
+	
+.subject{
+	color: black;
+	font-size: 16px;
+	font-weight: bold;
+	/*width: 70%; */
+}
+
+.time{
+	/*width: 29.9%; 
+	text-align: right;*/
+	color: black;
+	margin-top: 2px;
+}
+
+	.time a {
+		text-decoration: none;
+		color: black;
+		/*text-align: right;*/
+	}
+	
+/*.msgBody,.emptyBody,.calBody,.prefBody {
+    background-color: white;
+    -webkit-border-radius: 12px;
+    margin: 10px ;
+    padding: 10px;
+    overflow: auto;
+    word-break: break-all;
+    -webkit-box-shadow: 2px 2px 3px #666;
+} */
+
+.emptyBody{
+	text-transform: capitalize;
+	text-align: center;
+}
+
+	.emptyBody h2{
+		background: url("@AppContextPath@/img/mobile/ipad/animgrad.png?v=@jsVersion@") repeat, white;
+		-webkit-text-fill-color: transparent;	
+		-webkit-background-clip: text;	
+		-webkit-animation-name: masked-animation;	
+		-webkit-animation-duration: 10s;	
+		-webkit-animation-iteration-count: infinite;	
+		-webkit-animation-timing-function: linear;
+	}
+	
+	@-webkit-keyframes masked-animation {	
+		0% {background-position: top left;}
+		100% {background-position: top right;}	
+	}
+
+	
+	
+ .address{
+	color: #333333;
+	letter-spacing: 1px;
+	border-bottom: 1px solid #f5f5f5;
+	padding: 6px;
+	background-color: #e5e5e5;
+	
+}
+a.accept,a.tentative,a.decline{
+ /*	background: #dbd0b5 url("@AppContextPath@/img/mobile/ipad/button-bg.gif?v=@jsVersion@") repeat-x bottom left; */
+	background-color: #eee;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#eeeeee), to(#c5c5c5));
+	background-image: -moz-linear-gradient(100% 100% 90deg, #eeeeee, #c5c5c5);
+	-webkit-border-radius: 6px;
+	padding: 10px 15px;
+	font-size: 12px;
+	font-weight: bold;
+	text-align: center;
+	text-decoration: none;
+	color: #3b3b3b;	
+	border: 1px solid #ccc;
+	text-shadow: #f6f6f6 0px 1px;
+}
+
+	a.accept:active, a.tentative:active,a.decline:active{
+	 /* background: #7b7769 url("@AppContextPath@/img/mobile/ipad/button-selected-bg.gif?v=@jsVersion@") repeat-x top left; */
+		background-color: #666;
+		background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#666), to(#999));
+		background-image: -moz-linear-gradient(100% 100% 90deg, #666, #999);
+		color: white;
+	}
+
+.buttonBg{
+	/* background: #c5bba3 url("@AppContextPath@/img/mobile/ipad/button-bg.gif?v=@jsVersion@") repeat-x bottom left; */
+	background-color: #d8bf9c;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#d8bf9c), to(#928068));
+	background-image: -moz-linear-gradient(100% 100% 90deg, #d8bf9c, #928068);	
+	-webkit-border-radius: 6px;
+	vertical-align: middle;
+	padding: 0 !important;
+	margin-top: 6px;
+	color: #3b3b3b;
+	font-size: 12px;
+	font-weight: bold;
+	width: 40% !important;
+	text-shadow: #f6f6f6 0px 1px;
+}
+
+	.buttonBg a{
+		text-decoration: none;
+		color: black;
+	}
+	
+	.buttonBg a:focus,.buttonBg a:hover{
+		background-hover: black;
+		color: white;
+	}
+	
+/** ListView Styles **/
+
+.wrap-dlist {
+    position:relative;	/* needed */
+    z-index:10;			/* needed and important */
+}
+
+.wrap-dcontent {
+    position:relative;	/* needed */
+    z-index:10;			/* needed and important */
+}
+
+
+.tbl {
+    display: table;
+    width: 100%;
+    text-align:center;
+}
+
+.tr {
+    display: table-row;
+    text-align:center;
+}
+
+.td {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    padding-top:10px;
+    padding-bottom:10px;
+}
+
+.dlist .list-row .td, .dlist .list-row-unread .td, .lableBorder{
+    border-bottom: 1px solid #ede8db;
+}
+
+.list-row, .list-row-unread{
+    padding: 3px;
+    /* border-bottom: 1px solid #ede8db; */
+    background-color: white;
+} 
+
+.list-row-unread {
+    font-weight: bold;
+    font-size:14px;
+}
+
+.list-row-sel{
+	background: #d9ceb2 url("@AppContextPath@/img/mobile/ipad/listview-sel-bg.gif?v=@jsVersion@") repeat-x top left;
+}
+
+.small-gray-text {
+    color: #888888;
+    font-size: 11px;
+}
+
+.list-row-unread .small-gray-text,.Email a {
+    color: #666666;
+    font-weight:normal;
+    
+}
+
+.list-row-unread .l{
+	font-weight: normal;
+}
+
+.list-row-unread .from-span a{
+	font-weight: bold;
+}
+
+.from-span a {
+    color: black;
+    text-decoration: none;
+	font-weight: normal;
+    font-size:14px;
+}
+
+.ConvOpen{
+    background-position: 0 -326px !important;
+}
+
+.displayNone{
+	display: none;
+}
+
+.displayShow{
+	display: block;
+}
+.dlist .td{
+}
+
+.f {    
+    white-space: nowrap;
+	padding: 0 5px;
+}
+
+
+.l {
+    text-align: right; 
+	vertical-align: middle;
+	padding-right: 5px;
+}
+
+	.l a{ 
+		color: #666666;
+		text-decoration: none;
+		font-size: 12px;
+		
+	}
+.m {
+    overflow:hidden;
+    text-overflow:ellipsis;
+	vertical-align: top;
+    text-align:left;
+    font-size: 12px;
+}
+
+	.m a{
+		text-decoration: none;
+		color: black;
+	}
+	
+.msg-list-in-conv {
+}
+
+.msg-list-in-conv .cell {
+    padding: 2px !important;
+}
+
+.SmlIcnHldr{
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    vertical-align:middle;
+    background: url("@AppContextPath@/img/mobile/iphone-ext/common.png?v=@jsVersion@") no-repeat top left;
+}
+
+.Msg {
+    /*background: transparent url("@AppContextPath@/img/im/Img_ImSmallAvailable.gif?v=@jsVersion@") no-repeat center center;*/
+}
+
+.Attachment{
+	background: transparent url("@AppContextPath@/img/zimbra/ImgAttachment.png?v=@jsVersion@") no-repeat top left;
+}
+
+.Flag{
+	background: transparent url("@AppContextPath@/img/zimbra/ImgFlagRed.png?v=@jsVersion@") no-repeat top left;
+}
+
+.Edit{
+	background: transparent url("@AppContextPath@/img/zimbra/ImgEdit.png?v=@jsVersion@") no-repeat top left;
+}
+
+.Msg {
+    background-position: 0 -308px !important;
+    left:15px;
+}
+
+.MsgGray {
+    background-position: 0 -200px !important;
+    left:15px;
+}
+.Conv {
+    background-position: 0 -326px !important;
+    left:15px;
+}
+
+.View hr{
+	border: 1px solid white;
+	background-color: white;
+}
+
+/** Style for Contacts **/
+
+.person {
+    background: url("@AppContextPath@/img/mobile/ipad/person.png?v=@jsVersion@") 90% 50% no-repeat;
+    height: 50px;
+    width: 50px;
+    padding: 2px;
+} 
+
+.aleft {
+    text-align:left !important;
+    padding-left: 5px;
+}
+.aright {
+    text-align:right !important;
+    padding-right:5px;
+}
+
+span.aleft > div{
+	color: white;
+	font-size: 12px;
+}
+
+
+span.aleft > div:first-child, .contactHeader {
+	font-size: 18px;
+	color: white;
+}
+
+
+.View .list-row{   									/*. View div, border-bottom: 1px solid #f6f2e7;*/
+	font-size: 14px;
+	display: table-row;
+} 
+
+.View .list-row .label, .View div .label{
+	width: 200px;
+	text-tranform: capitalize;
+	color: #444;
+	text-align: left;
+	display: table-cell;
+	padding: 10px;
+}
+.View .list-row .value, .View div .value{
+	display: table-cell;
+	padding: 10px;
+}
+
+.cont_view .tr{
+	display: table-row;
+	text-align: left;
+	font-size: 14px;
+}
+
+.cont_view .label{
+	padding: 10px;
+	display: table-cell;
+	width: 100px;
+	text-tranform: capitalize;
+	color: #666;
+	text-align: left;
+}
+.cont_view .value{
+	text-align: left !important;
+	width: 500px;
+	display: table-cell;
+}
+
+.value input,.value textarea, .Textarea{
+	font-size: 14px;
+    border: 1px solid #ede8db;
+    font-weight: bold;
+    padding: 4px;
+}
+
+.value textarea{ height: 30px;}
+
+.value a{
+ 	text-decoration: none;
+ 	font-weight: bold;
+ 	color: black;
+}
+
+.attachments div{
+	padding: 4px;
+    margin-bottom: 2px;
+}
+
+.left{
+	border-right: none;
+	border-bottom: 1px solid #ede8d8;
+	text-align: left;
+}
+
+.right{	
+	border-left: none;
+	border-bottom: 1px solid #ede8d8;
+}
+
+
+.Folders a:link{
+	text-decoration: none;
+	font-weight: bold;
+	font-size: 12px;
+	color: black;	
+}
+
+.folderBar{
+	background-color: #564e3c;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#564e3c), to(#29251b));
+	background-image: -moz-linear-gradient(100% 100% 90deg, #564e3c, #29251b);
+	height: 25px;
+	overflow: hidden;
+	border: none;
+	color: #333;
+	padding: 8px;
+}
+
+	
+	.folderBar .td{ 
+		text-align: left;
+		padding: 8px;
+	} 
+	
+	.folderBar .left{ border-bottom: none; font-weight: bold; }
+	
+	.folderBar .right{
+		border-bottom: none;
+	}
+	
+	.folderBar .right a{
+		text-decoration: none;
+		color: blue;
+	}
+
+.folderTitle{
+	font-weight: bold;
+	margin-top: 8px;
+	padding-left: 10px;
+	color: #333333;
+}	
+	
+.editFix{ 
+	text-align: right !important;
+	padding-right: 10px;
+}	
+
+/** Msg View **/
+
+.zo_mv_body{
+	margin-top: 10px;
+	font-size: 14px;
+}
+
+/** needed for iscroll.js **/
+.scrollbar {
+	position: absolute;
+	z-index: 10;
+	width: 1px;
+	height: 1px;
+	border-width: 3px;
+/*	-webkit-border-image: url(images/scrollbar.png?v=@jsVersion@) 3;  */
+
+}
+
+.scrollbar.horizontal {
+	bottom: 1px;
+	left: 1px;
+}
+
+.scrollbar.vertical {
+	top: 1px;
+	right: 1px;
+}
+
+
+/**Compose UI styles **/
+
+.veil{
+	background-color: #333;
+	opacity: 0.7; 
+	-webkit-opacity: 0.8;
+	width: 100%;
+	height: 100%;
+	position: absolute;
+    z-index: 102;
+}
+
+.wrapper{
+	position: absolute;
+	z-index: 104;
+	width: 100%;
+}
+
+.composeBox{
+	margin: 5px auto;
+	position: relative;
+ /*	-webkit-box-shadow: 3px 2px 5px #333; */
+	background-color: transparent;
+}
+
+.composeToolbar{
+ /* background: #e7decb url("@AppContextPath@/img/mobile/ipad/topbar-bg.gif?v=@jsVersion@") repeat-x bottom left; */
+	background-color: #E5E5E5;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#E5E5E5), to(#A0A0A0));
+	background-image: -moz-linear-gradient(100% 100% 90deg, #E5E5E5, #A0A0A0);
+	height: 45px;
+	overflow: hidden;
+	border: none;
+	-webkit-border-top-left-radius: 6px;
+	-webkit-border-top-right-radius: 6px;
+}
+	
+	.composeToolbar .compose, .composeToolbar .buttonRight{
+		margin-top: 6px;
+	}	
+	
+	.composeToolbar .subject{
+		width: auto !important;
+		color: #333333 !important;
+		text-shadow: #FFFFFF 0px 1px;
+	}
+	
+.composeFields{
+	background-color: white;
+	height: 30%;
+	-webkit-border-bottom-left-radius: 6px;
+	-webkit-border-bottom-right-radius: 6px;
+	padding: 4px;
+}
+
+
+.cmp_container .View div.tr, .cmp_body, .cmp_body textarea{
+	width: 95%;
+	text-align: left;
+	padding: 0 4px;
+	display: block;
+	font-size: 14px;
+}
+
+.cmp_container .View span.label{
+	width: 80px;
+}
+
+.cmp_container .View span.value div{
+	padding: 0;
+	margin-bottom: 0;
+}
+
+.cmp_container .View span.value, .cmp_container .View span.value input{
+	width: 490px;
+}
+ .cmp_body textarea{
+ 	height: 300px;
+ 	width: 100%;
+ 	margin-left: 2px;
+ }
+
+/** Calendar UI styles **/
+
+.calSplit{
+    width: 49.8%;
+    float: left;
+    border: 1px dotted #ccc;
+}
+
+.calBits{
+        background-color: #564e3c;
+        background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#4a4a4a), to(#2A2A2A));
+        background-image: -moz-linear-gradient(100% 100% 90deg, #29251b, #564e3c);
+        padding: 0;
+        border-radius: 18px;
+        -webkit-border-radius: 18px;
+		color: white;
+        height: 18px;
+        width: 86%;
+        margin-left: 7%;
+        border: 1px solid #29251b;
+}
+
+.calBitsSel{
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#E5E5E5), to(#A0A0A0));
+	color: black;
+	border-radius: 16px; 
+}
+
+	.calBitsSel a{
+		color: #333333 !important;
+	}
+.calBits td{
+        text-align: center;
+        font-size: 12px;
+        width: 30px;
+        padding-top: 2px;
+        /*border-right: 1px solid #666; */
+}
+
+    .calBits td a{
+          color: white;
+          text-decoration:none;
+
+    }
+
+.ZhCalMonthTable{
+	border-spacing: 0px 0px;
+	background-color: white;
+	border-collapse: collapse;
+	padding: 0px;
+	border-radius: 6px;
+}
+ 
+.ZhCalMonthDay, .ZhCalMonthDaySelected{
+	border: 1px solid #e5e5e5;
+	cursor: pointer;
+	overflow: hidden;
+	vertical-align: top;
+}   
+
+.ZhCalDOM, .ZhCalDOMT, .ZhCalDOMO, .ZhCalDOMOT{
+	font-size: 11px;
+	overflow: hidden;
+	padding-left: 3px;
+	padding-right: 3px;
+	text-align: right;
+	white-space: nowrap;
+	color: #999999;
+}
+
+	.ZhCalDOM a,.ZhCalDOMO a,.ZhCalDOMT a{
+		color: #999999;
+		text-decoration: none;
+	}
+
+
+.ZhCalMonthHeaderMonth{
+	font-size: 18px;
+ 	color: white;
+	text-shadow: #000000 0px -1px;
+	text-align: center;
+	margin-top: 10px;
+}
+
+.ZhCalMonthDaySelected{
+	background-color: #e5e5e5 !important; 
+}
+
+.ZhCalMonthAppt,.zo_day_appt,.ZhCalMonthAllDayAppt,.ZhCalMonthAllDayApptNew{
+	border-radius: 16px;
+	-webkit-border-radius: 16px;
+}
+
+
+	.ZhCalMonthAppt,.zo_appt_text a,.ZhCalMonthAllDayAppt,.ZhCalMonthAllDayApptNew{
+		text-decoration: none;
+		color: #333;
+		font-size: 12px;
+	}
+
+.roundness{
+	border-radius: 16px;
+	-webkit-border-radius: 16px;
+}
+
+.lineHeight{
+	line-height: 16px;
+	padding: 7px;
+}
+
+.OrangeDark,.Orange{ 
+	background-color: #ff9966;
+	border: 1px solid #e4770a;
+}
+
+.OrangeLight{
+	background-color: #FFBB80;
+	border: 1px solid #ffa95e;
+}
+
+.RedLight,.RedBg{ 
+	background-color:#ff9999;
+	border: 1px solid #e56e6e;	 
+}
+
+.GreenLight,.GreenBg{ 
+	background-color:#80C095;
+	border: 1px solid #78ab8a;	 	
+}
+
+.PurpleLight,.PurpleBg{
+	background-color:#c8a4e1;
+	border: 1px solid #9966cc;	
+}
+
+.CyanLight,.CyanBg{
+	background-color:#66cccc;
+	border: 1px solid #4ba5a5;
+}
+.BlueLight,.BlueBg{
+	background-color: #80A2E6;
+	border: 1px solid #648de0;
+}
+
+
+.bigDate{
+	font-size: 100px;
+	color: #999999;
+	display: block;
+}
+
+.bigDay{
+	font-size: 16px;
+	color: #999999;
+	font-weight: bold;
+}
+
+.ZhCalMiniTitlebar,.zo_cal_dayheader{
+	display: none;
+}
+
+.ZhCalMiniDow,.ZhCalMDOMO a, .ZhCalMDOM a, .ZhCalMDOMT a,.zo_cal_dayhour,.zo_cal_allday{
+	font-size: 11px;
+	color: #999999;
+	text-decoration: none;
+	text-align: center;
+}
+
+.ZhCalMDOMT,.ZhCalMDS{
+	background-color: #e5e5e5;
+	-webkit-border-radius: 6px;
+}
+
+	.ZhCalMDOMT a{
+		text-shadow: #FFFFFF 0px -1px;
+		color: brown;
+	}
+
+.ZhCalMDOMT {
+	padding:1px;
+	border:none;
+}
+ 
+.zo_cal_listh{
+	background-color: #e5e5e5;
+	color: black;
+	font-weight: bold;
+	border-top: 2px double #e5e5e5;
+	border-bottom: 1px double #e5e5e5;
+}
+
+.zo_cal_listi_subject{
+    white-space:nowrap;
+    text-overflow:ellipsis;
+    max-width:470px;
+}
+
+	.zo_cal_listi_subject a {
+	    color: black;
+	    font-weight: bold;
+	    text-decoration: none;
+	}
+
+.fishEye{
+	background-color: #E5E5E5;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#E5E5E5), to(#A0A0A0));
+	background-image: -moz-linear-gradient(100% 100% 90deg, #E5E5E5, #A0A0A0);
+}
+
+.fishDayView{
+	-webkit-border-radius: 6px;
+	background-color: white;
+	border: 1px solid #cccccc;
+}
+
+.medDate{
+	font-size:24px;
+	font-weight: bold;
+}
+
+.medDay{
+	font-size: 12px;
+}
+
+
+/** Preference UI Styles **/   
+
+.titleText{
+ 	font-size: 18px;
+ 	color: white;
+	text-shadow: #000000 0px -1px;
+	padding-left: 13px;
+	padding-bottom: 0px; 
+}
+
+
+.prefBody .value select{
+	font-size: 14px !important;
+	width: 50%;
+}
+
+.prefBody .value .timezone{
+	width: 40%;
+}
+
+.prefBody .value input[type='checkbox']{
+	width: 20px;
+	height: 20px;
+} 
+
+/** Auto Complete **/
+
+.ZhAC {
+    position: relative;
+}
+
+.ZhACB {
+    font-weight: bold;
+}
+
+.ZhACCont {
+    position: absolute;
+    bottom: 0;
+}
+
+.ZhACCont .yui-ac-content {
+    position: absolute;
+    border: 1px solid #EDE8D8;
+    background-color: #fdf9ee;
+    overflow: hidden;
+    z-index: 9050; 
+    width: 100%;
+}
+
+.ZhACCont .yui-ac-shadow {
+    position: absolute;
+    margin: .3em;
+    background: #a0a0a0;
+    z-index: 9010;
+}
+
+.ZhACCont ul {
+    margin: 0;
+    padding: 1px 0;
+    list-style: none
+}
+
+.ZhACCont li {
+    margin: 0;
+    padding: 0 1px;
+    cursor: default;
+    white-space: nowrap;
+    border-top: 1px solid #EDE8D8;
+}
+
+.ZhACCont li.yui-ac-highlight {
+	overflow: hidden;
+	background-color: #ece4d0;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ece4d0), to(#d9ceb2));
+	background-image: -moz-linear-gradient(100% 100% 90deg, #ece4d0, #d9ceb2);
+}
+
+.ZhACCont li.yui-ac-prehighlight {
+    background-color: #FFFFCC;
+}
+
+.ZhACCont table {
+    font-size: small;
+}
+
+.ZhACTo {
+    z-index: 9050;
+}
+
+.ZhACCc {
+    z-index: 9040;
+}
+
+.ZhACBCc {
+    z-index: 9030;
+}
+
+.yui-ac-bcd .left{
+	border-bottom: none !important;
+}
+
+
+/* Status Info */
+
+.loadingDiv, .StatusInfo, .StatusWarning, .StatusCritical, .zo_noresults {
+    -webkit-transition: opacity 200ms linear;
+    position:absolute;
+    bottom: 50px;
+    width:30%; 
+    z-index:1000;
+    margin: 0 45%;
+    -webkit-border-radius: 6px;
+	padding-top: 6px !important;
+	-webkit-box-shadow: #e5e5e5 0 1px 2px;
+	-webkit-transition: color 0.15s ease-out;
+	opacity: 0.9;
+}
+
+.loadingDiv, .StatusWarning{
+  	background-color:#ffffe1;
+    border: 3px solid #ffffbf;
+  	
+}
+	.loadingDiv .td, .StatusInfo .td, .StatusWarning .td, .StatusCritical .td, .zo_noresults .td{
+		padding-top: 6px !important;
+		font-weight: bold;
+ 
+	}
+	
+.hidden {
+    opacity: 0.0 !important;
+    display:none;
+} 
+
+.zo_noresults {
+    height: 200px;
+    text-align: center;
+}
+.StatusInfo {
+    background-color: #cdffda !important;
+	border: 3px solid #9affb4;
+
+}
+
+.StatusCritical {
+    background-color: #fecdd0 !important;
+    border: 3px solid #feacb0;
+    
+}
+
+.Cancel{
+    background-position: 0px -60px !important;
+}
+
+.Img { display:inline-block; }

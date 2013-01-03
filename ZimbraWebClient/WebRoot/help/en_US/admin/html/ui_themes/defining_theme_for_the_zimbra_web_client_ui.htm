@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Adobe RoboHelp 10" />
+<title>Making UI Themes available by COS</title>
+<link rel="StyleSheet" href="../default.css" type="text/css" />
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="../whmsg.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript" src="../whver.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whutils.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whlang.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic.js" charset="utf-8"></script>
+
+</head>
+<body><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.gbWhTopic)
+{
+	var strUrl = document.location.href;
+	var bc = 0;
+	var n = strUrl.toLowerCase().indexOf("bc-");
+	if(n != -1)
+	{
+		document.location.href = strUrl.substring(0, n);
+		bc = strUrl.substring(n+3);
+	}
+
+	if (window.addTocInfo)
+	{
+	addTocInfo("Global Settings\nDefining Theme for the Zimbra Web Client UI");
+addTocInfo("Working with Themes\nMaking UI Themes Available by COS");
+addButton("show",BTN_TEXT,"Show TOC","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	
+	
+}
+else
+	if (window.gbIE4)
+		document.location.reload();
+
+onLoadHandler = function()
+{
+  if (window.setRelStartPage)
+	{
+	setTimeout("setRelStartPage('../administration_console_help.htm');", 1)
+
+    setTimeout("UpdateBreadCrumbsMarker();", 1);
+	}
+}
+
+if (window.addEventListener){  
+	window.addEventListener('load', onLoadHandler, false);   
+} else if (window.attachEvent){  
+	window.attachEvent('onload', onLoadHandler);  
+}
+
+function onSetStartPage()
+{
+  autoSync(1);
+  sendSyncInfo();
+  sendAveInfoOut();
+}
+//-->
+//]]></script>
+<script type="text/javascript" src="../ehlpdhtm.js" language="JavaScript1.2"></script>
+
+
+
+<h1>Making UI Themes Available by COS</h1>
+<p>Zimbra Collaboration Server includes <a href="javascript:void(0);" id="a1" onmouseover="if (parseInt(navigator.appVersion) >= 4 &amp;&amp; typeof(BSPSPopupOnMouseOver) == 'function') BSPSPopupOnMouseOver(event);" class="BSSCPopup" onclick="BSSCPopup('../cos/customizing_ui_themes.htm',400,500);return false;">themes</a> that can be used to customize the appearance of the Zimbra Web Client. The default user interface theme and the themes that users can select in the <span style="font-weight: bold;">ZWC Preference&gt;General</span> page can be configured in the Class of Services or in <a href="making_ui_themes_available_by_account.htm">individual accounts</a>.</p>
+<p>You can configure accounts to use only a specific theme, to be able to change to any of the themes that have been installed, or to be able to change to specific themes that are enabled.</p>
+<h6>Limit users to one theme</h6>
+<ol>
+<li class="p" style="list-style: decimal;">
+<p>Go to <span style="font-weight: bold;">Configure&gt;Class of Service</span> and select the COS to edit.</p>
+</li>
+<li class="p" style="list-style: decimal;">
+<p>On the <span style="font-weight: bold;">Themes</span> page, select the theme that should be the <span style="font-weight: bold;">Current UI theme</span>.</p>
+</li>
+<li class="p" style="list-style: decimal;">
+<p>On the <span style="font-weight: bold;">Features</span> page, remove the checkmark from <span style="font-weight: bold;">Change UI Themes</span>. The UI theme is the theme listed in the <span style="font-weight: bold;">Current UI theme</span> field.</p>
+</li>
+</ol>
+<h6>Let users access all of the installed Zimbra themes</h6>
+<ol style="list-style: decimal;">
+<li class="p">
+<p>Go to <span style="font-weight: bold;">Configure&gt;Class of Service</span> and select the COS to edit.</p>
+</li>
+<li class="p">
+<p>Make sure that the <span style="font-weight: bold;">Change UI Themes</span> is checked on the <span style="font-weight: bold;">Features</span> page.</p>
+</li>
+<li class="p">
+<p>On the <span style="font-weight: bold;">Themes</span> page, select <span style="font-weight: bold;">all Themes available</span>. Note: All themes in the list can be selected but the themes are not marked.</p>
+</li>
+</ol>
+<h6>Let users access specific Zimbra themes</h6>
+<ol style="list-style: decimal;">
+<li class="p">
+<p>Go to <span style="font-weight: bold;">Configure&gt;Class of Service</span> and select the COS to edit.</p>
+</li>
+<li class="p">
+<p>Make sure that the <span style="font-weight: bold;">Change UI Themes</span> is checked on the <span style="font-weight: bold;">Features</span> page.</p>
+</li>
+<li class="p">
+<p>On the <span style="font-weight: bold;">Themes</span> page, enable <span style="font-weight: bold;">Limit the Themes available to users</span>.</p>
+</li>
+<li class="p">
+<p>Check the box next to the themes you want to enable.</p>
+</li>
+</ol>
+<p>Save your changes.</p>
+<script type="text/javascript" language="JavaScript1.2">
+//<![CDATA[
+        if( typeof( FilePopupInit ) != 'function' ) FilePopupInit = new Function();
+        FilePopupInit('a1');
+//]]>
+</script>
+<script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+
+
+highlightSearch();
+//-->
+//]]></script>
+</body>
+</html>

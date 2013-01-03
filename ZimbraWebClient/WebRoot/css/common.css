@@ -1,0 +1,644 @@
+/*
+ * ***** BEGIN LICENSE BLOCK *****
+ * Zimbra Collaboration Suite Web Client
+ * Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010 Zimbra, Inc.
+ *
+ * The contents of this file are subject to the Zimbra Public License
+ * Version 1.3 ("License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
+ * http://www.zimbra.com/license.
+ *
+ * Software distributed under the License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+ * ***** END LICENSE BLOCK *****
+ */
+
+
+
+
+/****
+
+	TODO
+		* Do some sort of reset, eg table cell spacing, etc
+		* set default font color on outside so it percolates in to all elements (?)
+		* fix box models ?
+
+ ****/
+
+ /* bug 56316 originally */
+.user_font_modern {
+	@FontFamily-modern@
+}
+.user_font_classic {
+	@FontFamily-classic@
+}
+.user_font_wide {
+	@FontFamily-wide@
+}
+.user_font_system {
+	@FontFamily-system@
+}
+
+/*
+* HTML elements - use for global declarations
+*/
+
+P, TH, TD, DIV, SELECT, INPUT[type=text], INPUT[type=password], INPUT[type=file], TEXTAREA, BUTTON {
+	@FontSize-normal@
+}
+#IFDEF MSIE  /* not sure why INPUT is IE only, but leaving that alone */
+INPUT {
+	@FontSize-normal@
+}
+#ENDIF
+
+HTML {
+	@FullSize@
+}
+
+BODY {
+	@FullSize@
+	margin:0px;
+}
+
+FORM {
+	margin:0;
+	padding:0;
+}
+
+TABLE {
+	border-collapse:collapse; 
+	border-spacing:0;
+	border-width:0;
+}
+
+TD {
+	border-width:0;
+	padding:0;
+}
+
+FIELDSET {
+	@FieldSet@
+}
+
+LEGEND {
+	@FieldSetLabel@
+}
+
+/****
+ 		Generic field borders/styles
+ ****/
+INPUT[readonly] {
+	@InputField-disabled@
+}
+TEXTAREA {
+	@TextArea@ @TextArea-normal@
+	#IFDEF SAFARI
+		resize:none;
+	#ENDIF
+}
+TEXTAREA[readonly] {
+	@TextArea-disabled@
+}
+
+INPUT[type="checkbox"] {
+		@ActiveCursor@
+}
+
+#IFDEF MSIE
+	INPUT {cursor: expression(this.type=="checkbox"?'pointer':''); }
+#ENDIF
+
+/* TODO: figure out what we need to do for IE/etc to set the same INPUT styles */
+#IFDEF GECKO
+	/* set for 'text' and 'password' fields explicitly so checkboxes and radio buttons don't get borders */
+	INPUT[type="text"],
+	INPUT[type="password"] {
+		@InputField@
+		@InputField-normal@
+	}
+	INPUT[disabled] {
+		@InputField-disabled@
+	}
+	textarea {
+		@TextArea@
+		@TextArea-normal@
+	}
+#ENDIF
+
+
+
+/*** Syntactic sugar ***/
+.CompactTable {
+	@CompactTable@
+}
+
+.fullSize	{	@FullSize@		}
+.fullWidth 	{	@FullWidth@		}
+.fullHeight {	@FullHeight@	}
+.minSize	{	width:1px; height:1px;	}
+
+
+.leftAlign {
+  text-align:left;
+}
+
+.rightAlign {
+  text-align:right;
+}
+
+
+/* ??? USE? */
+.checkboxLabel {
+  font-weight:bold;
+}
+
+.ToolbarBg {
+	@ToolbarBg@
+}
+
+
+/* Generic classes -- try to use one of these if you can */
+.ZmHead {
+	@FontSize-bigger@
+}
+
+.ZmSubHead {
+	@FontSize-big@
+}
+
+.ZmBigger {
+	@FontSize-bigger@
+}
+
+.ZmFinePrint {
+	@FontSize-smaller@
+}
+
+.ZmImportant {
+	@Text-important@
+}
+
+
+/* Field labels -- always use one of these!  */
+.ZmFieldLabel {
+	@Label@
+}
+
+.ZmFieldLabelLeft {
+	@Label@
+	text-align:left;
+}
+
+.ZmFieldLabelRight {
+	@Label@
+	text-align:right;
+}
+
+.ZmFieldLabelCenter {
+	@Label@
+	text-align:center;
+}
+
+
+ZmSectionLabel {
+	@SectionLabel@
+}
+
+
+/* Apply to any text element which you want to have some spacing on either side */
+.TextPadding {
+	@TextPadding@
+}
+
+/* ??? USED */
+.BigHeaderBg {
+	@WidgetHeaderContainer@
+	@WidgetHeaderContainer-normal@
+	@WidgetHeaderSize-big@
+}
+
+
+
+/* ??? */
+.ZmOverride {
+	background-color:#FFF6BF;
+	padding:2px;
+}
+
+/* Commenting out - if no use found soon, just delete */
+/*.ZmSelectedHeaderBg {
+	@SelectedBg@
+}*/
+
+
+
+
+
+
+/* Graph key -- eg: boxes in Appt Schedule view that say what each color mean */
+.ZmGraphKey {
+	@AppBg@
+	@AppBorder@
+}
+
+.ZmGraphKeyHeader {
+	@PageHeaderBg@
+	@FontSize-big@
+	@Text@
+	@TextPadding@
+	text-align:left;
+	font-weight:bold;
+	vertical-align:middle;
+}
+
+.ZmGraphKeyBody {
+	@BoxSpacing@
+}
+
+.ZmGraphKeyColorBox {
+	@AppBorder@
+	width:10px;
+	height:10px;
+}
+
+.ZmGraphKeyColorText {
+	@Text@
+	@NoWrap@
+}
+
+
+
+
+
+
+
+
+
+/* Horizontal separator */
+.horizSep {
+	@PrettyBottomSeparator@
+	@AddVerticalSpace@
+	width:100%;
+}
+
+/* Vertical separator */
+
+/* ??? MARGINS, USE */
+.vertSep {
+	@LeftSeparator@
+	margin-left:3px;
+	padding-right:3px;
+	height:20px;
+}
+
+/* Vertical space */
+DIV.vSpace {
+	@AddVerticalSpace@
+}
+
+/* Vertical space for td*/
+TD.vSpace {
+    width:2px;
+}
+
+/*
+	Link to open an attachment
+	WHY IS THIS DIFFERENT ?
+*/
+
+.AttLink:link, .AttLink:visited {
+	@Anchor@
+}
+.AttLink:hover {
+	@Anchor-hover@
+}
+
+.AttLink:active {
+	@Anchor-active@
+}
+
+/*  ??? WHY ARE THESE DIFFERENT ? */
+.Row-selected .AttLink:link, .Row-selected .AttLink:active, .Row-selected .AttLink:visited {
+	@Anchor@
+}
+.AttLink:hover, .Row-selected .AttLink:hover {
+	@Anchor-hover@
+}
+
+
+
+/*
+* Drag N Drop
+*/
+
+.DragProxy {
+	@DndOpacity@
+}
+
+.notDroppable {
+	@DndNotAllowedContainer@
+	@DndOpacity@
+}
+
+/* bug fix# 3235 */
+.notDroppable-linux {
+	@DndNotAllowedContainer@
+}
+
+.droppable {
+	@DndAllowedContainer@
+	@DndOpacity@
+}
+
+/* bug fix# 3235 */
+.droppable-linux {
+	@DndAllowedContainer@
+}
+
+.DropTarget {
+    border: 1px solid @DropAllowedColor@ !important;
+}
+
+/* Used by the text laid over the multi-select icon to show number of items selected */
+.DragProxyTextLabel {
+	font-weight:bold;
+	color:white;
+}
+
+
+
+
+/* ??? WHY ARE SOME VEILS WHITE AND SOME TRANSPARENT? */
+.BusyOverlay TABLE, .VeilOverlay TABLE {
+	@VeilOpacity@
+	@BusyCursor@
+	background-color:transparent;	/* ??? */
+}
+/* As of 07/22/05 Linux (or rather X) has a nasty issue that causes a huge perf problem with opacity.*/
+
+.BusyOverlay-linux TABLE, .VeilOverlay-linux TABLE {
+	@BusyCursor@
+	background-color:transparent;
+}
+
+
+.VeilOverlay TABLE {
+	@DisabledCursor@
+	@VeilColor@
+}
+
+.VeilOverlay-linux TABLE {
+	@DisabledCursor@
+}
+
+.CurtainOverlay TABLE {
+	@VeilColor@
+}
+
+
+
+
+
+/*
+ *  New tag dialog
+---UNUSED---
+.TagColorMenu {
+	background-color:white;
+	border:1px solid #CCC;
+}
+*/
+
+
+/*
+ * New folder dialog
+---UNUSED---
+.FolderTree {
+	background-color:white;
+	width:400px;
+	height:200px;
+	border:1px solid #999999;
+	padding:@BoxPaddingSize@ 0 0 @BoxPaddingSize@;
+}
+.FolderTree TD {padding:0;}
+ */
+
+
+/*
+ *  Row display and highlighting in list views
+ *	NOTE: these should probably be more specific names!
+ *
+ *	TODO: Have DwtListView leave the 'row' class along with the 'row-selected' etc classes.
+ *			This will allow us to simplify a lot of the below
+ *
+ *	TODO: Disambiguate all of the below!!!
+ *
+ */
+
+ /* generic for all row types */
+.Row {
+	@ListItemContainer@
+	@DisableSelection@
+}
+
+.RowDouble {
+	@ListItemContainer@
+	@DisableSelection@
+	@ListItemHeightDouble@
+	border-bottom-color:#CCC;  /* TODO: Color should be a property reference */
+	padding-top:3px;
+}
+
+.Row TABLE, .RowDouble TABLE {
+	table-layout:fixed;
+}
+
+.Row TD, .RowDouble TD {
+	@ListItemText@
+}
+
+.RowDouble TD {
+	vertical-align:top;
+}
+
+.RowDouble TD.SubjectDoubleRow {
+    vertical-align:text-bottom;
+}
+
+#IFDEF MACINTOSH
+#IFDEF WEBKIT
+	.RowDouble TD.SubjectDoubleRow 			{	padding-top:1px; 		} 
+	.RowDouble .Unread TD.SubjectDoubleRow 	{	padding-top:0px; 		}
+#ENDIF
+#ENDIF
+
+/* list row styles (bgs & border) */
+
+.Row						{	@ListItemContainer-normal@			}
+
+.RowOdd						{	@ListItemContainer-alt@			}
+
+.selected, 	/* TODO: used? */
+.Row-selected,
+.Row-selected-dragProxy,
+.Row-selected-disabled 		{	@ListItemContainer-selected@		}
+
+/* .Row-matched, */
+.Row-matched-dragProxy 		{ 	@ListItemContainer-matched@		}
+
+.Row-matched TABLE, 
+.Row-matched-drag TABLE 		{	table-layout:fixed;					}
+
+.Row-focused 				{	@ListItemContainer-focused@		}
+
+.Row-selected-actioned 		{	@ListItemContainer-actioned@		}
+
+.Row-dragProxy,
+.Row-matched-dragProxy 		{	@ListItemContainer-dragProxy@		}
+
+
+/* list row TD's (eg: text) */
+
+.Row TD, .RowDouble TD		{	@ListItemText-normal@				}
+
+.RowOdd TD					{	@ListItemText-alt@					}
+
+.selected TD,	/* TODO: used? */
+
+.Row-selected TD,
+.Row-selected-dragProxy TD,
+.Row-selected-disabled TD 	{	@ListItemText-selected@				}
+
+/* .Row-matched TD			 	{ 	@ListItemText-matched@				} */
+
+.Row-focused TD 				{	@ListItemText-focused@			}
+
+.Row-selected-right TD	 		{	@ListItemText-actioned@			}
+
+.Row-dragProxy TD,
+.Row-matched-dragProxy TD	{	@ListItemText-dragProxy@			}
+
+
+/*** TODO:  clean this the hell up ***/
+
+.Row TD.Flag, .Row TD.Attach, .Row TD.Tag, .Row TD.Icon, .Row TD.Count,
+.Row-selected TD.Flag, .Row-selected TD.Attach, .Row-selected TD.Tag, .Row-selected TD.Icon, .Row-selected TD.Count,
+.Row-dragProxy TD.Flag, .Row-dragProxy TD.Attach, .Row-dragProxy TD.Tag, .Row-dragProxy TD.Icon, .Row-dragProxy TD.Count,
+.Row-selected-dragProxy TD.Flag, .Row-selected-dragProxy TD.Attach, .Row-selected-dragProxy TD.Tag, .Row-selected-dragProxy TD.Icon, .Row-selected-dragProxy TD.Count,
+.Row-matched-dragProxy TD.Flag, .Row-matched-dragProxy TD.Attach, .Row-matched-dragProxy TD.Tag, .Row-matched-dragProxy TD.Icon, .Row-matched-dragProxy TD.Count,
+.Row-dragProxy TD.Flag, .Row-dragProxy TD.Attach,.Row-dragProxy TD.Tag, .Row-dragProxy TD.Icon, .Row-dragProxy TD.Count {
+	text-align:center;
+}
+
+.RowDouble TD.Count, .RowDouble-selected TD.Count {
+	text-align:right;
+}
+
+
+/*
+ * Flags
+ */
+.Unread 					{	@Text-unread@ 		}
+.Trash 					{	@Text-deleted@ 		}
+.Unread .SubjectDoubleRow	{	@Text-unread@ 		} /* overrides quirksmode, since quirks sets table font-weight to normal and takes precedence, so this is more specific, and since SubjectDoubleRow is on a TD it works */
+
+
+/* Overview */
+
+.ZmOverview 				{	@FullSize@ 			}
+
+
+.ZmOverviewContainer 		{	@TreeContainer@ 	}
+
+.ZmVoiceOverviewContainer .ZmOverview,
+.ZmOverviewContainer .ZmOverview,
+.dialogOverviewContainer .OverviewTree {
+	height:auto;
+}
+
+.OverviewTree 				{	@FullWidth@ 		}
+
+
+.dialogOverview				{
+	@TreeContainer@
+	@NormalInsetBorder@
+	@BoxPadding@
+	height:200px;		/* ??? SIZE */
+}
+
+.dialogOverviewContainer 		{	@PanelBg@ 			}
+
+.dialogOverview TD 			{	@Text@ 				}
+
+.pickerOverview 				{	@TreeContainer@ @FullHeight@ 	}
+
+/* ??? MARGINS */
+.overviewHeader,.overviewHeader-actioned {
+	@InactiveCursor@
+	@TreeHeaderContainer@
+	@TreeHeaderText@
+	@TreeItemSpacing@
+	padding-top:1px;
+	padding-bottom:1px;
+}
+
+.overviewHeader-Text,
+.overviewHeader-dragOver {
+	@TreeHeaderText@	
+}
+
+.overviewHeader-selected {
+	@TreeHeaderText@
+    @SelectedBg-blurred@
+	padding-top:1px;
+	padding-bottom:1px;
+}
+
+.overviewHeader-selected-focused {
+	@TreeHeaderText@
+    @SelectedBg@
+}
+
+.overviewHeader .imageCell,.overviewHeader-actioned .imageCell {
+	@ImagePadding@
+	white-space:nowrap;	/* ??? */
+}
+
+.inlineIcon {
+	font-family:Verdana;
+	font-size:13px;
+}
+.inlineContactTagIcon {
+    font-size:11px;
+    vertical-align:middle;
+}
+
+.TooltipHint {
+	font-style:italic;
+	text-align:center;
+	white-space:nowrap;
+}
+
+.TooltipNotInAddrBook {
+	white-space:nowrap;
+	text-align:center;
+	padding:8px 0px 5px 0px;
+}
+
+.ImgTagShared {
+	display: inline-block;
+}
+
+/* Anchor and Link styles */
+
+.FakeAnchor, a:link, a:visited {
+	@Anchor@
+}
+
+.FakeAnchor:hover, a:hover {
+	@Anchor-hover@
+}
+
+.FakeAnchor:active, a:active {
+	@Anchor-active@
+}

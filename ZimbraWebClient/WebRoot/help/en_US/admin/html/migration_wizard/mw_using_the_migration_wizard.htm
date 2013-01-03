@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <meta name="generator" content="Adobe RoboHelp 10" />
+<title>Using the Migration Wizard for Exchange</title>
+<link rel="StyleSheet" href="../default.css" type="text/css" />
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="../whmsg.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript" src="../whver.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whutils.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whlang.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic.js" charset="utf-8"></script>
+
+</head>
+<body><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.gbWhTopic)
+{
+	var strUrl = document.location.href;
+	var bc = 0;
+	var n = strUrl.toLowerCase().indexOf("bc-");
+	if(n != -1)
+	{
+		document.location.href = strUrl.substring(0, n);
+		bc = strUrl.substring(n+3);
+	}
+
+	if (window.addTocInfo)
+	{
+	addButton("show",BTN_TEXT,"Show TOC","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	
+	
+}
+else
+	if (window.gbIE4)
+		document.location.reload();
+
+onLoadHandler = function()
+{
+  if (window.setRelStartPage)
+	{
+	setTimeout("setRelStartPage('../administration_console_help.htm');", 1)
+
+    setTimeout("UpdateBreadCrumbsMarker();", 1);
+	}
+}
+
+if (window.addEventListener){  
+	window.addEventListener('load', onLoadHandler, false);   
+} else if (window.attachEvent){  
+	window.attachEvent('onload', onLoadHandler);  
+}
+
+function onSetStartPage()
+{
+  autoSync(1);
+  sendSyncInfo();
+  sendAveInfoOut();
+}
+//-->
+//]]></script>
+<script type="text/javascript" src="../ehlpdhtm.js" language="JavaScript1.2"></script>
+
+
+<h1>Using the Zimbra Migration Wizard for Microsoft Exchange</h1>
+<p>The Zimbra Migration Wizard is used to move Microsoft® Exchange server email accounts to the Zimbra server and to import the email, calendars and contact information for selected Exchange users. The import process replicates the user's Outlook folder hierarchy, imports email messages, calendar and contacts on the Exchange server. Keywords are converted to tags in Zimbra.</p>
+<p class="note" style="background-color: Transparent;"><span class="Important">IMPORTANT:</span> <span class="Important" style="font-weight: normal; color: #000000; font-size: 10pt;"><font size="2" color="black" style="font-size:10.000000pt;">The Migration Wizard utilizes the Exchange MAPI provider. You must run the wizard from a Microsoft Windows computer that has either the Outlook or the Exchange Administration</font></span> <span class="Important" style="font-weight: normal; font-size: 10pt; color: #000000;"><font size="2" color="black" style="font-size:10.000000pt;">t</font></span><span class="Important" style="font-size: 10pt; color: #000000; font-weight: normal;"><font size="2" color="black" style="font-size:10.000000pt;">ools installed.</font></span></p>
+<ul style="list-style: disc;">
+<li class="p">
+<p>You must have full administrator privileges on the mailboxes to be imported</p>
+</li>
+<li class="p">
+<p>You must create a temporary MAPI profile to conduct the migration.</p>
+</li>
+<li class="p">
+<p>The account under which you log into Windows must have permission to open the temporary MAPI profile</p>
+</li>
+<li class="p">
+<p>This account must be a member of the Windows domain administrators' group</p>
+</li>
+<li class="p">
+<p>The selected MAPI profile specifies a single account that will be used to open and import all mailboxes</p>
+</li>
+</ul>
+<p>Read the Migration Wizard Guide for Exchange for more information. You can find this on the administration console Help Desk page.</p>
+<h2>Before you begin</h2>
+<p>The Migration Wizard asks questions in a series of dialog boxes about how to set up the new accounts.</p>
+<p>Before you start, you should:</p>
+<ul style="list-style: disc;">
+<li class="p">
+<p>Determine which domain users' accounts should migrate to. You can import to one domain at a time.</p>
+</li>
+<li class="p">
+<p>Decide whether to migrate individual accounts or large groups of accounts at one time.</p>
+</li>
+<li class="p">
+<p>Change the mail relay information to point to the Zimbra server instead of the Exchange server. This will prevent any lost mail while the files are being imported.</p>
+</li>
+</ul>
+<p style="margin-left: 40px;">The user's Common Name ( CN) in Exchange is the first portion of the email address on the Zimbra server.</p>
+<p>You can specify if email in <span style="font-style: italic;"><i>Junk folders</i></span> or <span style="font-style: italic;"><i>Deleted Items</i></span> folder is imported, and you set a latest receive date for old email to be imported.</p>
+<p>By default, messages larger than 10 MB will not be imported. The message size includes the message and attachments. If the message is larger than 10 MB, a warning is logged to Migration Wizard log file, which can be reviewed from the Import Complete dialog when the migration is complete.</p>
+<h2>How to Migrate Accounts</h2>
+<ol style="list-style: decimal;">
+<li class="p">
+<p>Click the Migration Wizard icon on the administration console to download executable to your computer.</p>
+</li>
+<li class="p">
+<p>Go to the directory where the file is saved. Click the <span style="font-weight: bold;">Migration Wizard.exe</span>, to open the wizard. The Welcome dialog appears.</p>
+</li>
+<li class="p">
+<p>Follow the dialogs. Below is the dialog sequence.</p>
+</li>
+</ol>
+<ul style="list-style: disc;">
+<li class="p" style="list-style: disc;">
+<p><span style="font-weight: bold;"><a href="mw_import_destination.htm" target="_blank">Import Destination</a></span>. Enter the host name and administration user name and password.</p>
+</li>
+<li class="p" style="list-style: disc;">
+<p style="margin-left: 0px;"><span style="font-weight: bold;"><a href="mw_destination_domain.htm" target="_blank">Destination Domain</a></span>. Select the Zimbra domain name.</p>
+</li>
+<li class="p" style="list-style: disc;">
+<p style="margin-left: 0px;"><span style="font-weight: bold;"><a href="mw_mapi_logon.htm" target="_blank">MAPI Log on</a></span>. Select the MAPI profile you created for use with the Migration Wizard.</p>
+</li>
+<li class="p" style="list-style: disc;">
+<p style="margin-left: 0px;"><span style="font-weight: bold;"><a href="mw_source_and_destination_mailboxes.htm" target="_blank">Source and Destination Mailboxes</a></span>. Define which users should be migrated.</p>
+</li>
+<li class="p" style="list-style: disc;">
+<p style="margin-left: 0px;"><span style="font-weight: bold;"><a href="mw_target_account_verification.htm" target="_blank">Target Account Verification</a></span>. Displays the number of accounts that exist and the number of accounts that do not exist on the Zimbra server.</p>
+</li>
+<li class="p" style="list-style: disc;">
+<p style="margin-left: 0px;"><span style="font-weight: bold;"><a href="mw_account_provisioning.htm" target="_blank">Account Provisioning</a></span>. All accounts that do not exist are shown in the <span style="font-weight: bold;">Unprovisioned Accounts</span> list box.</p>
+</li>
+<li class="p" style="list-style: disc;">
+<p style="margin-left: 0px;"><span style="font-weight: bold;"><a href="mw_import_options.htm" target="_blank">Import Options</a></span>. Configure whether to import junk, deleted mail, &#160;and other older mail and set the number of mailboxes to import simultaneously.</p>
+</li>
+<li class="p" style="list-style: disc;">
+<p style="margin-left: 0px;"><span style="font-weight: bold;"><a href="mw_import_in_progress.htm" target="_blank">Import In Progress</a></span>. When the import is complete, errors or warnings are displayed.</p>
+</li>
+</ul>
+<p style="margin-left: 0px;">&#160;</p>
+<script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+
+
+highlightSearch();
+//-->
+//]]></script>
+</body>
+</html>

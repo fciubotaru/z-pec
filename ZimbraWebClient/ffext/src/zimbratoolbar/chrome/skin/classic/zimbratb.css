@@ -1,0 +1,115 @@
+#ZimTB-Toolbar
+{
+	height:26px;
+}
+
+/************************************************
+  Default image classes
+************************************************/
+
+.ZimTB-Mail-Folder
+{
+	list-style-image: url("default_images/folder.gif");
+}
+
+.ZimTB-Mail-OpenEnv
+{
+	list-style-image: url("default_images/mail.gif");
+}
+
+.ZimTB-Mail-CloseEnv
+{
+	list-style-image: url("default_images/closemail.gif");
+}
+
+.ZimTB-Inbox-Folder
+{
+	list-style-image: url("default_images/inbox.gif");
+	
+}
+
+.ZimTB-Drafts-Folder
+{
+	list-style-image: url("default_images/drafts.gif");
+}
+
+.ZimTB-Sent-Folder
+{
+	list-style-image: url("default_images/sent.gif");
+}
+
+.ZimTB-Trash-Folder
+{
+	list-style-image: url("default_images/trash.gif");
+}
+
+.ZimTB-Junk-Folder
+{
+	list-style-image: url("default_images/junk.gif");
+}
+
+.ZimTB-RSS-Folder
+{
+	list-style-image: url("default_images/rss.gif") ! important;
+
+}
+
+.ZimTB-Saved-Search
+{
+	list-style-image: url("default_images/newsaved.gif");
+}
+
+.ZMTB-Search-Folder
+{
+	list-style-image: url("default_images/newsaved.gif");
+}
+
+/************************************************
+ Classes for use in instances of ZMTB_Actions
+************************************************/
+
+.ZMTB-ContextAction
+{
+	list-style-image: url("default_images/zimbra_z_small.png");
+}
+
+#ZimTB-ActionsBar
+{
+	border-bottom:1px solid #333333;
+	background-color:#CCCCCC;
+}
+
+.ZMTB-ActionBar-Title
+{
+	background-color:#333333;
+	color:#CCCCCC;
+	font-weight:bold;
+	padding-left:10px;
+	-moz-box-align:start;
+}
+
+.ZMTB-ActionBar-Title label
+{
+	font-size:14px;
+}
+
+.ZMTB-ActionBar-Row
+{
+	height:32px;
+	-moz-box-align:center;
+}
+
+#ZimTB-ActionsBar textbox
+{
+	width:100px;
+}
+
+#ZMTB-Default-Folder .menulist-menupopup > menuitem > .menu-iconic-left,
+menulist#ZMTB-Default-Folder > menupopup > menuitem > .menu-iconic-left,
+#ZimTB-Folders .menulist-menupopup > menu > .menu-iconic-left,
+menulist#ZimTB-Folders > menupopup > menu > .menu-iconic-left
+{
+ 	display: -moz-box;
+	margin-right:2px;	
+}
+

@@ -1,0 +1,114 @@
+<%@ page buffer="8kb" autoFlush="true" %>
+<%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="zm" uri="com.zimbra.zm" %>
+<%@ taglib prefix="app" uri="com.zimbra.htmlclient" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="com.zimbra.i18n" %>
+<app:handleError>
+<zm:getMailbox var="mailbox"/>
+${zm:refreshPrefs(mailbox)}
+
+<c:set var="skin" value="${not empty param.skin ? param.skin : (not empty sessionScope.skin ? sessionScope.skin : mailbox.prefs.skin)}"/>
+<c:choose>
+	<c:when test="${not empty mailbox.prefs.locale}">
+		<fmt:setLocale value='${mailbox.prefs.locale}' scope='request' />
+	</c:when>
+	<c:otherwise>
+		<fmt:setLocale value='${pageContext.request.locale}' scope='request' />
+	</c:otherwise>
+</c:choose>
+<fmt:setBundle basename="/messages/ZhMsg" scope="request"/>
+<c:set var="messageIds" value="${fn:join(paramValues.id, ',')}"/>
+${zm:clearMessageCache(mailbox)}
+
+<c:choose>
+    <c:when test="${not empty param.tz}">
+        <fmt:setTimeZone var="tz" value="${param.tz}" scope="request"/>
+    </c:when>
+    <c:otherwise>
+        <c:set var="tz" value="${mailbox.prefs.timeZone}" scope="request"/>
+    </c:otherwise>
+</c:choose>
+
+</app:handleError>
+<html>
+<app:head mailbox="${mailbox}"/>
+<body style='background:white;'>
+<div class='ZhCallListPrintView'>
+<table cellpadding="0" cellspacing="5"  width="100%">
+	<tr>
+		<td><b><fmt:message key="zimbraTitle"/></b></td>
+        <c:set var="mailboxName" value="${(not empty param.acct ? param.acct : mailbox.name)}" />
+        <td nowrap width='1%'><c:if test="${mailboxName ne 'local@host.local'}"><b>${fn:escapeXml(mailboxName)}</b></c:if></td>
+	</tr>
+</table>
+<hr/>
+<div class="zPrintMsgs">
+<c:forEach items="${messageIds}" var="mid" varStatus="status">
+<c:set var="cid" value="${fn:split(mid,':')}"/>
+<c:if test="${cid[0] eq 'C'}">
+    <zm:computeSearchContext var="context" usecache="true" types="conversation" query="*"/>
+    <c:if test="${fn:length(cid) gt 2}"><c:set var="cidExt" value=":${cid[2]}"/></c:if> <%-- there are two colons when conv is from shared folder so we need to form correct cid as sharedFolderId:convId --%>
+    <zm:searchConv var="convSearchResult" id="${cid[1]}${cidExt}" context="${context}"  markread="false" fetch="all"/>
+    <table cellpadding="0" cellspacing="5"  width="100%">
+        <tr>
+            <td>
+                <div class="ZhPrintSubject">${zm:cook(convSearchResult.hits[0].subject)}</div><hr/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <c:forEach items="${convSearchResult.hits}" var="hit" varStatus="status">
+                    <zm:getMessage var="message" id="${hit.id}" markread="false" neuterimages="${empty param.xim}" />
+                    <c:url value="/h/printmessage" var="extImageUrl">
+                        <c:param name="id" value="${param.id}"/>
+                        <c:param name="xim" value="1"/>
+                    </c:url>
+                    <app:messagePrintView mailbox="${mailbox}" externalImageUrl="${extImageUrl}" message="${message}" timezone="${tz}"/>
+                </c:forEach>
+            </td>
+        </tr>
+    </table>
+</c:if>
+<c:if test="${cid[0] != 'C'}">
+    <zm:getMessage var="message" id="${mid}" markread="false" neuterimages="${empty param.xim}" part="${param.part}" />
+	<table cellpadding="0" cellspacing="5"  width="100%">
+    <tr>
+		<td colspan="2">
+			<div class="ZhPrintSubject">${zm:cook(message.subject)}</div><hr/>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+            <c:url value="/h/printmessage" var="extImageUrl">
+                <c:param name="id" value="${param.id}"/>
+                <c:param name="xim" value="1"/>
+            </c:url>
+			<app:messagePrintView mailbox="${mailbox}" externalImageUrl="${extImageUrl}" message="${message}" timezone="${tz}"/>
+		</td>
+	</tr>
+    </table>    
+</c:if>    
+</c:forEach>
+</div>
+<c:if test="${empty messageIds}">
+	<div class='NoResults'><fmt:message key="noResultsFound"/></div>
+</c:if>
+<style type="text/css">
+    .ZhCallListPrintView td, .zPrintMsgs *{
+        font-family:Tahoma,Arial,Helvetica,sans-serif;
+        font-size:${mailbox.prefs.defaultPrintFontSize};
+    }
+    .ZhPrintSubject {
+        padding: 10px;
+        font-weight: bold;
+    }
+</style>
+<script type="text/javascript">
+<!--
+         setTimeout('window.print()', 1000);
+//-->
+</script>
+</body>
+</html>

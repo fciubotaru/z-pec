@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Adobe RoboHelp 10" />
+<title>Setting up S/MIME to send and receive signed adn encrypted email messages</title>
+<link rel="StyleSheet" href="../../zwc_8.css" type="text/css" />
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="../../whmsg.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript" src="../../whver.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../../whutils.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../../whproxy.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../../whlang.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../../whtopic.js" charset="utf-8"></script>
+
+</head>
+
+<body><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.gbWhTopic)
+{
+	var strUrl = document.location.href;
+	var bc = 0;
+	var n = strUrl.toLowerCase().indexOf("bc-");
+	if(n != -1)
+	{
+		document.location.href = strUrl.substring(0, n);
+		bc = strUrl.substring(n+3);
+	}
+
+	if (window.addTocInfo)
+	{
+	addTocInfo("Sending Secure Email Messages (Network Edition Only)\nSetting up S/MIME to send and receive signed adn encrypted email messages");
+addButton("show",BTN_TEXT,"Show","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	
+	document.write("<p style=\"text-align:right\"> ");
+AddMasterBreadcrumbs("../../zimbra_user_help.htm", "", "&gt;", "Home", "../../advanced_web_client.htm");
+document.write("<a href=\"setting_up_smime.htm\">Sending Secure Email Messages (Network Edition Only)<\/a> &gt; Setting up S/MIME to send and receive signed adn encrypted email messages<\/p>");
+
+}
+else
+	if (window.gbIE4)
+		document.location.reload();
+
+onLoadHandler = function()
+{
+  if (window.setRelStartPage)
+	{
+	setTimeout("setRelStartPage('../../zimbra_user_help.htm');", 1)
+
+    setTimeout("UpdateBreadCrumbsMarker();", 1);
+	}
+}
+
+if (window.addEventListener){  
+	window.addEventListener('load', onLoadHandler, false);   
+} else if (window.attachEvent){  
+	window.attachEvent('onload', onLoadHandler);  
+}
+
+function onSetStartPage()
+{
+  autoSync(1);
+  sendSyncInfo();
+  sendAveInfoOut();
+}
+//-->
+//]]></script>
+<script type="text/javascript" src="../../ehlpdhtm.js" language="JavaScript1.2"></script>
+
+<p class="FM_1HeadingC">Setting up S/MIME to send and receive signed and 
+ encrypted email messages</p>
+<p class="FM_Notice"><span style="font-weight: bold;">Note</span>: &#160;This 
+ feature is for ZCS Network Edition only and is available only in the Advanced 
+ Web Client.</p>
+<p class="FM_Body"><span style="mso-fareast-font-family: Calibri; mso-fareast-theme-font: minor-latin; 
+						 mso-ansi-language: EN-US; mso-fareast-language: EN-US; 
+						 mso-bidi-language: AR-SA;">If the S/MIME feature 
+ is enabled for your account, you can send and receive digitally signed 
+ and encrypted messages.</span></p>
+<p class="FM_Body" style="mso-bidi-font-family: 'Times New Roman';"><span 
+	 style="mso-bidi-theme-font: minor-bidi; mso-ansi-language: EN-US; 
+	 mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">To use S/MIME 
+ with the @ClientNameLong@ 
+ you must have a secure email signing certificate suitable for S/MIME signing 
+ and encryption. The certificate with private key must be installed in 
+ the local certificate store on Windows computer, Mac OSX 
+ computer, or in the browser certificate store if using Firefox. 
+ For information about how to install your certificate see the appropriate 
+ computer or browser documentation.</span></p>
+<p class="FM_Body"><span style="mso-fareast-font-family: Calibri; mso-bidi-font-family: 'Times New Roman'; 
+						 mso-bidi-theme-font: minor-bidi; mso-ansi-language: EN-US; 
+						 mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">To 
+ send and receive encrypted and signed messages your public key and recipient's 
+ public key must be exchanged. To get a copy of a recipient's public key, 
+ you can send a digitally signed message using your certificate to the 
+ recipient and request that they send you a digitally signed message in 
+ reply. When the message is received, the recipient's certificate is stored 
+ in the recipient's contact page in Address Book, or a contact is automatically 
+ created.</span></p>
+<p class="FM_Body">Note the following differences when working with encrypted 
+ messages:</p>
+<ul style="list-style: disc;">
+	<li><p class="FM_Body"><span style="mso-fareast-font-family: Calibri; 
+								 mso-fareast-theme-font: minor-latin; mso-ansi-language: EN-US; 
+								 mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">If 
+	 you are sharing your Inbox, delegated users cannot read your encrypted 
+	 messages from their computers. Your private key is required to read 
+	 encrypted messages</span>.</p></li>
+	<li><p class="FM_Body"><span style="mso-fareast-theme-font: minor-latin; 
+								 mso-ansi-language: EN-US; mso-fareast-language: EN-US; 
+								 mso-bidi-language: AR-SA;">You cannot 
+	 run spell check on encrypted messages.</span></p></li>
+	<li><p class="FM_Body"><span style="mso-fareast-font-family: Calibri; 
+								 mso-fareast-theme-font: minor-latin; mso-ansi-language: EN-US; 
+								 mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">You 
+	 cannot search for text in the body or attachments of an encrypted 
+	 message.</span><span style="mso-spacerun: yes;">&#160;</span><span 
+	 style="mso-fareast-font-family: Calibri; mso-fareast-theme-font: minor-latin; 
+	 mso-ansi-language: EN-US; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">&#160;Only 
+	 the header information such as sent to or from, date message was sent, 
+	 or subject can be found in a search.</span></p></li>
+</ul>
+<p style="font-family: Arial, sans-serif; line-height: 115%; mso-ascii-theme-font: minor-latin; 
+	 mso-fareast-font-family: Calibri; mso-fareast-theme-font: minor-latin; 
+	 mso-hansi-theme-font: minor-latin; mso-bidi-font-family: 'Times New Roman'; 
+	 mso-bidi-theme-font: minor-bidi; mso-ansi-language: EN-US; mso-fareast-language: EN-US; 
+	 mso-bidi-language: AR-SA;">&#160;</p>
+<p style="font-family: Arial, sans-serif;">&#160;</p>
+<script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+
+
+highlightSearch();
+//-->
+//]]></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<script type="application/x-javascript" src="ZMTB_FolderList.js"/>
+	<script>
+		window.addEventListener("load", function(){
+			new ZMTB_FolderList(com_zimbra_tb);
+		}, false);
+	</script>
+	<toolbar id="ZimTB-Toolbar">
+		<toolbaritem id="ZimTB-Folders-TBItem" >
+			<menulist id="ZimTB-Folders" editable="false" flex="1" width="150" height="15" style="min-height:15px ! important;" sizetopopup="none">
+				<menupopup class="menulist-menupopup" />
+			</menulist>
+		</toolbaritem>
+	</toolbar>
+</overlay>

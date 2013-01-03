@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Adobe RoboHelp 10" />
+<title>Getting the Latest ZCS Software Updates</title>
+<link rel="stylesheet" href="../default.css" type="text/css" />
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="JavaScript" title="WebHelpSplitCss">//<![CDATA[
+<!--
+if (navigator.appName !="Netscape")
+{   document.write("<link rel='stylesheet' href='../default.css'>");}
+//-->
+//]]></script>
+<script type="text/javascript" language="JavaScript" title="WebHelpInlineScript">//<![CDATA[
+<!--
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+        origWidth = innerWidth;
+        origHeight = innerHeight;
+        onresize = reDo;
+}
+onerror = null; 
+//-->
+//]]></script>
+<script type="text/javascript" language="javascript1.2" src="../whmsg_nc.js"></script>
+<script type="text/javascript" language="javascript" src="../whver_nc.js"></script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy_nc.js"></script>
+<script type="text/javascript" language="javascript1.2" src="../whutils_nc.js"></script>
+<script type="text/javascript" language="javascript1.2" src="../whlang_nc.js"></script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic_nc.js"></script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="../whmsg.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript" src="../whver.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whutils.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whlang.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic.js" charset="utf-8"></script>
+
+</head>
+
+<body><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.gbWhTopic)
+{
+	var strUrl = document.location.href;
+	var bc = 0;
+	var n = strUrl.toLowerCase().indexOf("bc-");
+	if(n != -1)
+	{
+		document.location.href = strUrl.substring(0, n);
+		bc = strUrl.substring(n+3);
+	}
+
+	if (window.addTocInfo)
+	{
+	addTocInfo("Monitoring Tools\nGetting the Latest ZCS Software Updates");
+addButton("show",BTN_TEXT,"Show TOC","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	
+	
+}
+else
+	if (window.gbIE4)
+		document.location.reload();
+
+onLoadHandler = function()
+{
+  if (window.setRelStartPage)
+	{
+	setTimeout("setRelStartPage('../administration_console_help.htm');", 1)
+
+    setTimeout("UpdateBreadCrumbsMarker();", 1);
+	}
+}
+
+if (window.addEventListener){  
+	window.addEventListener('load', onLoadHandler, false);   
+} else if (window.attachEvent){  
+	window.attachEvent('onload', onLoadHandler);  
+}
+
+function onSetStartPage()
+{
+  autoSync(1);
+  sendSyncInfo();
+  sendAveInfoOut();
+}
+//-->
+//]]></script>
+<script type="text/javascript" src="../ehlpdhtm.js" language="JavaScript1.2"></script>
+
+
+<h1>Getting the Latest ZCS Software Updates</h1>
+<p>When ZCS is installed, the ZCS software update utility is automatically 
+ configured to check for the latest ZCS version once a day and if there 
+ is an update, to send notification to the address that is configured in 
+ the administration console’s Server Updates.</p>
+<p>The default configuration is to check for updates daily and to automatically 
+ send a notification to the admin's mailbox when a new ZCS version is available. 
+ You can change these settings from the <span style="font-weight: bold;">Tools 
+ and Migration&gt;Software Updates</span> page.</p>
+<p>The dates and times ZCS checked for updates are saved to the Updates 
+ tab. When an update becomes available, an email notification is sent out 
+ daily until you update the ZCS version. If you do not want to receive 
+ an email notification of updates, uncheck the box for <span style="font-weight: bold;">Send 
+ notification email when updates are available</span>.</p>
+<p>You can check for updates any time by clicking the <span style="font-weight: bold;">Check 
+ now</span> link.</p>
+<h2>Server Updates Settings</h2>
+<ul style="list-style: disc;">
+	<li><p><span style="font-weight: bold;">Server that checks for updates</span>. 
+	 &#160;Only one ZCS server checks for updates. If the Check Now request 
+	 for an immediate update is sent to a different server, the request 
+	 is proxied to the server indicated in 
+	 this field. The result of the update response is stored in LDAP and 
+	 is accessible by all servers. The server that polls for updates must 
+	 be able to make outgoing HTTP requests. 
+	 Note: You may need to make special provisions in your firewall for that to happen.</p></li>
+	<li><p><span style="font-weight: bold;">Check for updates every</span>. 
+	 The default is to check every 1 day. A job is scheduled in the crontab to check for updates. &#160;The cron job 
+	 runs every 2 hours to check if the <span style="font-weight: bold;">Check 
+	 for Updates</span> interval has passed. &#160;If you wish to check 
+	 for updates more often than every two hours, adjust the cron task 
+	 for &quot;/opt/zimbra/libexec/zmcheckversion&quot;.</p></li>
+	<li><p><span style="font-weight: bold;">Updates URL</span>. This is 
+	 the URL that the server connects to when checking for an update. The 
+	 server transmits its ZCS version, platform and build number to this 
+	 URL. When a server polls the URL, &#160;the response is stored in 
+	 the LDAP. The Updates tab displays the times that checks were made.</p></li>
+	<li><p><span style="font-weight: bold;">Send Notification Email To/From 
+	 Addresses</span>: &#160;The <span style="font-weight: bold;">Send 
+	 notification email to</span> address receives an email notification 
+	 when an update is available. These addresses are configured to be 
+	 the admin's email address, but you can change this.</p></li>
+	<li><p><span style="font-weight: bold;">Notification Subject and Message 
+	 templates</span>. &#160;This is the template for the notification 
+	 message that is sent.</p></li>
+</ul>
+<p>&#160;</p>
+<p>
+
+<a href="javascript:void(0);"  title=" Related Topics"><span style="font-family:Arial;font-size:8pt;font-weight:normal;font-style:normal;text-decoration:none"><nobr>  Related Topics </nobr></span></a>
+
+
+</p>
+<p>&#160;</p>
+<script type="text/javascript" language="JavaScript">//<![CDATA[
+if (parseInt(navigator.appVersion) >= 3 && typeof (WritePopupMenuLayer) == "function")
+  WritePopupMenuLayer();
+//]]></script><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+
+
+highlightSearch();
+//-->
+//]]></script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+﻿/*Created with Adobe RoboHelp 10.*/
+BODY {
+	font-family: Arial;
+	background-color: #ffffff;
+}
+H1 {
+	font-weight: bold;
+	font-size: 14pt;
+	color: #000000;
+}
+LI.H1 {
+	font-weight: bold;
+	color: #000080;
+	font-size: 14pt;
+}
+H2 {
+	font-weight: bold;
+	font-size: 12pt;
+	color: #000000;
+}
+LI.H2 {
+	font-weight: bold;
+	color: #000080;
+	font-size: 12pt;
+}
+H3 {
+	font-weight: bold;
+	font-size: 11pt;
+	color: #000000;
+}
+LI.H3 {
+	font-weight: bold;
+	color: #000080;
+	font-size: 11pt;
+}
+H4 {
+	font-weight: bold;
+	font-size: 11pt;
+	margin-bottom: 6.5pt;
+	color: #000000;
+}
+LI.H4 {
+	font-weight: bold;
+	font-size: 11pt;
+}
+H5 {
+	font-weight: bold;
+	font-size: 10.0pt;
+	color: #000000;
+}
+LI.H5 {
+	font-weight: bold;
+	font-size: 10.0pt;
+}
+H6 {
+	font-weight: bold;
+	background-color: Transparent;
+	font-size: 10pt;
+	margin-bottom: 6pt;
+	margin-top: 8pt;
+	color: #000000;
+}
+LI.H6 {
+	font-weight: bold;
+	font-size: 10pt;
+	color: #000080;
+}
+P {
+	margin-top: 0pt;
+	margin-bottom: 6pt;
+	font-size: 11pt;
+}
+LI.P {
+	font-size: 10pt;
+}
+A.expandspot {
+	cursor: hand;
+	font-style: italic;
+	color: #000080;
+	font-size: 11pt;
+	text-decoration: none;
+}
+SPAN.expandtext {
+	font-style: italic;
+	font-weight: normal;
+}
+A.dropspot {
+	cursor: hand;
+	color: #008000;
+	font-style: italic;
+	font-size: 11pt;
+	text-decoration: none;
+}
+A.glossterm {
+	color: #800000;
+	cursor: hand;
+	font-style: italic;
+	text-decoration: none;
+}
+SPAN.glosstext {
+	font-style: italic;
+	font-weight: normal;
+	color: #0000ff;
+}
+OL,
+UL {
+	margin-top: 0px;
+	margin-bottom: 0px;
+	font-size: 11pt;
+	font-family: Arial, sans-serif;
+}
+P.Reviewstatements {
+	color: #ff0000;
+	x-next-class: ;
+	x-next-type: P;
+}
+LI.P-Reviewstatements {
+	color: #ff0000;
+}
+SPAN.REVIEWFOLLOWUP {
+	font-style: italic;
+	font-weight: normal;
+	color: #ff0000;
+}
+SPAN.Important {
+	font-weight: bold;
+	font-style: normal;
+	font-size: 10pt;
+	color: #000000;
+}
+SPAN.fieldnames {
+	font-weight: bold;
+	font-style: normal;
+	font-size: 10pt;
+}
+SPAN.code {
+	font-weight: bold;
+	font-style: normal;
+	font-family: "Times New Roman", serif;
+	font-size: 10pt;
+}
+SPAN.attribute {
+	font-weight: bold;
+	font-style: normal;
+	font-family: Arial;
+	font-size: 10pt;
+}
+P.note {
+	color: #000000;
+	padding-top: 1px;
+	padding-bottom: 1px;
+	border-top-style: none;
+	border-bottom-style: none;
+	x-next-class: note;
+	x-next-type: P;
+	text-indent: 0.25in;
+	margin-left: 0in;
+	text-decoration: none;
+}
+LI.P-note {
+	list-style: url(blue_right.jpg);
+}
+SPAN.headingpara {
+	font-weight: bold;
+	font-style: normal;
+	color: #000080;
+}
+P.body {
+	margin-top: 0pt;
+	font-size: 10pt;
+	margin-bottom: 6pt;
+}
+A:active {
+	color: #00ff00;
+	font-size: 11pt;
+	text-decoration: underline;
+}
+A.popupspot {
+	font-size: 11pt;
+}

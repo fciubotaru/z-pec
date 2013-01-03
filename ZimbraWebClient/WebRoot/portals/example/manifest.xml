@@ -1,0 +1,61 @@
+<portal id='example'>
+    <!-- portlets -->
+    <portlets>
+        <portlet zimlet='com_zimbra_html'>
+            <panel id='portlet_html_static1' />
+            <property name='url'>/zimbra/portals/example/static.html</property>
+            <property name='type'>inline</property>
+        </portlet>
+        <portlet zimlet='com_zimbra_html'>
+            <panel id='portlet_html_static2' />
+            <property name='url'>/zimbra/portals/example/static.html</property>
+        </portlet>
+        <portlet zimlet='com_zimbra_html'>
+            <panel id='portlet_html_dynamic1' />
+            <property name='url'>/zimbra/portals/example/dynamic.jsp</property>
+            <property name='refresh'>10000</property>
+            <property name='type'>inline</property>
+        </portlet>
+        <portlet zimlet='com_zimbra_html'>
+            <panel id='portlet_html_dynamic2' />
+            <property name='url'>/zimbra/portals/example/dynamic.jsp</property>
+            <property name='refresh'>30000</property>
+        </portlet>
+        <portlet zimlet='com_zimbra_rss'>
+            <panel id='portlet_news' />
+            <property name='url'>http://rss.news.yahoo.com/rss/tech</property>
+            <property name='refresh'>300000</property>
+        </portlet>
+    </portlets>
+
+    <!-- page layout -->
+    <html><![CDATA[
+    <h2 style='text-align:center;font-size:24pt;'>Welcome Page</h2>
+    <div style='margin:1em'>
+    <table border=0 cellpadding=0 cellspacing=0 width=100% height=100%>
+        <tr valign=top>
+            <td>
+                <h3>Static HTML</h3>
+                <h4>Inline</h4>
+                <div id='portlet_html_static1' style='margin-left:1em'></div>
+                <h4>IFrame</h4>
+                <div id='portlet_html_static2' style='margin-left:1em'></div>
+            </td>
+            <td>
+                <h3>Dynamic HTML</h3>
+                <h4>Inline</h4>
+                <p>This div should refresh every 10 seconds:</p>
+                <div id='portlet_html_dynamic1' style='margin-left:1em'></div>
+                <h4>IFrame</h4>
+                <p>This iframe should refresh every 30 seconds:</p>
+                <div id='portlet_html_dynamic2' style='margin-left:1em'></div>
+            </td>
+            <td>
+                <h3>RSS Newsfeed</h3>
+                <p>This div should refresh every 5 minutes:</p>
+                <div id='portlet_news' style='margin-left:1em'></div>
+        </tr>
+    </table>
+    </div>
+    ]]></html>
+</portal>

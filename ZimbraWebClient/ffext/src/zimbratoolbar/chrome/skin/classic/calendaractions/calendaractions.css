@@ -1,0 +1,45 @@
+#ZimTB-Calendar-Button
+{
+	-moz-box-orient: horizontal;
+	list-style-image: url("calendar.gif");
+}
+
+#ZimTB-NewAppointment
+{
+	list-style-image: url("newappointment.gif");
+}
+
+#ZimTB-NewCalendar
+{
+	list-style-image: url("newappointment.gif");
+}
+
+#ZimTB-RemoteCalendar
+{
+	list-style-image: url("newappointment.gif");
+}
+
+#ZimTB-SharedCalendar
+{
+	list-style-image: url("newappointment.gif");
+}
+
+#ZimTB-ViewCalendars
+{
+	list-style-image: url("calendar.gif");
+}
+
+#ZimTB-NewCal-Name, #ZimTB-NewRemCal-Name, #ZimTB-NewRemCal-URL, #ZimTB-NewAppt-Create, #ZimTB-NewAppt-Close
+{
+	width:150px  ! important;
+}
+
+#ZimTB-NewAppt-Create, #ZimTB-NewAppt-Close
+{
+	margin-left:20px;
+}
+
+#ZimTB-NewAppt-Repeat, #ZimTB-NewAppt-Alarm
+{
+	width:100px ! important;
+}

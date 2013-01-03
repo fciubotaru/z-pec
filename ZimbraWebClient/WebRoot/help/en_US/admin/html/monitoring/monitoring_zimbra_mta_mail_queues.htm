@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <meta name="generator" content="Adobe RoboHelp 10" />
+<title>Monitoring Zimbra MTA Mail Queues</title>
+<link rel="StyleSheet" href="../default.css" type="text/css" />
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="../whmsg.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript" src="../whver.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whutils.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whlang.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic.js" charset="utf-8"></script>
+
+</head>
+<body><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.gbWhTopic)
+{
+	var strUrl = document.location.href;
+	var bc = 0;
+	var n = strUrl.toLowerCase().indexOf("bc-");
+	if(n != -1)
+	{
+		document.location.href = strUrl.substring(0, n);
+		bc = strUrl.substring(n+3);
+	}
+
+	if (window.addTocInfo)
+	{
+	addTocInfo("Monitoring Tools\nMonitoring Zimbra Mail Queues");
+addButton("show",BTN_TEXT,"Show TOC","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	
+	
+}
+else
+	if (window.gbIE4)
+		document.location.reload();
+
+onLoadHandler = function()
+{
+  if (window.setRelStartPage)
+	{
+	setTimeout("setRelStartPage('../administration_console_help.htm');", 1)
+
+    setTimeout("UpdateBreadCrumbsMarker();", 1);
+	}
+}
+
+if (window.addEventListener){  
+	window.addEventListener('load', onLoadHandler, false);   
+} else if (window.attachEvent){  
+	window.attachEvent('onload', onLoadHandler);  
+}
+
+function onSetStartPage()
+{
+  autoSync(1);
+  sendSyncInfo();
+  sendAveInfoOut();
+}
+//-->
+//]]></script>
+<script type="text/javascript" src="../ehlpdhtm.js" language="JavaScript1.2"></script>
+
+
+<h1>Monitoring Zimbra Mail Queues = VERIFY THE FLUSHING QUES STEP</h1>
+<p>If you are having problems with mail delivery, you can view the mail queues from the administration console Monitoring Mail Queues page to see if you can fix the mail delivery problem. When you open mail queues, the content of the deferred, incoming, active, hold, and corrupt queues at that point in time can be viewed. You can view the number of messages and where they are coming from and going to.</p>
+<ul style="list-style: url('../blue_right.gif');">
+<li class="P-note">
+<p class="note">&#160;&#160;&#160;&#160;&#160;&#160;When you open Mail Queues, the information that is downloaded is cached. Messages continue to be delivered. &#160;When you refresh the queue, you may see different information. If your queues are large, do not refresh too often while troubleshooting the queues. &#160;&#160;&#160;</p>
+</li>
+</ul>
+<p>For each queue, the Summary pane shows a summary of messages by receiver domain, origin IP, sender domain, receiver address, sender address, and for the deferred queue, by error type. You can select any of the summaries to see detailed envelope information by message in the Messages pane.</p>
+<p>The Messages pane displays individual message envelope information for search filters selected from the Summary pane.</p>
+<p>At any time, you can click <span style="font-weight: bold;">Refresh</span> to update the view.</p>
+<ul style="list-style: disc;">
+<li class="p">
+<p>The following mailbox queue functions can be performed for all the messages in a queue:</p>
+</li>
+<li class="p">
+<p>Hold to select a set of messages that you want to hold. Incoming, active, deferred, and corrupt messages can be moved to the Held queue. Messages stay in this queue until the administrator moves them.</p>
+</li>
+<li class="p">
+<p>Release to remove all message from the Held queue. Messages are moved to the Deferred queue.</p>
+</li>
+<li class="p">
+<p>Requeue all messages in the queue being viewed. Requeuing messages can be used to send messages that were deferred because of a configuration problem that has been fixed. Messages are re-evaluated and earlier penalties are forgotten.</p>
+</li>
+<li class="p">
+<p>Delete all messages in the queue being viewed.</p>
+</li>
+</ul>
+<p style="margin-left: 0px;">Postfix queue file IDs are reused. &#160;If you requeue or delete a message, note the message envelope information, not the queue ID. It is possible that when you refresh the mail queues, the queue ID could be used on a different message.</p>
+<h3>Flushing the Queues</h3>
+<p>In addition to managing individual messages in a specific queue, you can flush all queued mail on a server. When you click Flush, delivery is attempted for all messages in the Deferred, Incoming, and Active queues.</p>
+<ul style="list-style: square;">
+<li>
+<p>To flush the queue, on the Mail Queues page, in the gear icon click <span style="font-weight: bold;">Flush</span>.</p>
+</li>
+</ul>
+<p>See <a href="about_mta_queues.htm">About MTA Queues</a></p>
+<p>&#160;</p>
+<script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+
+
+highlightSearch();
+//-->
+//]]></script>
+</body>
+</html>

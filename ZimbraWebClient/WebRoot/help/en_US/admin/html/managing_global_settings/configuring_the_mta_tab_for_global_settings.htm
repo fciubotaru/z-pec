@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <meta name="generator" content="Adobe RoboHelp 10" />
+<title>Configuring the MTA Tab for Global Settings</title>
+<link rel="StyleSheet" href="../default.css" type="text/css" />
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="../whmsg.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript" src="../whver.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whutils.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whlang.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic.js" charset="utf-8"></script>
+
+</head>
+<body><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.gbWhTopic)
+{
+	var strUrl = document.location.href;
+	var bc = 0;
+	var n = strUrl.toLowerCase().indexOf("bc-");
+	if(n != -1)
+	{
+		document.location.href = strUrl.substring(0, n);
+		bc = strUrl.substring(n+3);
+	}
+
+	if (window.addTocInfo)
+	{
+	addTocInfo("Global Settings\nConfiguring the MTA Tab for Global Settings");
+addButton("show",BTN_TEXT,"Show TOC","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	
+	
+}
+else
+	if (window.gbIE4)
+		document.location.reload();
+
+onLoadHandler = function()
+{
+  if (window.setRelStartPage)
+	{
+	setTimeout("setRelStartPage('../administration_console_help.htm');", 1)
+
+    setTimeout("UpdateBreadCrumbsMarker();", 1);
+	}
+}
+
+if (window.addEventListener){  
+	window.addEventListener('load', onLoadHandler, false);   
+} else if (window.attachEvent){  
+	window.attachEvent('onload', onLoadHandler);  
+}
+
+function onSetStartPage()
+{
+  autoSync(1);
+  sendSyncInfo();
+  sendAveInfoOut();
+}
+//-->
+//]]></script>
+<script type="text/javascript" src="../ehlpdhtm.js" language="JavaScript1.2"></script>
+
+
+<h1>Configuring Global Settings MTA</h1>
+<p>The following global MTA settings can be configured.</p>
+<ol style="list-style: decimal;">
+<li>
+<p>Go to <span style="font-weight: bold;">Configure&gt;Global Settings</span>.</p>
+</li>
+<li>
+<p>Click <span style="font-weight: bold;">MTA</span> in the Navigation pane.</p>
+</li>
+<li>
+<p>Modify the following options</p>
+</li>
+</ol>
+
+<table style="padding-left: 6.00pt; padding-top: 6.00pt; padding-right: 6.00pt; padding-bottom: 4.00pt; margin-left: 36pt;" cellspacing="0">
+<col />
+<col width="645" />
+<tr style="height: 32px;" bgcolor="#B2B2B2">
+<th style="border-top: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;" bgcolor="#B2B2B2">
+<p class="FM_option">Option</p>
+</th>
+<th style="border-top: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;" bgcolor="#B2B2B2">
+<p class="FM_Description">Description</p>
+</th>
+</tr>
+<tr style="height: 57px;">
+<td style="border-bottom: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+<p style="font-weight: bold;">Authentication</p>
+</td>
+<td style="border-bottom: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+<ul style="list-style: disc;">
+<li class="p">
+<p style="margin-left: 0px;"><span style="font-weight: bold;">Authentication</span> should be enabled, to support mobile SMTP authentication users so that their email client can talk to the Zimbra MTA.</p>
+</li>
+<li class="p">
+<p><span style="font-weight: bold;">TLS authentication only</span> forces all SMTP auth to use Transaction Level Security (similar to SSL) to avoid passing passwords in the clear.</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr style="height: 59px;">
+<td style="border-bottom: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+<p style="font-weight: bold;"><span style="font-weight: bold;">Network</span></p>
+</td>
+<td style="border-bottom: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+<ul style="list-style: disc;">
+<li class="p">
+<p><span style="font-weight: bold;">Web mail MTA Host name and Web mail MTA Port</span>. The MTA that the web server connects to for sending mail. The default port number is 25.</p>
+</li>
+<li class="p">
+<p><span style="font-weight: bold;">Relay MTA for external delivery</span>. (e.g., the ISP requires that all mail originating from your network be relayed through their MTA) to which the Zimbra Postfix relays non-local email. See <a href="relay_mta_for_external_delivery.htm">Relay MTA for external delivery</a>.</p>
+</li>
+<li class="p">
+<p>If Enable DNS lookups is checked, the Zimbra MTA makes an explicit DNS query for the MX record of the recipient domain. If this option is disabled, set a relay host in the Relay MTA for external delivery.</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr style="height: 43px;">
+<td style="border-bottom: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+<p style="font-weight: bold;"><span style="font-weight: bold;">Milter Server</span></p>
+</td>
+<td style="border-bottom: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+<ul style="list-style: disc;">
+<li>If Enable Milter Server is checked, the milter enforces the rules that are set p for who can send email to a distribution list.</li>
+</ul>
+</td>
+</tr>
+<tr style="height: 43px;">
+<td style="border-bottom: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+<p style="font-weight: bold;"><span style="font-weight: bold;">Messages</span></p>
+</td>
+<td style="border-bottom: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+<ul style="list-style: disc;">
+<li class="p">
+<p>Set the maximum messages size for a message and &#160;its attachments that can be received. <span style="font-weight: bold;">Note</span>: To set the maximum size for files uploaded to Briefcase, go to the Global Settings&gt;General Information page.</p>
+</li>
+<li class="p">
+<p>This is enabled by default. Every email sent directly from the server includes the X-Originating-IP in the message header. This specifies the original sending IP of the email message the server is forwarding.</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr style="height: 43px;">
+<td style="border-bottom: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+<p style="font-weight: bold;"><span style="font-weight: bold;">Protocol checks</span></p>
+</td>
+<td style="border-bottom: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+<ul style="list-style: disc;">
+<li class="p">
+<p>To reject unsolicited commercial email (UCE), for spam control.</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr style="height: 43px;">
+<td style="border-bottom: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+<p style="font-weight: bold;"><span style="font-weight: bold;">DNS checks</span></p>
+</td>
+<td style="border-bottom: solid 1px #000000; vertical-align: top; padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+<ul style="list-style: disc;">
+<li class="p">
+<p>To reject mail if the client’s IP address is unknown, the hostname in the greeting is unknown, or if the sender’s domain is unknown.</p>
+</li>
+<li class="p">
+<p>Add other email recipient restrictions to the <span style="font-weight: bold;">List of RBLs</span> text box.</p>
+</li>
+</ul>
+<p>&#160;</p>
+</td>
+</tr>
+</table>
+
+<p>&#160;</p>
+<ol start="4" style="list-style: decimal;">
+<li>Click <span style="font-weight: bold;">Save</span>.</li>
+</ol>
+<script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+
+
+highlightSearch();
+//-->
+//]]></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<%@ page buffer="8kb" autoFlush="true" %>
+<%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
+<%@ page session="false" %>
+<%@ taglib prefix="zm" uri="com.zimbra.zm" %>
+<%@ taglib prefix="rest" uri="com.zimbra.restclient" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="com.zimbra.i18n" %>
+<fmt:setLocale value='${pageContext.request.locale}' scope='request' />
+<fmt:setBundle basename="/messages/ZhMsg" scope="request"/>
+
+<fmt:setTimeZone var="timezone" value="${zm:getTimeZone(not empty param.tz ? param.tz : requestScope.zimbra_target_account_prefTimeZoneId)}" scope="request"/>
+
+<c:set var="type" value="${requestScope.zimbra_target_item_type}"/>
+<c:set var="skin" value="${requestScope.zimbra_target_account_prefSkin}" scope="request"/>
+<c:set var="view" value="${requestScope.zimbra_target_item_view}"/>
+<c:set var="itemColor" value="${not empty param.color ? param.color : requestScope.zimbra_target_item_color}" scope="request"/>
+
+
+<zm:getMailbox var="mailbox" restauthtoken="${requestScope.zimbra_authToken}" resttargetaccountid="${requestScope.zimbra_target_account_id}"/>
+
+<c:choose>
+    <c:when test="${(type eq 'folder' or type eq 'remote folder') and (view eq 'appointment')}">
+        <rest:calendar mailbox="${mailbox}" timezone="${timezone}"/>
+    </c:when>
+    <c:when test="${requestScope.zimbra_freebusy}">
+        <rest:calendar mailbox="${mailbox}" timezone="${timezone}"/>
+    </c:when>
+    <c:when test="${(type eq 'document')}">
+        <rest:document  mailbox="${mailbox}" timezone="${timezone}"/>
+    </c:when>
+    <c:when test="${(type eq 'folder' or type eq 'remote folder') and (view eq 'document')}">
+        <rest:briefcase mailbox="${mailbox}" timezone="${timezone}"/>
+    </c:when>    
+    <c:otherwise>
+        <rest:view title="">
+            <fmt:message key="unsupportedRestView"/>
+        </rest:view>
+    </c:otherwise>
+</c:choose>

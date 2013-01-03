@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "chrome://zimbratb/locale/zimbratb.dtd">
+<?xml-stylesheet href="chrome://zimbratb/skin/zimbraactions/zimbraactions.css" type="text/css"?>
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<script type="application/x-javascript" src="ZMTB_ZimbraActions.js"/>
+	<script>
+		window.addEventListener("load", function(){
+			new ZMTB_ZimbraActions(com_zimbra_tb);
+		}, false);
+	</script>
+	<toolbar id="ZimTB-Toolbar">
+			<toolbarbutton id="ZimTB-MainMenu" type="menu">
+				<menupopup>
+					<menuitem label="&zmtb.zimbraactions.openadvanced;" accesskey="&zmtb.zimbraactions.openadvanced.accesskey;" id="ZimTB-OpenAdvanced" class="zmtb-menucommand"/>
+					<menuitem label="&zmtb.zimbraactions.openlite;" accesskey="&zmtb.zimbraactions.openlite.accesskey;" id="ZimTB-OpenStandard" class="zmtb-menucommand"/>
+					<menuitem label="&zmtb.zimbraactions.preferences;" accesskey="&zmtb.zimbraactions.preferences.accesskey;" id="ZimTB-OpenPreferences" class="zmtb-menucommand"/>
+				</menupopup>
+			</toolbarbutton>
+			<toolbarbutton id="ZimTB-Refresh-Button" tooltiptext="Refresh" type="button" />
+	</toolbar>
+</overlay>

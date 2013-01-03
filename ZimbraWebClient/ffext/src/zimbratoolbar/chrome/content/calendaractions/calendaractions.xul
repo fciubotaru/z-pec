@@ -1,0 +1,166 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "chrome://zimbratb/locale/zimbratb.dtd">
+<?xml-stylesheet href="chrome://zimbratb/skin/calendaractions/calendaractions.css" type="text/css"?>
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<script type="application/x-javascript" src="ZMTB_CalendarActions.js"/>
+	<script>
+		window.addEventListener("load", function(){
+			new ZMTB_CalendarActions(com_zimbra_tb);
+		}, false);
+	</script>
+	<toolbar id="ZimTB-Toolbar">
+		<toolbarbutton  flex="0" id="ZimTB-Calendar-Button" label="&zmtb.calendaractions.calendar;" type="menu" menu="ZimTB-Calendar-Menu">
+			<menupopup id="ZimTB-Calendar-Menu">
+				<menuitem id="ZimTB-NewAppointment" label="&zmtb.calendaractions.newappt;" accesskey="&zmtb.calendaractions.newappt.ak;" class="menuitem-iconic zmtb-menucommand" />
+				<menuseparator/>
+				<menuitem id="ZimTB-NewCalendar" label="&zmtb.calendaractions.newcal;" accesskey="&zmtb.calendaractions.newcal.ak;" class="menuitem-iconic zmtb-menucommand" />
+				<menuitem id="ZimTB-RemoteCalendar" label="&zmtb.calendaractions.newremcal;" accesskey="&zmtb.calendaractions.newremcal.ak;" class="menuitem-iconic zmtb-menucommand" />
+				<menuitem id="ZimTB-SharedCalendar" label="&zmtb.calendaractions.linktocal;" accesskey="&zmtb.calendaractions.linktocal.ak;" class="menuitem-iconic zmtb-menucommand" />
+				<menuseparator/>
+				<menuitem id="ZimTB-ViewCalendars" label="&zmtb.calendaractions.viewcal;" accesskey="&zmtb.calendaractions.viewcal.ak;" class="menuitem-iconic zmtb-menucommand" />
+			</menupopup>
+		</toolbarbutton>
+	</toolbar>
+	<vbox id="ZimTB-ActionsBar">
+		<vbox id="ZimTB-NewCal-Bar">
+			<vbox class="ZMTB-ActionBar-Title" >
+				<label value="&zmtb.calendaractions.newcalendar.title;" />
+			</vbox>
+			<hbox class="ZMTB-ActionBar-Row">
+				<label value="&zmtb.calendaractions.name;"/>
+				<textbox id="ZimTB-NewCal-Name" />
+				<button id="ZimTB-NewCal-Create" label="&zmtb.calendaractions.newcalendar.create;"/>
+				<button id="ZimTB-NewCal-Close" label="&zmtb.calendaractions.cancel;"/>
+			</hbox>
+		</vbox>
+		<vbox id="ZimTB-NewRemCal-Bar">
+			<vbox class="ZMTB-ActionBar-Title" >
+				<label value="&zmtb.calendaractions.newremcalendar.title;" />
+			</vbox>
+			<hbox class="ZMTB-ActionBar-Row">
+				<label value="&zmtb.calendaractions.name;"/>
+				<textbox id="ZimTB-NewRemCal-Name" />
+				<label value="&zmtb.calendaractions.newremcalendar.url;"/>
+				<textbox id="ZimTB-NewRemCal-URL" />
+				<button id="ZimTB-NewRemCal-Create" label="&zmtb.calendaractions.newremcalendar.create;"/>
+				<button id="ZimTB-NewRemCal-Close" label="&zmtb.calendaractions.cancel;"/>
+			</hbox>
+		</vbox>
+		<vbox id="ZimTB-LinkToCal-Bar">
+			<vbox class="ZMTB-ActionBar-Title" >
+				<label value="&zmtb.calendaractions.linktocalendar.title;" />
+			</vbox>
+			<hbox class="ZMTB-ActionBar-Row">
+				<label value="&zmtb.calendaractions.name;"/>
+				<textbox id="ZimTB-LinkToCal-Name"/>
+				<label value="&zmtb.calendaractions.linktocalendar.owner;"/>
+				<textbox id="ZimTB-LinkToCal-Owner"/>
+				<label value="&zmtb.calendaractions.linktocalendar.path;"/>
+				<textbox id="ZimTB-LinkToCal-Path"/>
+				<button id="ZimTB-LinkToCal-Create" label="&zmtb.calendaractions.linktocalendar.create;"/>
+				<button id="ZimTB-LinkToCal-Close" label="&zmtb.calendaractions.cancel;"/>
+			</hbox>
+		</vbox>
+		<vbox id="ZimTB-NewAppt-Bar">
+			<vbox class="ZMTB-ActionBar-Title" >
+				<label value="&zmtb.calendaractions.newappt.title;" />
+			</vbox>
+			<hbox>
+				<vbox align="start">
+					<hbox class="ZMTB-ActionBar-Row">
+						<label value="&zmtb.calendaractions.newappt.subject;"/>
+					</hbox>
+					<hbox class="ZMTB-ActionBar-Row">
+						<label value="&zmtb.calendaractions.newappt.location;"/>
+					</hbox>
+				</vbox>
+				<vbox align="end">
+					<hbox class="ZMTB-ActionBar-Row">
+						<textbox id="ZimTB-NewAppt-Subject"/>
+					</hbox>
+					<hbox class="ZMTB-ActionBar-Row">
+						<textbox id="ZimTB-NewAppt-Location"/>
+					</hbox>
+				</vbox>
+				<vbox align="start">
+					<hbox class="ZMTB-ActionBar-Row">
+						<label value="&zmtb.calendaractions.newappt.start;"/>
+					</hbox>
+					<hbox class="ZMTB-ActionBar-Row">
+						<label value="&zmtb.calendaractions.newappt.end;"/>
+					</hbox>
+				</vbox>
+				<vbox align="end">
+					<hbox class="ZMTB-ActionBar-Row">
+						<timepicker id="ZimTB-NewAppt-StartTime" hideseconds="true" increment="5"/>
+						<datepicker id="ZimTB-NewAppt-StartDate" type="popup"/>
+					</hbox>
+					<hbox class="ZMTB-ActionBar-Row">
+						<timepicker id="ZimTB-NewAppt-EndTime" hideseconds="true" increment="5"/>
+						<datepicker id="ZimTB-NewAppt-EndDate" type="popup"/>
+					</hbox>
+				</vbox>
+				<vbox align="start">
+					<hbox class="ZMTB-ActionBar-Row">
+						<checkbox label="&zmtb.calendaractions.newappt.allday;" id="ZimTB-NewAppt-AllDay"/>
+					</hbox>
+					<hbox class="ZMTB-ActionBar-Row">
+						<menulist width="100" id="ZimTB-NewAppt-Calendar" sizetopopup="none" />
+					</hbox>
+				</vbox>
+				<vbox align="start">
+					<hbox align="center" class="ZMTB-ActionBar-Row">
+						<label value="&zmtb.calendaractions.newappt.repeat;"/>
+					</hbox>
+					<hbox align="center" class="ZMTB-ActionBar-Row">
+						<label value="&zmtb.calendaractions.newappt.alarm;"/>
+					</hbox>
+				</vbox>
+				<vbox align="end">
+					<hbox align="center" class="ZMTB-ActionBar-Row">
+						<menulist id="ZimTB-NewAppt-Repeat" sizetopopup="none">
+							<menupopup>
+								<menuitem label="&zmtb.calendaractions.newappt.repeat.none;"/>
+								<menuitem label="&zmtb.calendaractions.newappt.repeat.day;" value="DAI"/>
+								<menuitem label="&zmtb.calendaractions.newappt.repeat.week;" value="WEE"/>
+								<menuitem label="&zmtb.calendaractions.newappt.repeat.month;" value="MON"/>
+								<menuitem label="&zmtb.calendaractions.newappt.repeat.year;" value="YEA"/>
+							</menupopup>
+						</menulist>
+					</hbox>
+					<hbox align="center" class="ZMTB-ActionBar-Row">
+						<menulist id="ZimTB-NewAppt-Alarm" sizetopopup="none">
+							<menupopup>
+								<menuitem label="&zmtb.calendaractions.newappt.alarm.never;"/>
+								<menuitem label="&zmtb.calendaractions.newappt.alarm.1m;" value="1"/>
+								<menuitem label="&zmtb.calendaractions.newappt.alarm.5m;" value="5"/>
+								<menuitem label="&zmtb.calendaractions.newappt.alarm.10m;" value="10"/>
+								<menuitem label="&zmtb.calendaractions.newappt.alarm.15m;" value="15"/>
+								<menuitem label="&zmtb.calendaractions.newappt.alarm.30m;" value="30"/>
+								<menuitem label="&zmtb.calendaractions.newappt.alarm.45m;" value="45"/>
+								<menuitem label="&zmtb.calendaractions.newappt.alarm.60m;" value="60"/>
+								<menuitem label="&zmtb.calendaractions.newappt.alarm.2h;" value="120"/>
+								<menuitem label="&zmtb.calendaractions.newappt.alarm.3h;" value="180"/>
+								<menuitem label="&zmtb.calendaractions.newappt.alarm.4h;" value="240"/>
+								<menuitem label="&zmtb.calendaractions.newappt.alarm.5h;" value="300"/>
+								<menuitem label="&zmtb.calendaractions.newappt.alarm.18h;" value="1080"/>
+							</menupopup>
+						</menulist>
+					</hbox>
+				</vbox>
+				<vbox align="end">
+					<hbox align="center" class="ZMTB-ActionBar-Row">
+						<button id="ZimTB-NewAppt-Create" label="&zmtb.calendaractions.newappt.create;"/>
+					</hbox>
+					<hbox align="center" class="ZMTB-ActionBar-Row">
+						<button id="ZimTB-NewAppt-Close" label="&zmtb.calendaractions.cancel;"/>
+					</hbox>
+				</vbox>
+			</hbox>
+		</vbox>
+	</vbox>
+	<!-- Context Menu -->
+	<popup id="contentAreaContextMenu" >
+		<menuitem id="ZMTB-ContextAction-AddCal" insertbefore="context-bookmarklink" label="&zmtb.calendaractions.context.addcal;" class="menuitem-iconic ZMTB-ContextAction" />
+	</popup>
+</overlay>

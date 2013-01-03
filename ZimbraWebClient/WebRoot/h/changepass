@@ -1,0 +1,137 @@
+<%@ page buffer="8kb" autoFlush="true" %>
+<%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="zm" uri="com.zimbra.zm" %>
+<%@ taglib prefix="app" uri="com.zimbra.htmlclient" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="com.zimbra.i18n" %>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<app:handleError>
+    <zm:getMailbox var="mailbox"/>
+	<app:skin mailbox="${mailbox}" />
+	<c:choose>
+    <c:when test="${not empty mailbox.prefs.locale}">
+        <fmt:setLocale value='${mailbox.prefs.locale}' scope='request' />
+    </c:when>
+    <c:otherwise>
+        <fmt:setLocale value='${pageContext.request.locale}' scope='request' />
+    </c:otherwise>
+    </c:choose>
+    <fmt:setBundle basename="/messages/ZhMsg" scope='request' />
+    
+    <c:set var="successfullLogin" value="false"/>
+    <fmt:message var="errorMessage" key="enterNewPassword"/>
+    <c:set var="messageImage" value="dwt/ImgInformation_32.png"/>
+    <c:choose>
+        <c:when test="${(not empty param.loginNewPassword or not empty param.loginConfirmNewPassword) and (param.loginNewPassword ne param.loginConfirmNewPassword)}">
+            <fmt:message var="errorMessage" key="bothNewPasswordsMustMatch"/>
+            <c:set var="messageImage" value="dwt/ImgCritical_32.png"/>
+        </c:when>
+        <c:when test="${(param.loginOp eq 'login') && ((empty param.loginNewPassword) or (empty param.password) or (empty param.loginConfirmNewPassword))}">
+            <fmt:message var="errorMessage" key="passwordFieldMissing"/>
+            <c:set var="messageImage" value="dwt/ImgCritical_32.png"/>
+        </c:when>
+        <c:when test="${(param.loginOp eq 'login') && (not empty param.loginNewPassword) && (not empty param.password) && (pageContext.request.method eq 'POST')}">
+            <c:catch var="loginException">
+                <zm:changePassword username="${mailbox.name}" password="${param.password}"
+                                   newpassword="${param.loginNewPassword}"
+                                   rememberme="${param.zrememberme == '1'}"/>
+                <c:set var="successfullLogin" value="true"/>
+                <fmt:message var="errorMessage" key="passwordChangeSucceededCloseWindow"/>
+            </c:catch>
+            <c:if test="${loginException != null}">
+                <zm:getException var="error" exception="${loginException}"/>
+                <c:set var="errorCode" value="${error.code}"/>
+                <fmt:message var="errorMessage" key="${errorCode}"/>
+                <c:set var="messageImage" value="dwt/ImgCritical_32.png"/>
+                <c:forEach var="arg" items="${error.arguments}">
+                    <fmt:message var="errorMessage" key="${errorCode}.${arg.name}">
+                        <fmt:param value="${arg.val}"/>
+                    </fmt:message>
+                </c:forEach>
+            </c:if>
+        </c:when>
+
+    </c:choose>
+    <zm:getDomainInfo var="domainInfo" by="virtualHostname" value="${zm:getServerName(pageContext)}"/>
+</app:handleError>
+
+<html>
+
+<head>
+    <meta http-equiv="cache-control" content="no-cache"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <title><fmt:message key="changePassword"/></title>
+	<c:url var='cssurl' value='/css/common,login,zhtml,${skin},skin.css'>
+		<c:param name="skin" value="${skin}" />
+	</c:url>
+	<link rel="stylesheet" type="text/css" href="${cssurl}">
+    <fmt:message key="favIconUrl" var="favIconUrl"/>
+    <link rel="SHORTCUT ICON" href="<c:url value='${favIconUrl}'/>">
+</head>
+<body <c:if test="${successfullLogin ne 'true'}">
+        onload="document.changePassForm.password.focus();"
+        </c:if>>
+    <div class="LoginScreen">
+        <div class="center">
+            <div class="contentBox">
+            <div class="ImgAltBanner"></div>
+            <h1>
+                <a href="http://www.zimbra.com/" target="_new">
+                    <div class='ImgLoginBanner' style="margin: 20px 0 0 20px;"></div>
+                </a>
+            </h1>
+            <c:if test="${not empty errorMessage}">
+                <!-- ${fn:escapeXml(error.stackStrace)} -->
+                <div id='ZLoginErrorPanel'>
+                    <table width=100%>
+                        <tr>
+                            <td valign='top' width='40'>
+                                <img alt='<fmt:message key="ALT_ERROR"/>' src="<app:imgurl value='${messageImage}'/>"/>
+                            </td>
+                            <td class='errorText'>
+                                <c:out value="${errorMessage}"/> 
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </c:if>
+            <c:if test="${successfullLogin ne 'true'}">
+                <div id='ZLoginFormPanel' style="margin-left: 12%;">
+                    <form method='post' name="changePassForm" action="" autocomplete="off" accept-charset="utf-8">
+                        <input type="hidden" name="loginOp" value="login"/>
+                        <table class="form">
+                            <tr>
+                                <td class='zLoginLabelContainer'><label for="oldPassword"><fmt:message key="oldPassword"/>:</label></td>
+                                <td class='zLoginFieldContainer'>
+                                    <input id="oldPassword" autocomplete="off" class='zLoginField' name='password' type='password' value="" maxlength="${domainInfo.webClientMaxInputBufferLength}"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class='zLoginLabelContainer'><label for="newPassword"><fmt:message key="newPassword"/>:</label></td>
+                                <td class='zLoginFieldContainer'>
+                                    <input id="newPassword" autocomplete="off" class='zLoginField' name='loginNewPassword' type='password' value="" maxlength="${domainInfo.webClientMaxInputBufferLength}"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class='zLoginLabelContainer'><label for="confirm"><fmt:message key="confirm"/>:</label></td>
+                                <td class='zLoginFieldContainer'>
+                                    <input id="confirm" autocomplete="off" class='zLoginField' name='loginConfirmNewPassword' type='password' value="" maxlength="${domainInfo.webClientMaxInputBufferLength}"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td><input type=submit class='zLoginButton'
+                                                     value="<fmt:message key="changePassword"/>"/></td>
+                            </tr>
+                        </table>
+                    </form>
+                </div>
+            </c:if>
+            </div>
+            <div class="decor1"></div>
+        </div>
+    </div> 
+</body>
+</html>

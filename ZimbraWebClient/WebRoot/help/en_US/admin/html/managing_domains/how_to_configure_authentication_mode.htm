@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <meta name="generator" content="Adobe RoboHelp 10" />
+<title>How to Configure Authentication Mode</title>
+<link rel="StyleSheet" href="../default.css" type="text/css" />
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="../whmsg.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript" src="../whver.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whutils.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whlang.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic.js" charset="utf-8"></script>
+
+</head>
+<body><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.gbWhTopic)
+{
+	var strUrl = document.location.href;
+	var bc = 0;
+	var n = strUrl.toLowerCase().indexOf("bc-");
+	if(n != -1)
+	{
+		document.location.href = strUrl.substring(0, n);
+		bc = strUrl.substring(n+3);
+	}
+
+	if (window.addTocInfo)
+	{
+	addTocInfo("Managing Domains\nHow to Configure Authentication");
+addButton("show",BTN_TEXT,"Show TOC","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	
+	
+}
+else
+	if (window.gbIE4)
+		document.location.reload();
+
+onLoadHandler = function()
+{
+  if (window.setRelStartPage)
+	{
+	setTimeout("setRelStartPage('../administration_console_help.htm');", 1)
+
+    setTimeout("UpdateBreadCrumbsMarker();", 1);
+	}
+}
+
+if (window.addEventListener){  
+	window.addEventListener('load', onLoadHandler, false);   
+} else if (window.attachEvent){  
+	window.attachEvent('onload', onLoadHandler);  
+}
+
+function onSetStartPage()
+{
+  autoSync(1);
+  sendSyncInfo();
+  sendAveInfoOut();
+}
+//-->
+//]]></script>
+<script type="text/javascript" src="../ehlpdhtm.js" language="JavaScript1.2"></script>
+
+
+<h1>Configuring Authentication</h1>
+<p>The <a href="authentication_settings.htm">authentication mode</a> is configured when a new <a href="creating_a_domain.htm">domain is created</a> and can be edited from the <span style="font-weight: bold;">Domain</span> toolbar.</p>
+<h6>Procedure</h6>
+<ol style="list-style: decimal;">
+<li class="p">
+<p>Go to <span style="font-weight: bold;">Configure&gt;Domain</span> and select the domain to edit.</p>
+</li>
+<li class="p">
+<p>In the gear icon click <span style="font-weight: bold;">Configure Authentication.</span></p>
+</li>
+<li class="p">
+<p>Select the Authentication mode, <span style="font-weight: bold;">Internal, External</span><span>, or</span> <span style="font-weight: bold;">External Active Directory.</span><br />
+<br />
+If Internal is selected, the configuration is complete. Click <span style="font-weight: bold;">Finish</span><span>,</span> to save the configuration.<br />
+<br />
+If External or External Active Directory is selected, go to step 4.</p>
+</li>
+<li class="p">
+<p>Enter the type; select either <span style="font-weight: bold;">LDAP</span> or <span style="font-weight: bold;">Active Directory</span>.</p>
+</li>
+<li class="p">
+<p>In the <span style="font-weight: bold;">LDAP URL:</span> field type the external LDAP URL. The external server port is 389.<br />
+<br />
+If you check <span style="font-weight: bold;">Use SSL</span>, the server port is 636. For the External Authentication mode, you can enable StartTLS instead of SSL.</p>
+</li>
+<li class="p">
+<p>To add additional LDAP servers, click <span style="font-weight: bold;">Add</span>. A new LDAP URL field displays. <span style="font-style: italic;"><i>If configuring External Active Directory, go to step 9.<br />
+<br />
+For External, continue with step 7.</i></span></p>
+</li>
+<li class="p">
+<p>In the <span style="font-weight: bold;">LDAP filter</span>: field, enter the search expression to use. &#160;</p>
+</li>
+<li class="p">
+<p>The LDAP search base field can be left blank to search multiple domains within a server or you can specify the search base. &#160;Click <span style="font-weight: bold;">Next</span>.</p>
+</li>
+<li class="p">
+<p>If using DN to bind to the external server, check <span style="font-weight: bold;">Use DN/Password to bind to external server.</span><br />
+<br />
+Enter the Bind DN and Bind Password. Click <span style="font-weight: bold;">Next</span>.</p>
+</li>
+<li class="p">
+<p>The <span style="font-weight: bold;">Authentication Settings</span> <span>s</span>ummary page displays the information you entered. To test the settings, enter a user name and password that exists in the LDAP server. Click <span style="font-weight: bold;">Test</span>.</p>
+</li>
+<li class="p">
+<p>The Test Results page displays the test results. If the results failed, click <span style="font-weight: bold;">Previous</span><span>,</span> to resolve the issues described in the <span style="font-weight: bold;">Details</span> text box. Click <span style="font-weight: bold;">Finish</span>, if the test past.</p>
+</li>
+</ol>
+<p>&#160;</p>
+<script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+
+
+highlightSearch();
+//-->
+//]]></script>
+</body>
+</html>

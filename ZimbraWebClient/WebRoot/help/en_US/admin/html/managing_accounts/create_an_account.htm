@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <meta name="generator" content="Adobe RoboHelp 10" />
+<title>Create an Account</title>
+<link rel="StyleSheet" href="../default.css" type="text/css" />
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="../whmsg.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript" src="../whver.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whutils.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whlang.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic.js" charset="utf-8"></script>
+
+</head>
+<body><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.gbWhTopic)
+{
+	var strUrl = document.location.href;
+	var bc = 0;
+	var n = strUrl.toLowerCase().indexOf("bc-");
+	if(n != -1)
+	{
+		document.location.href = strUrl.substring(0, n);
+		bc = strUrl.substring(n+3);
+	}
+
+	if (window.addTocInfo)
+	{
+	addTocInfo("Managing Accounts\nAccounts\nProvisioning Account");
+addButton("show",BTN_TEXT,"Show TOC","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	
+	
+}
+else
+	if (window.gbIE4)
+		document.location.reload();
+
+onLoadHandler = function()
+{
+  if (window.setRelStartPage)
+	{
+	setTimeout("setRelStartPage('../administration_console_help.htm');", 1)
+
+    setTimeout("UpdateBreadCrumbsMarker();", 1);
+	}
+}
+
+if (window.addEventListener){  
+	window.addEventListener('load', onLoadHandler, false);   
+} else if (window.attachEvent){  
+	window.attachEvent('onload', onLoadHandler);  
+}
+
+function onSetStartPage()
+{
+  autoSync(1);
+  sendSyncInfo();
+  sendAveInfoOut();
+}
+//-->
+//]]></script>
+<script type="text/javascript" src="../ehlpdhtm.js" language="JavaScript1.2"></script>
+
+
+<h1>Provisioning &#160;Accounts</h1>
+<p>When you provision user accounts, the mailbox is created on the designated server and a directory account is created on the LDAP server.</p>
+<p>Each account is assigned a <a href="../cos/class_of_service.htm">Class of Service</a> (COS) that defines features and preferences for the mailbox, but you can override the COS attributes when you configure the account. &#160;When you initially create an account, you need to consider how you want to set up the account and whether the configuration should be changed from the COS configuration.</p>
+<p><span class="Important">Important:</span> &#160;IMAP and POP client users may not have the restrictions that are configured in their COS or Account settings.</p>
+<p>The <span style="font-weight: bold;">New Account</span> <span style="font-weight: bold;">Wizard</span> steps you through a series of dialog boxes to set up contact information, features, mail aliases, forwarding information, mailbox preferences, and advanced features. The minimum account configuration requires completing the <span style="font-weight: bold;">Account Name</span> and <span style="font-weight: bold;">Last Name</span> fields and then click Finish. The account is created with the default settings from the default COS.</p>
+<h6>To create an account:</h6>
+<ol class="whs2" style="list-style: decimal;">
+<li class="p">
+<p style="margin-left: 0px;">In the <span style="font-weight: bold;">General Information&gt;Account Name</span> section, enter the account name and select the host name. An account name cannot have spaces or use symbols. You can type a period (.) between words. Example: john.smith. This becomes the name in the email address, i.e. john.smith@example.com</p>
+</li>
+</ol>
+<ul style="list-style: disc;">
+<li style="margin-left: -20px;">
+<p style="margin-left: 40px;">Enter the user's name. The &#160;<span style="font-weight: bold;">Last name</span> <span>is required.</span></p>
+</li>
+<li style="margin-left: -20px;">
+<p style="margin-left: 40px;">If <span style="font-weight: bold;">auto</span> is checked next to the <span style="font-weight: bold;">Display name</span> field, the last name is automatically added as the display name. Remove the check mark to create a specific display name.</p>
+</li>
+<li style="margin-left: -20px;">
+<p style="margin-left: 40px;">If you do not want this account displayed in the Global Address List (GAL), check <span style="font-weight: bold;">Hide in GAL</span>.</p>
+</li>
+</ul>
+<ol start="2" style="list-style: decimal;">
+<li>
+<p style="margin-left: 0px;">In the <span style="font-weight: bold;">Account Setup</span> section, leave the <span style="font-weight: bold;">Status</span> as <span style="font-weight: bold;">Active</span> if the account is going to be immediately available. &#160;If the account is not immediately available, change the account status from Active to Pending.</p>
+</li>
+<li>
+<p style="margin-left: 0px;">If <span style="font-weight: bold;">auto</span> is checked next to the <span style="font-weight: bold;">Class of Service</span> field, the account is assigned the domain COS. &#160;If no domain COS exists, the Zimbra default COS is automatically assigned.</p>
+</li>
+</ol>
+<p style="margin-left: 40px;">Remove the check mark from &#160;the auto box to select a different COS for the account. In the Class of Service field, enter a few letters of the COS name and then select the COS name from the list that displays.</p>
+<ol start="4" style="list-style: decimal;">
+<li>
+<p style="margin-left: 0px;">If using internal authentication, in the Password section, enter a password for this account. &#160;If the user should change the password when the first sign in, check <span style="font-weight: bold;">Must change password</span>.</p>
+</li>
+<li>
+<p style="margin-left: 0px;">In the <span style="font-weight: bold;">Time Zone Setup</span> section, select the time zone for this account.</p>
+</li>
+<li>
+<p style="margin-left: 0px;">The <span style="font-weight: bold;">Notes</span> section can be used to add a description of this account and to keep notes about the account. The description is displayed with the account information in the account content pane; notes are not displayed.</p>
+</li>
+<li>
+<p style="margin-left: 0px;">If this account can use the ZCS Voice feature, in the Voice and Chat section, type the voice username and select the service.</p>
+</li>
+<li>
+<p style="margin-left: 0px;">Click <span style="font-weight: bold;">Next</span> if you want to add contact information, set up aliases, forwarding or modify the COS settings for this account. &#160;Click <span style="font-weight: bold;">Finish</span> if you do not want to make other changes.</p>
+</li>
+<li>
+<p style="margin-left: 0px;">If you click <span style="font-weight: bold;">Next</span>, in the <span style="font-weight: bold;">Contact Information</span> dialog box enter personal information about the user, including. phone numbers, company name, and address information.</p>
+</li>
+<li>
+<p style="margin-left: 0px;">In the Aliases dialog box, enter email <a href="creating_a_mail_aliases.htm">aliases</a> for this account.</p>
+</li>
+<li>
+<p style="margin-left: 0px;">In the Member of dialog box, add distribution lists this user should be added to.</p>
+</li>
+<li>
+<p style="margin-left: 0px;">In the Forwarding dialogs box, <a href="forwarding_mail.htm">Forwarding</a> is enabled by default. If you do not want this account to forward email messages, remove the check mark from <span style="font-weight: bold;">Allow the user to specify a forwarding address</span>.</p>
+</li>
+<li>
+<p style="margin-left: 0px;"><span style="font-weight: bold;">Features</span>, <span style="font-weight: bold;">Preferences</span>, <span style="font-weight: bold;">Themes</span>, <span style="font-weight: bold;">Zimlets</span>, and <span style="font-weight: bold;">Advanced</span> dialog boxes. The default feature, preferences, and advanced features configuration is based on the COS assigned to the account. &#160;You can changes these for individual accounts. A <span style="font-weight: bold;">Reset to COS value</span> link is displayed when you make a change to let you know that the account configuration overrides the COS configuration</p>
+</li>
+<li>
+<p style="margin-left: 0px;">Click <span style="font-weight: bold;"><b>Finish</b></span> to save.</p>
+</li>
+</ol>
+<ol class="whs2" start="6" style="list-style: decimal;">
+<li style="list-style: none; display: inline;">
+<p>&#160;</p>
+</li>
+</ol>
+<p>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <a href="javascript:void(0);" onclick="var e; if (parseInt(navigator.appVersion)>=4){e=event;}  if (parseInt(navigator.appVersion) &gt;=2 &amp;&amp; typeof(PopupMenu_Invoke) == 'function') PopupMenu_Invoke(e,'','Account Advanced Features','account_advanced_features.htm','Creating a Mail Aliases','creating_a_mail_aliases.htm','Editing Accounts','editing_accounts.htm','Forwarding Mail','forwarding_mail.htm','Password Options','../passwords/password_options.htm');return false;" title=" Related Topics"><span style="font-family:Arial;font-size:8pt;font-weight:normal;font-style:normal;text-decoration:none"><nobr>  Related Topics </nobr></span></a> </p>
+<p>&#160;</p>
+<script type="text/javascript" language="JavaScript">//<![CDATA[
+if (parseInt(navigator.appVersion) >= 3 && typeof (WritePopupMenuLayer) == "function")
+  WritePopupMenuLayer();
+//]]></script><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+
+
+highlightSearch();
+//-->
+//]]></script>
+</body>
+</html>

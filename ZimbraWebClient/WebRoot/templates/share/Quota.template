@@ -1,0 +1,41 @@
+<!-- Show the quota bar and values -->
+<template id='share.Quota#UsedLimited' class='BannerBar'>
+	<$
+		// set background color based on percent used
+		var progressClassName = "quotaUsed";
+		if (data.percent < 85 && data.percent > 65) {
+			progressClassName = "quotaWarning";
+		} else if (data.percent >= 85) {
+			progressClassName = "quotaCritical";
+		}
+	$>
+	<div class='BannerBar'>
+	 	<div class='quotabar'>
+			<div style='width:${percent}%' class='<$= progressClassName $>'></div>
+	 	</div>
+    </div>	
+	
+</template>
+
+
+<!-- Show amount used with no quota -->
+<template id='share.Quota#UsedUnlimited'>
+    <div class='BannerTextQuota' style='display:none;'>${desc}</div>
+</template>
+
+
+<template id='share.Quota#Tooltip'>
+        <$ if (data.username != data.login) { $>
+            <div style="text-align:center;">${login}</div>
+        <$ } $>
+            <div style="text-align:center;margin-top:3px;">
+                <$ if (data.quota) { $>
+                    <$
+                        var tooltipMsg = AjxMessageFormat.format(ZmMsg.quotaDescLimited, [data.size, data.limit]);
+                    $>
+                    <$= ZmMsg.quotaLabel $> ${percent}% (<$= tooltipMsg $>)
+                <$ } else { $>
+                    ${desc}
+                <$ } $>
+            </div>
+</template>

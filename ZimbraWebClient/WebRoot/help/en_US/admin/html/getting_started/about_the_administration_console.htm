@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <meta name="generator" content="Adobe RoboHelp 10" />
+<title>About the Administration Console</title>
+<link rel="StyleSheet" href="../default.css" type="text/css" />
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="../whmsg.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript" src="../whver.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whutils.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whlang.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic.js" charset="utf-8"></script>
+
+</head>
+<body><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.gbWhTopic)
+{
+	var strUrl = document.location.href;
+	var bc = 0;
+	var n = strUrl.toLowerCase().indexOf("bc-");
+	if(n != -1)
+	{
+		document.location.href = strUrl.substring(0, n);
+		bc = strUrl.substring(n+3);
+	}
+
+	if (window.addTocInfo)
+	{
+	addTocInfo("Getting Started\nNavigating the Administration Console");
+addButton("show",BTN_TEXT,"Show TOC","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	
+	
+}
+else
+	if (window.gbIE4)
+		document.location.reload();
+
+onLoadHandler = function()
+{
+  if (window.setRelStartPage)
+	{
+	setTimeout("setRelStartPage('../administration_console_help.htm');", 1)
+
+    setTimeout("UpdateBreadCrumbsMarker();", 1);
+	}
+}
+
+if (window.addEventListener){  
+	window.addEventListener('load', onLoadHandler, false);   
+} else if (window.attachEvent){  
+	window.attachEvent('onload', onLoadHandler);  
+}
+
+function onSetStartPage()
+{
+  autoSync(1);
+  sendSyncInfo();
+  sendAveInfoOut();
+}
+//-->
+//]]></script>
+<script type="text/javascript" src="../ehlpdhtm.js" language="JavaScript1.2"></script>
+
+
+<h1>Navigating the Administration Console</h1>
+<p>The administration console is used to centrally manage all Zimbra servers and accounts. &#160;From the console you can provision accounts, configure global settings, manage domains and servers, import IMAP and other ZCS accounts, see usage statistics, and download other migration wizard tools.</p>
+<p>The administration console opens with the Content pane displaying the Home page. The Home page displays links to the most frequently performed tasks.</p>
+<p>&#160;</p>
+<p style="margin-left: 40px;"><img src="../adminconsole5.png" alt="" style="border: none;" width="866" height="395" border="0" /></p>
+<h2>Navigation</h2>
+<p>The administration console is divided into three columns.</p>
+<ul style="list-style: disc;">
+<li class="p">
+<p><span class="attribute">Navigation pane</span><span style="font-weight: bold;">.</span> The Navigation pane separates functions into following areas.</p>
+</li>
+<li style="list-style: none; display: inline;">
+<ul style="list-style: circle;">
+<li class="p">
+<p style="font-weight: bold;"><span class="attribute">Home</span>. <span style="font-weight: normal;">The Summary column shows the number of accounts, domains and classes of service that have been created;</span>  <span style="font-weight: normal;">and the Runtime column shows the number of active sessions and queue length. The frequently performed tasks are linked from this page as well. Also the Help Desk page link is on this page.</span></p>
+</li>
+<li class="p">
+<p><span class="attribute">Monitor</span>. Server Status to view the status for all installed servers and services and server statistics, message count and volume, anti-spam and anti-virus activity, mobile sync statistics, mail queues pages can be accessed</p>
+</li>
+<li class="p">
+<p><span class="attribute">Manage</span>. Accounts, aliases, distribution lists and resources pages can be accessed.</p>
+</li>
+<li class="p">
+<p><span class="attribute">Configure</span>. Class of Service (COS), domain, servers, Zimlets, admin console extensions, certificates, global settings, and voice/chat services pages can be accessed.</p>
+</li>
+<li class="p">
+<p><span class="attribute">Tools and Migration</span>. Zimbra Utilities downloads page for the migration tools , software updates, can be accessed.</p>
+</li>
+<li class="p">
+<p style="font-weight: bold;"><span class="attribute">Searches</span>. <span style="font-weight: normal;">You can create and save searches that you run frequently. Some searches are automatically included on the admin console such as search of all inactive accounts, accounts that are locked out, admin accounts, and closed accounts.</span></p>
+</li>
+</ul>
+</li>
+<li class="p">
+<p><span class="attribute">Content pane</span><span style="font-weight: bold;">.</span> The Content pane is to the right of the Navigation pane. When you click a function in the Navigation pane, the Content pane changes to reflect that view.</p>
+</li>
+<li class="p">
+<p><span class="attribute">Global Sidebar</span>. Messages about work in progress, tasks that are running and server status display in this column.</p>
+</li>
+</ul>
+<h2>Managed Components</h2>
+<ul style="list-style: disc;">
+<li class="p">
+<p><span class="attribute">Accounts</span><span style="font-weight: bold;">.</span> &#160;Each account's email address, display name, and status are displayed in the content pane by domain. In Accounts, you create and manage user accounts, change passwords, view an account's mail.</p>
+</li>
+<li class="p">
+<p style="font-weight: bold;"><span class="attribute">Aliases</span>. <span style="font-weight: normal;">&#160;All aliases for accounts are displayed. In Aliases, you can create and manage user aliases and move aliases.</span></p>
+</li>
+<li class="p">
+<p style="font-weight: bold;"><span class="attribute">Distribution Lists</span>. <span style="font-weight: normal;">&#160;Distribution lists and the status, enabled or disabled, are displayed. &#160;You can create and manage Distribution Lists from here.</span></p>
+</li>
+<li class="p">
+<p style="font-weight: bold;"><span class="attribute">Resources</span><span style="font-weight: normal;">. Location or equipment that can be scheduled for a meeting are listed. You can create new resources and set the scheduling policy for the resource.</span></p>
+</li>
+</ul>
+<h2>Configured Components</h2>
+<ul style="list-style: disc;">
+<li class="p">
+<p><span class="attribute">Class of Service</span><span style="font-weight: bold;">.</span> All classes of service (COS) that have been defined are displayed. &#160;As a minimum, the default COS is displayed. You can create and edit COS.</p>
+</li>
+<li class="p">
+<p><span class="attribute">Domains</span><span style="font-weight: bold;">.</span> Domains in the Zimbra environment are displayed. You can create and manage domains, set the GAL mode, LDAP URL, virtual hosts, and the authentication mechanism to use for that domain.</p>
+</li>
+<li class="p">
+<p><span class="attribute">Servers</span><span style="font-weight: bold;">.</span> The servers, the host name, and description are displayed. You can edit and delete server records for the installed servers.</p>
+</li>
+<li class="p">
+<p><span class="attribute">Zimlets</span>. &#160;<a href="../zimlets/about_zimlets.htm">Zimlets</a> can be deployed and managed from the administration console.</p>
+</li>
+<li class="p">
+<p><span class="attribute">Admin Extensions</span>. Admin extensions can be deployed and managed from the administration console.</p>
+</li>
+<li class="p">
+<p><span class="attribute">Global Settings</span><span style="font-weight: bold;">.</span> The configuration for the global settings for security, address book, MTA, POP, IMAP, anti-spam, and anti-virus protection can be changed. These settings are used when server, personal options, and COS settings are not set.</p>
+</li>
+<li class="p">
+<p><span class="attribute">Certificates</span>. &#160;Manage, view and install certificates</p>
+</li>
+</ul>
+<h2>Monitored Components</h2>
+<ul style="list-style: disc;">
+<li class="p">
+<p><span class="attribute">Server Status</span><span style="font-weight: bold;">. &#160;</span>The current status for each server and service is displayed, including Zimbra MTA, Zimbra LDAP, Zimbra Store, SNMP, and the anti-virus and anti-spam services.</p>
+</li>
+<li class="p">
+<p><span class="attribute">Server Statistics</span><span style="font-weight: bold;">. &#160;</span>Both system-wide and server-specific data about the inbound message volume, message count, anti-spam and anti-virus activity, and disk usage for messages processed in the last 48 hours, and the last 30, 60, and 365 days can be viewed. Server specific data includes mailbox quota information.</p>
+</li>
+<li class="p">
+<p><span style="font-weight: bold;">Mail Queues</span>. Shows the number of messages on the Zimbra MTA that are in the Deferred, Incoming, Active and Hold queues.</p>
+</li>
+</ul>
+<h2>Tools and Migration Components</h2>
+<ul style="list-style: disc;">
+<li class="p">
+<p style="font-weight: bold;"><span class="attribute">Downloads</span>. <span style="font-weight: normal;">Links to zimbra migration wizards, PST import wizard and Zimbra Connector for Outlook msi files</span></p>
+</li>
+<li class="p">
+<p><span class="attribute">Software Updates</span>. ZCS is configured to automatically check for updates. You can manage these updates from the Software Updates page.</p>
+</li>
+<li class="p">
+<p><span class="attribute">Account Migration</span>. Zimbra migration tools used to move users email messages, calendars, contacts to ZCS.</p>
+</li>
+<li class="p">
+<p><span class="attribute">Search Mail</span>. Perform cross mailbox search for content across live and archive mailboxes.</p>
+</li>
+</ul>
+<p>&#160;</p>
+<p>&#160;</p>
+<script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+
+
+highlightSearch();
+//-->
+//]]></script>
+</body>
+</html>

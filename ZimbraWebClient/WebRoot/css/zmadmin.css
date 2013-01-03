@@ -1,0 +1,899 @@
+/*
+ * ***** BEGIN LICENSE BLOCK *****
+ * Zimbra Collaboration Suite Web Client
+ * Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Zimbra, Inc.
+ * 
+ * The contents of this file are subject to the Zimbra Public License
+ * Version 1.3 ("License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
+ * http://www.zimbra.com/license.
+ * 
+ * Software distributed under the License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+ * ***** END LICENSE BLOCK *****
+ */
+
+/*
+* Conventions
+*
+* - Classes that start with "Dwt" or "Zm" have a corollary Javascript object.
+* - Use one line if there is only one selector and one declaration. Otherwise, indent each declaration on its own line.
+* - Group selectors to avoid repetition of styles, as appropriate (ie group within a section). That means you may have
+*   to look at more than one definition to figure out all the applicable styles, but it lets you give the styles a 
+*   hierarchy. That way, you're more likely to need to change a style in just one place.
+* - Use shorthand styles when possible (font, margin, padding, etc).
+* - When grouping selectors that correspond to our Javascript objects, show inheritance by using a different line for
+*   each level of inheritance. CSS doesn't care about our object hierarchy, but doing that enhances readability.
+* - Use hex RGB values for colors that don't have names (eg:  #EEEEEE)
+* - Try to stick to hex values of   00, 33, 66, 99, AA, FF so they map cleanly to the web palette, 
+*    eg: #666666 rather than #616161
+* - Modifiers are lower case, whether they're a class (eg .hover) or tacked on (eg -selected).
+*
+* Classes are laid out in the following general order:
+*	- HTML elements
+*	- General app stuff (shell, overlays, banner)
+*	- Widgets that tend toward abstract (minimal subclassing), such as tool tips and sashes
+*	- Heavier use widgets such as buttons and dialogs
+*		- General widget stuff, then specialized subclasses
+*	- List views, with common stuff first
+*	- Other views (lots of them)
+*	- Miscellaneous stuff that multiple apps might use (objects, autocomplete)
+*	- Modifiers
+*
+* Many of the Dwt widgets don't have corresponding classes here, since they are only subclassed. If you create and
+* display one of those widgets, you'll have to add a class for it.
+*/
+
+
+
+
+/*
+* Top-level (shell) stuff
+*/
+
+.DwtShell, .MainShell {
+    @FullSize@
+}
+
+
+/*
+* Splash Screen
+*/
+.ZaSplashScreen {
+	@ChromeBg@
+	width:100%;
+	height:100%;
+	top:0;
+	left:0;
+	position:absolute;
+}
+
+.Text {
+	font-size:11px;
+}
+
+.ZaStatusView {background-color:#EEE; }
+
+.DwtMsgDialog {
+	padding:10px;
+}
+
+.ZaNewAccountDialog {
+	width:500px;
+}
+
+.ZaNewDomainDialog {
+	width:500px;
+}
+
+.ZaNewCosDialog {
+	width:500px;
+}
+
+
+/* other UI pieces */
+
+.currentAppLabel {
+	margin-top:3px;
+	margin-left:6px;
+}
+
+.currentAppLabel td {
+	@FontSize-big@
+	font-weight:bold; 
+	line-height:18px;
+}
+
+.AdminTitleBar {
+	@FontSize-big@
+	font-weight:bold;
+	padding:5px 10px;
+}
+
+.AdminSubtitleBar {
+	@FontSize-smaller@
+	padding:3px;
+}
+
+.ZaChngPwdDlg {
+	width:500px;
+}
+
+/* Monitoring Statistics */
+.StatsHeader {
+	padding:3px 10px 10px;
+}
+
+.StatsDiv {
+	padding:0 10px;
+}
+
+.StatsImageTitle {
+	@FontSize-biggest@
+	padding:3px 0;
+}
+
+.StatsImage {
+	padding:3px 0 18px;
+}
+
+.ChartSettings {
+	background-color:#F5F5F5;	/* TODO: Make colors functions of AppC */
+	border:1px solid #D7D7D7;
+	padding:8px;
+	width:100%;
+	@roundCorners(4px)@
+}
+
+.LinkButton {
+	@FontSize-normal@
+	border:1px solid #D7D7D7;
+	line-height:2.5em;
+	margin-right:5px;
+	padding:3px 15px;
+	text-decoration:none;
+	@roundCorners(4px)@
+}
+/* TODO: Abstract colors out to skin properties */
+.LinkButton:link, 
+.LinkButton:visited {
+	@Text@
+	background-color:#DFE2E2;
+	text-decoration:none;
+	@grad(white,#DFE2E2)@
+	
+}
+.LinkButton:hover {
+	background-color:#B8DEF3;
+	color:black;
+	@grad(white,#B8DEF3)@
+}
+.LinkButton:active {
+	background-color:#74B6DD;
+	color:black;
+	@grad(#E3F4FC,#74B6DD)@
+}
+
+.serverPickList {
+	width:180px;
+	height:200px;
+	border:1px solid black;
+	margin:10px 10px 0;
+	background-color:transparent;
+	overflow:auto;
+}
+
+.ZaToolBar {
+	@ToolbarBg@
+	width:100%;
+	height:100%;
+	border-style:solid;
+	border-width:0 0 1px;
+	border-color:@darken(AppC,55)@;
+}
+
+.ZaLeftBracket {
+	@LeftSeparator@
+	@TopSeparator@
+	@BottomSeparator@
+	margin-left:3px;
+	padding-right:4px;
+	height:16px;
+}
+
+.ZaRightBracket {
+	@RightSeparator@
+	@TopSeparator@
+	@BottomSeparator@
+	margin-left:3px;
+	padding-right:4px;
+	height:16px;
+}
+
+.ZaUpdatedLabel {
+	margin-left:5px;
+}
+
+.ZaAutoCompleteListRow {
+	@ListItemContainer-normal@
+}
+
+.userquotaused {
+	height:6px; 
+	font-size:6px; /* WEIRD IE QUIRK */
+	background-color:#6C3;
+}
+
+.userquotabar {
+	width:100px;
+	border:1px solid white;
+	background-color:white;
+}
+
+.adminfootnote {
+	font-size:8pt;
+	font-family:Tahoma, Arial, Helvetica, sans-serif;
+	font-weight:bold;
+	color:black;
+}
+
+.ZaStatusServicesPage {
+	background-color:rgb(255, 255, 255);
+}
+
+.ZaStatusServicesPage .DwtButton { 
+	width:60px;
+}
+
+
+.admin_xform_number_input {
+	width:5em;
+}
+
+.admin_xform_number_input_disabled {
+	width:5em;
+	background-color:transparent;
+	color:@AppC+60@;
+}
+
+input.admin_xform_name_input_disabled {
+	@InputField-disabled@
+}
+.admin_xform_name_input {
+	width:200px;
+}
+
+.ZaGlobalAttachExt {
+	height:200px;
+}
+
+.ZaCosServerPool {
+	height:200px;
+}
+
+
+/* header bar */
+
+.HeaderPanel {
+	width:100%;
+	@ChromeBg@
+	border-style:solid;
+	border-width:0 0 2px;
+	border-bottom-color:#777;	
+}
+
+
+/* Search bar */
+
+.SearchPanel {
+	width:100%;
+}
+
+.SearchToolBar {
+	width:100%;
+	top:2px;
+}
+
+.SearchToolBar .ZToolbarTable {
+	width:100%	
+}
+
+.SearchTBSearchField {
+	width:100%;
+}
+
+.LogoContainer {
+	left:10px;
+	top:6px;
+}
+
+.DwtTabViewPage .DwtButton { 
+	width:60px;
+}
+
+/* Override so first level of the tree does not indent */
+.DwtTreeItemLevel1ChildDiv {
+	padding-left:0;
+}
+
+
+/** distribution list stuff **/
+.ZaDLView {
+	background-color:#EEE;
+	overflow:auto;
+}
+
+.DLSource, .DLTarget { 
+	@ListBg@
+	border:2px solid;
+	border-color:#848484 #FAFAFA #FAFAFA #848484;
+	width:auto;
+}
+
+.DLTarget { 
+	height:270px;
+}
+
+.DLSource { 
+	height:200px;
+}
+
+.MBXList{
+	height:100%;	
+}
+
+.ZaFullPageXFormListView {
+	border-left:none;
+	border-right:none;
+	height:100%;	
+	width:auto;
+	@ListBg@
+}
+
+.DLSource .DwtListView-Rows {
+	height:90%;
+}
+
+.ZaFullPageXFormListView .DwtListView-Rows {
+	height:90%;
+}
+
+
+.inputBorder { 
+	border:2px solid;
+	border-color:#848484 #FAFAFA #FAFAFA #848484;
+}
+
+.DLOptionalAddBox { 
+	width:195px;
+	height:70px;
+	border:1px solid #CCC;
+}
+
+.DlSourceRow, .DLTargetRow {
+	padding-left:.25em;
+	padding-top:3px;
+	padding-bottom:3px;
+}
+/** END distribution list stuff **/
+
+
+.ZaServicesListView,
+.ZaClusterServicesListView { 
+	width:100%;
+ 	background-color:rgb(255,255,255)
+}
+
+.ZaServicesListView_table , .ZaServicesListView_server_table,
+.ZaClusterServicesListView_table , .ZaClusterServicesListView_server_table{
+	border-spacing:0;
+	border:none;
+	width:100%;
+}
+
+.Row TABLE.ZaServicesListView_table, .Row TABLE.ZaServicesListView_server_table{
+	table-layout:fixed;
+	height:auto;
+}
+
+.ZaServicesListView_table TD, .ZaServicesListView_server_table TD,
+.ZaClusterServicesListView_table TD, .ZaClusterServicesListView_server_table TD {  
+	padding:2px;
+}
+
+.ZaClusterServicesListView_server_table { 
+	background-color:#DDD;
+}
+
+.ZaClusterServicesListView .Row-selected { 
+	background-color:#C8E4E4;
+}
+
+.Row-selected .ZaClusterServicesListView_server_table { 
+	background-color:#91C8C8;
+}
+
+.ZaStatusFailoverDialog { 
+	width:200px;
+	height:200px;
+}
+
+.ZaStatusFailoverDialog .DwtButton, 
+.ZaStatusFailoverDialog .DwtButton-hover,
+.ZaStatusFailoverDialog .DwtButton-active{ 
+	width:60px;
+}
+
+.ZaClusterServicesListView .DwtListView-Rows{ 
+	height:100%;
+	border-bottom:1px solid #999;
+}
+.ZaClusterServicesListView .Row, .ZaClusterServicesListView .Row-selected {
+	border-bottom:none;
+	border-top:1px solid #999;
+}
+
+.helpSeparator { 
+	border-bottom:4px Ridge #CCC;
+}
+
+
+/* Tab button grid */
+.ZaTabBar {
+	background-color:transparent;
+	overflow-x:hidden;
+	overflow-y:hidden;
+}
+
+.AdminTitle {
+	@FontSize-biggest@
+	line-height:2em;
+	margin-left:.5em;
+}
+
+.progressbar {
+	width:200px;
+	border:1px solid white;
+	background-color:white;
+}
+
+.progressused {
+	height:20px;
+	font-size:20px; /* WEIRD IE QUIRK */
+	background-color:#6C3;
+}
+
+.mtaprogressbar {
+	width:200px;
+	border:1px solid #CCC;
+	background-color:#CCC;
+}
+
+
+.mbxprogressused {
+	height:8px; 
+	background-color:green;
+	margin:1px 0;
+#IFDEF MSIE
+    font-size: 0px;
+#ENDIF
+}
+
+.mbxprogressusedWarning {
+	height:8px; 
+	background-color:orange;
+	margin:1px 0;
+#IFDEF MSIE
+    font-size: 0px;
+#ENDIF
+}
+
+.mbxprogressusedCritical {
+	height:8px; 
+	background-color:red;
+	margin:1px 0;
+#IFDEF MSIE
+    font-size: 0px;
+#ENDIF
+}
+
+.mbxprogressbar {
+	border:1px solid grey;
+	width:100px; 
+	height:10px;
+	background-color:white;
+#IFDEF MSIE
+    font-size: 0px;
+#ENDIF
+}
+
+.ImgAppBanner {
+	background-position:17px 0;
+	cursor:pointer;
+}
+
+.que_table {
+	width:90%;
+}
+
+.container_table {
+	margin:10px;
+}
+
+.FFcontainer {
+	margin-left:3px;
+	padding-right:5px;
+	margin-right:5px;
+}
+
+.IEcontainer {
+	padding-left:3px;
+	padding-right:5px;
+}
+
+.search_field_container {
+	padding-left:2px;
+	padding-right:2px;
+	width:100%;
+}
+
+.search_field_tableCssClass {
+	width:100%;
+	padding:2px;
+}
+
+.qsearch_field_bar {
+	margin-bottom:5px;
+}
+
+.autoCompleteList {
+	background-color:white;
+	border:outset 1px #91c8c8;
+}
+
+.ZaPropertySheet {
+	border-collapse:collapse;
+	border-spacing:0;
+}
+.ZaPropertySheet>TBODY>TR>TD {
+	padding:3px;
+}
+
+.XFormDwtListView {
+	@ListBg@	@ListBorder@
+	@BoxMargin@
+}
+
+/* MOW: this is not safe to do! 
+	It only worked before as an artifact of a particular ordering of
+	images in the imagemerge program.
+.oselect_table .ImgSelectPullDownArrow {
+	width:16px;
+}
+*/
+/* this is not that safe either, but it should accomplish the same effect */
+.ImgSelectPullDownArrow {
+	margin-right:4px;
+}
+
+.DwtListView-Rows TD {
+	padding-top:.2em;
+	vertical-align:top;
+}
+
+
+/* Search builder toolbar (buttons only) */
+.ZaSearchBuilderToolBar {
+	margin-top:3px;
+	width:100%;
+	height:100%;
+}
+
+.ZaSearchOptionView {
+	@PickerContainer@
+}
+
+.ZaSearchOptionView .DwtTree {
+	@PageBg@
+}
+
+
+/* Header for each Option */
+.ZaSearchOptionView .DwtToolBar {
+	@WidgetHeaderContainer@
+	@WidgetHeaderSize-medium@
+}
+
+.ZaSearchOptionOverview {
+	overflow:hidden;
+}
+
+.OverviewTree {
+	@FullWidth@
+}
+
+.LeftGrouperBorder {
+	@FieldSet@
+	margin-left:20px;
+	margin-right:10px;
+}
+
+.RightGrouperBorder {
+	@FieldSet@
+	margin-left:10px;
+	margin-right:20px;
+}
+
+.CenterGrouperBorder {
+	@FieldSet@
+	padding-top:7px;
+	padding-left:5px;
+	margin-left:3px;
+	margin-right:3px;
+}
+
+.AllScreenGrouperBorder {
+	@FieldSet@
+	padding-top:7px;
+	padding-left:5px;	
+	padding-right:5px;
+	margin-left:7px;
+	margin-right:7px;
+}
+
+.ZaOverride {
+	background-color:#FFF6BF;
+}
+
+.ZaWizLabel {
+	width:200px;
+}
+
+.ZaHighlightedText {
+	@NoticeText@
+}
+
+.ZaStaleData {
+	@Text-disabled@
+	font-style:italic;
+}
+
+.ZaNowrapTitle {
+	@NoWrap@
+}
+
+
+/* normal buttons, like in a dialog */
+.ZaAppTabButton {	}
+
+
+/*.ZAppTabBorder { margin-top:2px; }*/
+
+
+.ZAppTab 									{	@AppTab@		@AppTabSpacing@			}
+
+.ZAppTabBorder								{	@AppTabBorder@	@AppTabBorder-normal@ 	}
+.ZHover		.ZAppTabBorder					{					@AppTabBorder-hover@	@ActiveCursor@ }
+.ZDisabled	.ZAppTabBorder					{					@AppTabBorder-disabled@	}
+.ZFocused	.ZAppTabBorder					{					@AppTabBorder-focused@	}
+.ZActive	.ZAppTabBorder					{					@AppTabBorder-active@	}
+.ZSelected	.ZAppTabBorder					{					@AppTabBorder-selected@	}
+
+			.ZAppTabTable .ZWidgetTitle		{	@AppTabText@ 	@AppTabText-normal@		}
+.ZHover		.ZAppTabTable .ZWidgetTitle		{					@AppTabText-hover@		}
+.ZDisabled	.ZAppTabTable .ZWidgetTitle		{					@AppTabText-disabled@	}
+.ZFocused	.ZAppTabTable .ZWidgetTitle		{					@AppTabText-focused@	}
+.ZActive	.ZAppTabTable .ZWidgetTitle		{					@AppTabText-active@		}
+.ZSelected	.ZAppTabTable .ZWidgetTitle		{					@AppTabText-selected@	}
+
+
+.DwtTabButton .ZButtonBorder { border:none; background-color:transparent; }
+
+.ZaShowSavedSearchArrowButton ,
+.ZaShowSavedSearchArrowButton .ZWidget ,
+.ZaShowSavedSearchArrowButton .ZButtonBorder{
+	border:none;
+}
+
+.ZaShowSavedSearchArrowButton .ZWidgetTitle {
+	padding:0;
+}
+
+.ZaShowSavedSearchArrowButton .ZWidgetTable .ZLeftIcon DIV, .ZaShowSavedSearchArrowButton .ZWidgetTable .ZLeftIcon IMG {
+	margin-left:3px;
+}
+
+.ZaSearchOptionViewSubHeader {
+	background-color:#F9F6F0;
+	border:thin solid;
+	margin:0 0 2px 2px;
+	text-align:center;
+}
+
+.ZaDownloadText {
+	margin-bottom:10px;
+	margin-left:3px;
+	margin-right:3px;
+	margin-top:5px;
+	@FontSize-normal@
+}
+
+/* Set the height of the advanced search button arbitrary */
+DIV.ZaAdvancedSearchButton TABLE, 
+DIV.ZaSearchBuilderOptionRemoveAll TABLE  {
+	height:22px ;	
+#IFDEF MSIE
+	height:20px ;
+#ENDIF
+}
+
+.ZaSearchResultCountLabel {
+	#IFDEF MSIE
+		margin-top:5px;
+	#ENDIF
+}
+
+
+/* Search builder outer container */
+.ZaXMbxSearchBuilder {
+	height:225px;		/* ??? SIZE */
+	width:100%;
+	overflow:hidden;
+}
+
+.ZaXMBxPickerGrid {
+	@ToolbarContainer@
+	@InsetBg@ @NormalOutsetBorder@
+}
+
+.ZaXMBxAccountsListGrouper {
+	width:280px;
+}
+
+.ZaHeader2 {
+	@SelectedBg@
+}
+
+.ZaHeader2 .xform_output {
+	@FontSize-bigger@ 
+}
+
+.XFormTableContainer {
+	background-color:@ListItemBgColor-normal@;
+}
+
+.XFormCase .ZaFullPageXFormListView .DwtListView-Rows {
+	overflow:visible;
+}
+
+.licenseExpired, .licenseNotYetValid {
+	background-color:#FF241B;
+}
+
+.licenseWillExpire {
+	background-color:#FFBB20;
+}
+
+/* container (div) for each item in the tree */
+.AdminTreeItem,
+.AdminTreeItem-selected,
+.AdminTreeItem-selected-focused {
+	@TreeItem@
+	@ImagePadding@
+	padding-top:2px;
+}
+
+.AdminTreeItem {
+	white-space:nowrap; /* ??? */
+}
+
+/* text style for name of a normal tree item */
+.AdminTreeItem-Text {
+	@TreeItemText@
+	padding-left:2px;
+}
+.AdminTreeItem-selected {
+	@TreeItemSpacing-selected@
+	@SelectedBg-blurred@
+}
+
+/* text style for name of a selected and focused tree item */
+.AdminTreeItem-selected-focused {
+	@SelectedBg@
+}
+
+/* text style for a right-clicked tree item */
+.AdminTreeItem-actioned {
+	@TreeItem@
+	@RightClickBg@
+	@ImagePadding@
+	padding-top:2px;
+}
+
+/* text style for a tree item when dragged over */
+.AdminTreeItem-dragOver {
+	@DropBg@
+	@DropText@
+	@ImagePadding@
+}
+
+/* text style for tree item that performs action on single click */
+.AdminTreeItem-hover {
+	@ImagePadding@
+	text-decoration:underline;
+}
+.AboutScreen {}
+.AboutScreen H1 {	
+	margin:0 20px;
+}
+.AboutScreen .ImgLoginBanner, 
+.AboutScreen .ImgAppBanner {
+	cursor:pointer;
+	display:block;
+	background-repeat:no-repeat;
+}
+.AboutScreen .ImgAltBanner {
+	margin:20px 0 0 20px;
+	width:71px;
+	height:11px;
+	background-image:url("@LogoImgDir@/AltBanner.png?v=@jsVersion@");
+	background-repeat:repeat-x;
+}
+
+
+/***************
+ *
+ *	Toast -- popup info panel
+ *
+ ***************/
+
+.ZaToast {
+	position:absolute;
+	top:-10000; left:-10000;
+	overflow:visible;
+
+	/* change the following to set the top of the toaster
+	margin-top:10px;  */
+}
+.ZaToastContent {
+	@ToastContent@
+}
+
+.ZaToastIcon {
+	float:left;
+	position :relative;
+}
+
+.ZaToastText {
+	max-width:500px;
+/************
+ *
+ * in IE, break-word can take effort when element has layout
+ * here we set to fixed width to get layout 	
+ *
+ ************/ 
+#IFDEF MSIE
+	width:400px; 
+#ENDIF
+	word-wrap:break-word;
+	@ToastText@
+}
+
+.ZaToastText a.undo {
+	font-size:0.75em;
+	margin-left:20px;
+}
+
+.ZaToastBG {	@ToastContainer@	}
+
+#IFNDEF  MSIE
+TABLE {	border-collapse:separate;	}
+#ENDIF
+
+.oselect_display {
+	white-space:normal;
+}
+
+.oselect_display_disabled {
+	white-space:normal;
+}

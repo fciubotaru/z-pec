@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <meta name="generator" content="Adobe RoboHelp 10" />
+<title>Account Provisioning</title>
+<link rel="StyleSheet" href="../default.css" type="text/css" />
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="../whmsg.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript" src="../whver.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whutils.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whlang.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic.js" charset="utf-8"></script>
+
+</head>
+<body><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.gbWhTopic)
+{
+	var strUrl = document.location.href;
+	var bc = 0;
+	var n = strUrl.toLowerCase().indexOf("bc-");
+	if(n != -1)
+	{
+		document.location.href = strUrl.substring(0, n);
+		bc = strUrl.substring(n+3);
+	}
+
+	if (window.addTocInfo)
+	{
+	addButton("show",BTN_TEXT,"Show TOC","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	
+	
+}
+else
+	if (window.gbIE4)
+		document.location.reload();
+
+onLoadHandler = function()
+{
+  if (window.setRelStartPage)
+	{
+	setTimeout("setRelStartPage('../administration_console_help.htm');", 1)
+
+    setTimeout("UpdateBreadCrumbsMarker();", 1);
+	}
+}
+
+if (window.addEventListener){  
+	window.addEventListener('load', onLoadHandler, false);   
+} else if (window.attachEvent){  
+	window.attachEvent('onload', onLoadHandler);  
+}
+
+function onSetStartPage()
+{
+  autoSync(1);
+  sendSyncInfo();
+  sendAveInfoOut();
+}
+//-->
+//]]></script>
+<script type="text/javascript" src="../ehlpdhtm.js" language="JavaScript1.2"></script>
+
+
+<h1>Account Provisioning</h1>
+<p>All accounts that had the status of <span style="font-style: italic;"><i>No such account</i></span> are shown in the list box.</p>
+<ol style="list-style: decimal;">
+<li class="p">
+<p>Before creating these accounts, select the <a href="../cos/class_of_service.htm">class of service</a> that these accounts will be assigned.</p>
+</li>
+</ol>
+<p style="margin-left: 40px;">As a minimum two entries are listed. <span style="font-weight: bold;">Default</span> refers to the "default" COS that is automatically created by Zimbra. <span style="font-weight: bold;">None</span> in the COS field is configured to refer to the domain's default COS, if one has been created. &#160;Select <span style="font-weight: bold;">None</span> to provision the accounts with the domain COS that you have configured as the default. If <span style="font-weight: bold;">None</span> is selected and the domain does not have a default COS, the Zimbra "default" COS is used. &#160;</p>
+<ol>
+<li style="list-style: none; display: inline;">
+<ol start="2">
+<li class="p-note">
+<p class="note">If you recently created a COS and it is not listed, click <span style="font-weight: bold;">Refresh COS</span>. Any new classes of service will be added to the list.</p>
+</li>
+</ol>
+</li>
+</ol>
+<ol start="2">
+<li class="p" style="list-style: decimal;">
+<p>Enter the default password for the accounts. This is the password for every account that is created. Note: If a password is not specified at this time, refer to the migration guide for different options.</p>
+</li>
+<li class="p" style="list-style: decimal;">
+<p>To provision the listed accounts, click <span style="font-weight: bold;">Next</span>. The accounts are created on the Zimbra server. At this point, the provisioning of email accounts on the Zimbra Server is complete.</p>
+<ul>
+<li class="p-note">
+<p class="note">Note: If you do not want to create any of the accounts from this list, check <span style="font-weight: bold;">Do not provision any users</span>, and click <span style="font-weight: bold;">Next</span>. No accounts are created.</p>
+</li>
+</ul>
+</li>
+<li class="p" style="list-style: decimal;">
+<p>Before proceeding, you should change the mail relay information for these users to point to the Zimbra server instead of the Exchange server. Any new mail will be sent to the Zimbra mailboxes.</p>
+</li>
+</ol>
+<script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+
+
+highlightSearch();
+//-->
+//]]></script>
+</body>
+</html>

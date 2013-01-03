@@ -1,0 +1,194 @@
+<%@ page buffer="8kb" autoFlush="true" %>
+<%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="zm" uri="com.zimbra.zm" %>
+<%@ taglib prefix="app" uri="com.zimbra.htmlclient" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="com.zimbra.i18n" %>
+<app:handleError>
+    <zm:getMailbox var="mailbox"/>
+    ${zm:refreshPrefs(mailbox)}
+    <app:skin mailbox="${mailbox}"/>
+    <c:choose>
+    <c:when test="${not empty mailbox.prefs.locale}">
+        <fmt:setLocale value='${mailbox.prefs.locale}' scope='request' />
+    </c:when>
+    <c:otherwise>
+        <fmt:setLocale value='${pageContext.request.locale}' scope='request' />
+    </c:otherwise>
+    </c:choose>
+    <fmt:setBundle basename="/messages/ZhMsg" scope="request"/>
+
+	<fmt:setBundle basename="/messages/I18nMsg" var="i18n"/>
+    
+    <zm:computeSearchContext var="context" usecache="true"/>
+    <c:set var="useTo" value="${context.folder.isPlacedCalls}"/>
+</app:handleError>
+
+<html>
+<app:head mailbox="${mailbox}"/>
+
+<body style='background:white;'>
+    <div class='ZhCallListPrintView'>
+        <table><tr>                             
+            <td class='ZhZimbraTitle'><fmt:message key="zimbraTitle"/></td>
+            <td nowrap width='1%'><b>${fn:escapeXml(mailbox.name)}</b></td>
+        </tr></table>
+        <hr/>
+
+        <h1>${zm:getVoiceFolderName(pageContext, context.folder)}</h1>
+        <table class='ZhCallListPrintTable' cellpadding=2 cellspacing=0 width="80%" >
+            <tr class='Header'>
+                <th width="40"><app:img src="tasks/ImgTaskHigh.png" altkey="ALT_PRIORITY"/></th>
+                <th width="33%"><fmt:message key="${useTo ? 'to' : 'from'}"/>
+                <th width="33%"><fmt:message key="duration"/></th>
+                <th width="33%"><fmt:message key="received"/></th>
+            </tr>
+
+			
+            <c:forEach items="${context.searchResult.hits}" var="hit" varStatus="status">
+            <tr>
+                <td nowrap>
+					<c:choose>
+						<c:when test="${hit.voiceMailItemHit.isFlagged}">
+							<app:img src="tasks/ImgTaskHigh.png" altkey="ALT_PRIORITY"/>
+						</c:when>
+						<c:otherwise>
+							&nbsp;
+						</c:otherwise>
+					</c:choose>
+				</td>
+				<td nowrap id="vm_${status.index}_name">${zm:getDisplayCaller(pageContext, hit.voiceMailItemHit.caller)}</td>
+                <td nowrap>${fn:escapeXml(zm:displayDuration(pageContext, hit.voiceMailItemHit.duration))}</td>
+                <td nowrap>
+					<div id="vm_${status.index}_date">${fn:escapeXml(zm:displayVoiceDate(pageContext, hit.voiceMailItemHit.date))}</div>
+				</td>
+            </tr>
+            </c:forEach>
+        </table>
+        <c:if test="${context.searchResult.size == 0}">
+            <div class='NoResults'><fmt:message key="noResultsFound"/></div>
+        </c:if>
+    </div>
+    <script type="text/javascript">
+        <!--
+
+		<c:if test="${!empty param.clientTime}">
+
+			function pad(number, length) {
+				var str=""+number;
+				var pad=[];
+				for (var i=0, cnt=length-str.length; i<cnt; i++) {
+					pad[i]="0";
+				}
+				return pad.join("")+str;
+			}
+			function insert(str, value, replacement) {
+				var _str=""+str;
+				if (value&&_str.indexOf(value)==-1) return _str;
+				var out="";
+				var escaped=false;
+				for (var i=0;i<_str.length;i++) {
+					var c=_str.substr(i,1);
+					if (c=="'") {
+						escaped=!escaped;
+					}
+					else if (!escaped) {
+						var tok=_str.substr(i,value.length);
+						if (tok==value) {
+							out+=replacement;
+							i+=value.length-1;
+							continue;
+						}
+					}
+					out+=c;
+				}
+				return out;
+			}
+
+			var dates = [<c:forEach items="${context.searchResult.hits}" var="hit" varStatus="status">"<fmt:formatDate pattern="yyyyMMdd'T'HHmmss'.'SSS'Z'" value="${hit.voiceMailItemHit.date}" timeZone="UTC"/>"<c:if test="${!status.last}">,</c:if></c:forEach>];
+
+			var resources = {
+				ZM_formatVoiceDateToday: "<fmt:message key='ZM_formatVoiceDateToday'/>",
+				ZM_formatVoiceDateYesterday: "<fmt:message key='ZM_formatVoiceDateYesterday'/>",
+				ZM_formatVoiceDate: "<fmt:message key='ZM_formatVoiceDate'/>"
+			};
+
+			var days = ["<fmt:message key='weekdaySunMedium' bundle='${i18n}'/>","<fmt:message key='weekdayMonMedium' bundle='${i18n}'/>","<fmt:message key='weekdayTueMedium' bundle='${i18n}'/>","<fmt:message key='weekdayWedMedium' bundle='${i18n}'/>","<fmt:message key='weekdayThuMedium' bundle='${i18n}'/>","<fmt:message key='weekdayFriMedium' bundle='${i18n}'/>","<fmt:message key='weekdaySatMedium' bundle='${i18n}'/>"];
+
+			var ONE_DAY = 24 * 3600000;
+			var nowDate = new Date();
+			var nowTime = nowDate.getTime();
+			var nowDay = nowDate.getDate();
+			var nowYesterday = new Date(nowTime - ONE_DAY).getDate();
+			for (var i=0; i<${context.searchResult.size}; i++) {
+				var el = document.getElementById("vm_"+i+"_date");
+				if (el) {
+					var msgDate = new Date();
+					var str = dates[i];
+					msgDate.setUTCFullYear(parseInt(str.substr(0,4),10));
+					msgDate.setUTCMonth(parseInt(str.substr(4,2),10)-1);
+					msgDate.setUTCDate(parseInt(str.substr(6,2),10));
+					msgDate.setUTCHours(parseInt(str.substr(9,2),10));
+					msgDate.setUTCMinutes(parseInt(str.substr(11,2),10));
+					msgDate.setUTCSeconds(parseInt(str.substr(13,2),10));
+					
+					var msgTime = msgDate.getTime();
+					var msgDay = msgDate.getDate();
+					var resource;
+
+					if (nowTime - msgTime < ONE_DAY && nowDay == msgDay) {
+						resource = "ZM_formatVoiceDateToday";
+					} else if ((nowTime - msgTime) < (2 * ONE_DAY) && nowYesterday == msgDay) {
+						resource = "ZM_formatVoiceDateYesterday";
+					} else {
+						resource = "ZM_formatVoiceDate";
+					}
+					var am = msgDate.getHours() < 12;
+					var ampmhours = msgDate.getHours() % 12;
+					if (ampmhours == 0) ampmhours = 12;
+
+					var out = resources[resource];
+						out = insert(out, "EEE", "'"+days[msgDate.getDay()]+"'");
+						out = insert(out, "M", msgDate.getMonth()+1);
+						out = insert(out, "d", msgDate.getDate());
+						out = insert(out, "yy", (""+msgDate.getFullYear()).substr(2,2));
+						out = insert(out, "h", ampmhours);
+						out = insert(out, "HH", pad(ampmhours,2));
+						out = insert(out, "mm", pad(msgDate.getMinutes(),2));
+						out = insert(out, "ss", pad(msgDate.getSeconds(),2));
+						out = insert(out, "a", am ? "AM" : "PM");
+						out = out.replace(/'/g, '');
+
+					el.innerHTML = out;
+				}
+			}
+
+		</c:if>
+
+		var voicemailIds = [<c:forEach items="${context.searchResult.hits}" var="hit" varStatus="status">"${hit.voiceMailItemHit.id}"<c:if test="${!status.last}">,</c:if></c:forEach>];
+		
+		var actxt = window.opener && window.opener.appCtxt;
+		if (actxt) {
+		    var controller = actxt.getApp("Voice").getVoiceController();
+		    var view = controller.getCurrentView();
+		    for (var i=0; i<${context.searchResult.size}; i++) {
+		        var el = document.getElementById("vm_"+i+"_name");
+		        if (el) {
+		            var voicemail = controller.getList().getById(voicemailIds[i]);
+		            if (voicemail) {
+		                var name = view._getCallerNameHtml(voicemail);
+		                if (name) {
+		                    el.innerHTML = name;
+		                }
+		            }
+		        }
+		    }
+		}
+
+
+        setTimeout(window.print, 2000);
+        // -->
+    </script>
+</body>
+</html>

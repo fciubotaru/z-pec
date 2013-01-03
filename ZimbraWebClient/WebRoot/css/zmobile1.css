@@ -1,0 +1,200 @@
+/*
+ * ***** BEGIN LICENSE BLOCK *****
+ * Zimbra Collaboration Suite Web Client
+ * Copyright (C) 2008, 2009, 2010 Zimbra, Inc.
+ * 
+ * The contents of this file are subject to the Zimbra Public License
+ * Version 1.3 ("License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
+ * http://www.zimbra.com/license.
+ * 
+ * Software distributed under the License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+ * ***** END LICENSE BLOCK *****
+ */
+
+/*---reset ----------------- */
+ div.zo_main_info_cont {
+    padding:3px;
+    margin:0px;
+    text-align:center;
+	display: none;
+ }
+
+div.zo_main_info {
+    padding:5px;
+    border:1px solid black;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+}
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,blockquote {
+		margin:0;
+		padding:0;
+}
+table {
+	border-collapse:collapse;
+	border-spacing:0;
+	padding: 0;
+
+}
+fieldset,img {
+	border:0;
+}
+
+address,caption,cite,code,dfn,em,th,var {
+	font-style:normal;
+	font-weight:normal;
+}
+
+ol,ul {
+	list-style:none;
+}
+caption,th {
+	text-align:left;
+}
+h1,h2,h3,h4,h5,h6 {
+	font-size:100%;
+	font-weight:normal;
+}
+q:before,q:after {
+	content:'';
+}
+abbr,acronym { border:0;
+}
+/*a{
+      font-size:small;
+      text-decoration: none;  
+}*/
+/*-------------------- */
+html,body {
+    margin: 0;
+    font-family: Myriad, "Lucida Grande", Helvetica, Arial, Verdana, Sans-serif;
+    background: #FFFFFF;
+    color: #000000;
+#IFDEF IPHONE
+    overflow: hidden;
+    -webkit-text-size-adjust: none;
+#ENDIF
+}
+
+.NavbarBg{
+	background: black url("@AppContextPath@/img/mobile/NavbarBg.gif?v=@jsVersion@") repeat-x top left;
+	height: 48px;
+}
+.ToolbarBg1{
+    background: url(@AppContextPath@/img/mobile/iPhoneToolbar.png?v=@jsVersion@) #6d84a2 repeat-x;
+    height: 37px;
+}
+.SubToolbar{
+    font-size:small;
+    padding:5px;
+    background:#efefef;
+    border-bottom:1px outset white;
+}
+.ToolbarBg a{ font-size:medium;}
+.searchbar input[type='text']{font-size: medium;}
+.ToolbarBg{
+	background: #e7e7e6 url("@AppContextPath@/img/mobile/ToolbarBg.gif?v=@jsVersion@") repeat-x top left;
+	height: 37px;
+}
+.zo_button_active{
+    color:gray;
+}
+.zo_m_list_from{
+    color:#000000;
+    padding:0px;
+}
+.zo_unread, .zo_m_list_unread .zo_m_cv_sub, .zo_m_list_unread .zo_m_list_sub,.zo_m_list_unread .zo_m_list_from{
+    	font-weight: bold;
+}
+.Folders{height:40px;}
+.zo_unread a:link,.Folders a{text-decoration: none; color:#333333; font-size: medium;}
+
+.Email,.zo_m_list_sub p{ font-weight: normal;line-height: 18px; margin-top: 2px;}
+
+.zo_m_list_sub a:link{text-decoration: none; color: #333333;font-size: small;}
+
+.zo_m_list_sub{color: #777777; font-size:small;}
+
+.Email a,.zo_m_list_frag, .zo_m_list_size {font-size: small; color: #999999;}
+.Email a{text-decoration: none;}
+.zo_ab_list_arrow {display: none;} /*background: url("@AppContextPath@/img/mobile/iPhoneArrow.png?v=@jsVersion@") no-repeat right center; width:25px;*/
+
+.zo_m_list_date, .zo_m_list_date a:link{font-size: small;color: #4d8dc3;}
+
+.zo_m_list_row {border-bottom: 1px dotted #E0E0E0;}
+
+.Stripes{background: #c5ccd4 url("@AppContextPath@/img/mobile/pinstripes.png?v=@jsVersion@") top left;}
+
+.View{-moz-border-radius: 8px; -webkit-border-radius: 8px; background-color: white; margin: 5px; border: 1px solid #a7b2bc; padding: 5px; font-size:small;}
+
+.label{color: #4d8dc3;}
+
+/*.zo_m_list_frag */a {color: #4d8dc3; text-decoration: none; font-size:small;padding:2px;}
+/*.zo_m_list_frag*/ a:hover {/*color: #ffffff;*/ background-color: transparent; text-decoration: none;}
+.NavbarBg a {color: #FFFFFF; text-decoration: none; padding:2px;}
+.NavbarBg a:hover {color: #FFFFFF; background-color: transparent;text-decoration: none; padding:2px;}
+
+
+a.zo_button_disabled {color:gray;background-color:none;}
+/*.highlight:hover td{ background-color: blue;}
+.highlight:hover td a,p,span{color: white;} need to work on it more!*/
+
+.Action:link{font-size: medium; color: #4d8dc3; text-decoration: none;}
+.Action:hover{background-color: #4d8dc3; color: white;}
+
+.Padding{padding: 0 4px;}
+
+.Textarea{border: 1px solid #DDDDDD;  padding: 3px; font: inherit; width: 100%;}
+
+.SmallText{font-size: small; color: black;}
+
+
+.StatusInfo, .StatusWarning, .StatusCritical, .zo_noresults {
+    padding: 3px;
+    font-weight: bold;	
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    text-align: center;
+    font-size:small;
+}
+.zo_noresults{
+    height:250px;
+    text-align:center;
+    vertical-align:middle;
+    padding:10px;
+}
+/*.zo_noresults{
+    padding:10px;
+    height:60px;
+    vertical-align:middle;
+}*/
+.StatusInfo     { background-color: lightgreen;}
+.StatusWarning  { background-color: yellow;}
+.StatusCritical  { background-color: red; }
+
+.Medium{font-size: small !important;}
+.Title{ text-align: left !important;}
+
+.ZhAC {position:relative;}
+.ZhACB { font-weight: bold; }
+.ZhACCont {position:absolute;bottom:0;}
+.ZhACCont .yui-ac-content {position:absolute;border:1px solid #404040;background:#fff;overflow:hidden;z-index:9050;}
+.ZhACCont .yui-ac-shadow {position:absolute;margin:.3em;background:#a0a0a0;z-index:9010;}
+.ZhACCont ul {margin: 0; padding:1px 0; list-style: none}
+.ZhACCont li { margin: 0; padding:0 1px;cursor:default;white-space:nowrap;}
+.ZhACCont li.yui-ac-highlight {  @SelectedBg@ }
+.ZhACCont li.yui-ac-prehighlight {background:#FFFFCC;}
+.ZhACCont table{font-size: small;}
+
+.ZhACTo {z-index:9050;}
+.ZhACCc {z-index:9040;}
+.ZhACBCc {z-index:9030;}
+
+
+
+
+
+
+
+

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <meta name="generator" content="Adobe RoboHelp 10" />
+<title>Ceate a Domain Administrator</title>
+<link rel="StyleSheet" href="../default.css" type="text/css" />
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="../whmsg.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript" src="../whver.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whutils.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whlang.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic.js" charset="utf-8"></script>
+
+</head>
+<body><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.gbWhTopic)
+{
+	var strUrl = document.location.href;
+	var bc = 0;
+	var n = strUrl.toLowerCase().indexOf("bc-");
+	if(n != -1)
+	{
+		document.location.href = strUrl.substring(0, n);
+		bc = strUrl.substring(n+3);
+	}
+
+	if (window.addTocInfo)
+	{
+	addButton("show",BTN_TEXT,"Show TOC","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	
+	
+}
+else
+	if (window.gbIE4)
+		document.location.reload();
+
+onLoadHandler = function()
+{
+  if (window.setRelStartPage)
+	{
+	setTimeout("setRelStartPage('../administration_console_help.htm');", 1)
+
+    setTimeout("UpdateBreadCrumbsMarker();", 1);
+	}
+}
+
+if (window.addEventListener){  
+	window.addEventListener('load', onLoadHandler, false);   
+} else if (window.attachEvent){  
+	window.attachEvent('onload', onLoadHandler);  
+}
+
+function onSetStartPage()
+{
+  autoSync(1);
+  sendSyncInfo();
+  sendAveInfoOut();
+}
+//-->
+//]]></script>
+<script type="text/javascript" src="../ehlpdhtm.js" language="JavaScript1.2"></script>
+
+
+<h1>Create a Domain Administrator</h1>
+<ol style="list-style: decimal;">
+<li class="p">
+<p>Go to <span style="font-weight: bold;">Manage&gt;Accounts</span>.</p>
+</li>
+<li class="p">
+<p>In the gear icon, select <span style="font-weight: bold;">New</span>.</p>
+</li>
+<li class="p">
+<p><a href="../managing_accounts/create_an_account.htm">Create the account</a>.</p>
+</li>
+<li class="p">
+<p>If the domain administrator's role is basic domain administration, check <span style="font-weight: bold;">Administrator</span> and check <span style="font-weight: bold;">Assign Default domain administrator views and rights</span>.</p>
+</li>
+<li class="p">
+<p>You can give domain administrators the ability to set the quota for individual accounts. In the <span style="font-weight: bold;">Account quota</span> field enter the maximum quota the domain administrator can set for any account. &#160;</p>
+</li>
+<li class="p">
+<p>Complete the account create and click <span style="font-weight: bold;">Finish</span>.</p>
+</li>
+</ol>
+<p>&#160;</p>
+<ul style="list-style: url('../blue_right.jpg');">
+<li class="p-note">
+<p class="note">To create a quick access link to the administration console from the domain administrator's Zimbra Web Client account, run the following zmprov CLI</p>
+</li>
+</ul>
+
+<table style="vertical-align: top; margin-left: 40px;" cellspacing="0" width="95%">
+<col style="width: 100%;" />
+<tr style="vertical-align: top;">
+<td style="border: Solid 1px #000000; padding-right: 10px; padding-left: 10px;">
+<p style="font-family: 'Courier New', monospace;">&#160;</p>
+<p style="font-family: 'Courier New', monospace; font-weight: bold;">zmprov md &lt; server.domainexample.com&gt; zimbraWebClientAdminReference &lt;https:// server.domainexample.com:7071/</p>
+<p style="font-family: 'Courier New', monospace;">&#160;</p>
+</td>
+</tr>
+</table>
+
+<p>&#160;</p>
+<script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+
+
+highlightSearch();
+//-->
+//]]></script>
+</body>
+</html>

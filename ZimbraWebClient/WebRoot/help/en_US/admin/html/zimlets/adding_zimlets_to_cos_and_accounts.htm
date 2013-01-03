@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Adobe RoboHelp 10" />
+<title>Adding Zimlets to COS and Accounts</title>
+<link rel="StyleSheet" href="../default.css" type="text/css" />
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="../whmsg.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript" src="../whver.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whutils.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whlang.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic.js" charset="utf-8"></script>
+
+</head>
+<body><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.gbWhTopic)
+{
+	var strUrl = document.location.href;
+	var bc = 0;
+	var n = strUrl.toLowerCase().indexOf("bc-");
+	if(n != -1)
+	{
+		document.location.href = strUrl.substring(0, n);
+		bc = strUrl.substring(n+3);
+	}
+
+	if (window.addTocInfo)
+	{
+	addTocInfo("Managing Zimlets\nAdding Zimlets to COS and Accounts");
+addButton("show",BTN_TEXT,"Show TOC","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	
+	
+}
+else
+	if (window.gbIE4)
+		document.location.reload();
+
+onLoadHandler = function()
+{
+  if (window.setRelStartPage)
+	{
+	setTimeout("setRelStartPage('../administration_console_help.htm');", 1)
+
+    setTimeout("UpdateBreadCrumbsMarker();", 1);
+	}
+}
+
+if (window.addEventListener){  
+	window.addEventListener('load', onLoadHandler, false);   
+} else if (window.attachEvent){  
+	window.attachEvent('onload', onLoadHandler);  
+}
+
+function onSetStartPage()
+{
+  autoSync(1);
+  sendSyncInfo();
+  sendAveInfoOut();
+}
+//-->
+//]]></script>
+<script type="text/javascript" src="../ehlpdhtm.js" language="JavaScript1.2"></script>
+
+
+<h1>Adding Zimlets to COS and Accounts</h1>
+<p>Several <a href="about_zimlets.htm">Zimlets are deployed</a> with Zimbra Collaboration Server and are automatically enabled in the default Class of Service (COS). New Zimlets that you deploy are added to the Zimlets tabs in Class of Service and Accounts configuration, but they are not enabled. &#160;You must go to the COS or to the individual accounts and enable the new Zimlets.</p>
+<h6>To enable Zimlets by COS</h6>
+<ol style="list-style: decimal;">
+<li class="p">
+<p>Go to <span style="font-weight: bold;">Configure&gt;Class of Service</span> and select the COS to edit.</p>
+</li>
+<li class="p">
+<p>Go to the <span style="font-weight: bold;">Zimlets</span> page and check the Zimlets to be used.</p>
+</li>
+<li class="p">
+<p>For the checked Zimlets, set one of the following:</p>
+<ul style="list-style: disc;">
+<li class="p">
+<p><span style="font-weight: bold;">mandatory</span><span>,</span> if the Zimlet cannot be enabled or disabled from an account's Preference pages.</p>
+</li>
+<li class="p">
+<p><span style="font-weight: bold;">enabled</span><span>,</span> if the Zimlet should be on by default. Users can disable the Zimlet.</p>
+</li>
+<li class="p">
+<p><span style="font-weight: bold;">disabled</span><span>,</span> <span>if the Zimlet should be off by default. &#160;Users can enable the Zimlet.</span></p>
+</li>
+</ul>
+</li>
+<li class="p">
+<p><span style="font-weight: bold;">Save</span> your changes.</p>
+</li>
+</ol>
+<h6>To enable Zimlets from an account</h6>
+<ol style="list-style: decimal;">
+<li class="p">
+<p>Go to <span style="font-weight: bold;">Manage&gt;Accounts</span> and select the account to edit.</p>
+</li>
+<li class="p">
+<p>Go to the <span style="font-weight: bold;">Zimlets</span> page. To change which Zimlets are enabled for this account from the COS, click <span style="font-weight: bold;">Limit the Zimlets available to this user to:</span><span>.</span></p>
+</li>
+<li class="p">
+<p>Check the Zimlets for the accounts and select one of the following:</p>
+<ul style="list-style: disc;">
+<li class="p">
+<p><span style="font-weight: bold;">mandatory,</span> if the Zimlet cannot be enabled or disabled from an account's Preference pages.</p>
+</li>
+<li class="p">
+<p><span style="font-weight: bold;">enabled,</span> if the Zimlet should be on by default. Users can disable the Zimlet.</p>
+</li>
+<li class="p">
+<p><span style="font-weight: bold;">disabled,</span> <span>if the Zimlet should be off by default. &#160;Users can enable the Zimlet.</span></p>
+</li>
+</ul>
+</li>
+<li class="p">
+<p><span style="font-weight: bold;">Save</span> your changes.</p>
+</li>
+</ol>
+<p>&#160;</p>
+<script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+
+
+highlightSearch();
+//-->
+//]]></script>
+</body>
+</html>

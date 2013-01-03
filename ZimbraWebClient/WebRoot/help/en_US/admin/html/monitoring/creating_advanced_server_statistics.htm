@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <meta name="generator" content="Adobe RoboHelp 10" />
+<title>Creating Advanced Server Statistics</title>
+<link rel="stylesheet" href="../default.css" type="text/css" />
+<style type="text/css">
+<!--
+li.whs1 { x-condition:Network; }
+ol.whs2 { list-style:decimal; }
+-->
+</style>
+
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+
+<script type="text/javascript" language="JavaScript" title="WebHelpSplitCss">
+//<![CDATA[
+<!--
+if (navigator.appName !="Netscape")
+{   document.write("<link rel='stylesheet' href='../default.css'>");}
+//-->
+//]]>
+</script>
+<script type="text/javascript" language="JavaScript" title="WebHelpInlineScript">
+//<![CDATA[
+<!--
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+        origWidth = innerWidth;
+        origHeight = innerHeight;
+        onresize = reDo;
+}
+onerror = null; 
+//-->
+//]]>
+</script>
+<script type="text/javascript" language="javascript1.2" src="../whmsg_nc.js">
+</script>
+<script type="text/javascript" language="javascript" src="../whver_nc.js">
+</script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy_nc.js">
+</script>
+<script type="text/javascript" language="javascript1.2" src="../whutils_nc.js">
+</script>
+<script type="text/javascript" language="javascript1.2" src="../whlang_nc.js">
+</script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic_nc.js">
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+-->
+</style>
+<script type="text/javascript" language="javascript1.2" src="../whmsg.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript" src="../whver.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whutils.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whproxy.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whlang.js" charset="utf-8"></script>
+<script type="text/javascript" language="javascript1.2" src="../whtopic.js" charset="utf-8"></script>
+
+</head>
+<body><script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.gbWhTopic)
+{
+	var strUrl = document.location.href;
+	var bc = 0;
+	var n = strUrl.toLowerCase().indexOf("bc-");
+	if(n != -1)
+	{
+		document.location.href = strUrl.substring(0, n);
+		bc = strUrl.substring(n+3);
+	}
+
+	if (window.addTocInfo)
+	{
+	addTocInfo("Monitoring Tools\nCreating Advanced Server Statistics");
+addButton("show",BTN_TEXT,"Show TOC","","","","",0,0,"","","");
+
+	}
+	if (window.writeBtnStyle)
+		writeBtnStyle();
+
+	if (window.writeIntopicBar)
+		writeIntopicBar(1);
+
+	
+	
+}
+else
+	if (window.gbIE4)
+		document.location.reload();
+
+onLoadHandler = function()
+{
+  if (window.setRelStartPage)
+	{
+	setTimeout("setRelStartPage('../administration_console_help.htm');", 1)
+
+    setTimeout("UpdateBreadCrumbsMarker();", 1);
+	}
+}
+
+if (window.addEventListener){  
+	window.addEventListener('load', onLoadHandler, false);   
+} else if (window.attachEvent){  
+	window.attachEvent('onload', onLoadHandler);  
+}
+
+function onSetStartPage()
+{
+  autoSync(1);
+  sendSyncInfo();
+  sendAveInfoOut();
+}
+//-->
+//]]></script>
+<script type="text/javascript" src="../ehlpdhtm.js" language="JavaScript1.2"></script>
+
+
+<h1>Creating Advanced Server Statistics</h1>
+<p>In Monitoring&gt;Sever Statistics, the Advanced Statistics tab includes advanced graphing options that lets you generate various charts based on statistical information for the CPU, IO, mailboxd, MTA queue, MySQL and other components. Logs are processed into a format that is readily displayed in the admin console, indicating real-time service status, MTA/spam/virus traffic and performance statistics.</p>
+<p>You can specify charts by server for the following groups. Each group has a list of specific counters. You can select what information you want graphed.</p>
+<ul>
+<li>
+<p><b style="font-weight: bold;">cpu.csv</b>: CPU utilization is tracked both at the server level and the process level.</p>
+</li>
+
+<li>
+<p><span><b style="font-weight: bold;">df.csv.</b></span> Disk utilization is tracked for each disk partition.</p>
+</li>
+<li>
+<p><b style="font-weight: bold;">fd.csv</b>: Captures file descriptor usage on the system.</p>
+</li>
+<li>
+<p><b style="font-weight: bold;">mtaqueue.csv</b>: Zimbra server and JVM statistics. &#160;</p>
+</li>
+<li>
+<p><b style="font-weight: bold;">io-x.csv <span style="font-weight: normal;">and</span> io.csv</b>: Store data from the iostat(1) command (io-x.csv with iostat -x).</p>
+</li>
+<li>
+<p><b style="font-weight: bold;">vm.csv</b>: Linux VM statistics (from the <i>vmstat</i> command). The output of vmstat is recorded for reviewable statistics.</p>
+</li>
+</ul>
+<p style="font-weight: normal;"><b><span style="font-weight: normal;">The .csv files zmmtzstats.csv and zmstatuslog.csv are used to generate the Server Status page and MTA stats tab.</span></b></p>
+<h3>How to Add a Chart</h3>
+<ul>
+<li class="p-note">
+<p class="note"><img src="../blue_right.gif" alt="" style="border: none;" width="24" height="19" border="0" /><span style="color: #000000;"><font color="black" >To generate images, Adobe Flash Player must be installed.</font></span></p>
+</li>
+</ul>
+<p>When you open the Advanced Statistics tab, the Add Chart fields are displayed. You select a combination of server, group and counters to create the chart and you set a start and end time for information you want charted.</p>
+<ol class="whs2" style="list-style: decimal;">
+<li class="p">
+<p>Select the <span style="font-weight: bold;"><b>Server</b></span> and the statistics <span style="font-weight: bold;"><b>Group</b></span> you want to graph.</p>
+</li>
+<li class="p">
+<p>In the <span style="font-weight: bold;"><b>Counters</b></span> field select the type of information you want to graph. If you select more than one counter type, the counter details overlay on the graph.</p>
+</li>
+<li class="p">
+<p>Enter the start and end time to display the information. You can enter either as date (mm/dd/yy) or as Unix AT command, for example, Start &#160;<span style="font-weight: bold;"><b>now-1d</b></span> - &#160;End <span style="font-weight: bold;"><b>now</b></span> <span>would generate a graphic for information 1 day previous to now to now.</span></p>
+</li>
+</ol>
+<p>The chart is generated with the information you requested. Click <span style="font-weight: bold;"><b>Update Chart</b></span> to refresh the information. These charts are not saved, but you can rerun by updating the start and end times at any time.</p>
+<p>If you want to look at more than one type of chart, click <span style="font-weight: bold;"><b>Add Chart</b></span> and a new set of chart fields are displayed.</p>
+<p>&#160;</p>
+<script type="text/javascript" language="javascript1.2">//<![CDATA[
+<!--
+if (window.writeIntopicBar)
+	writeIntopicBar(0);
+
+
+highlightSearch();
+//-->
+//]]></script>
+</body>
+</html>

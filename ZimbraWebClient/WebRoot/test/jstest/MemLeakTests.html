@@ -1,0 +1,70 @@
+<html>
+<head>
+<title>memory leak tests</title>
+
+<link rel="stylesheet" type="text/css" href="../../js/zimbraMail/config/style/common.css">
+<link rel="stylesheet" type="text/css" href="../../js/zimbraMail/config/style/dwt.css">
+<link rel="stylesheet" type="text/css" href="../../js/zimbraMail/config/style/zm.css">
+
+
+<scriptx language="Javascript" src="../../../ajax/js/config/msgs/AjxMsg_en.js"></script>
+
+<script language="Javascript" src="../../js/ajax/debug/AjxDebug.js"></script>
+<script language="Javascript" src="../../js/ajax/core/AjxCore.js"></script>
+<scriptx language="Javascript" src="../../js/ajax/core/AjxEnv.js"></script>
+<scriptx language="Javascript" src="../../js/ajax/util/AjxCallback.js"></script>
+<script language="Javascript" src="../../js/ajax/util/AjxVector.js"></script>
+<scriptx language="Javascript" src="../../js/ajax/util/AjxBuffer.js"></script>
+<scriptx language="Javascript" src="../../js/ajax/util/AjxStringUtil.js"></script>
+<scriptx language="Javascript" src="../../js/ajax/util/AjxTimedAction.js"></script>
+<scriptx language="Javascript" src="../../js/ajax/events/AjxEventMgr.js"></script>
+<scriptx language="Javascript" src="../../js/ajax/events/AjxListener.js"></script>
+
+<scriptx language="Javascript" src="../../js/ajax/dwt/graphics/DwtPoint.js"></script>
+<scriptx language="Javascript" src="../../js/ajax/dwt/graphics/DwtCssStyle.js"></script>
+<script language="Javascript" src="../../js/ajax/dwt/core/Dwt.js"></script>
+<scriptx language="Javascript" src="../../js/ajax/dwt/core/DwtDraggable.js"></script>
+<script language="Javascript" src="../../js/ajax/dwt/events/DwtEvent.js"></script>
+<scriptx language="Javascript" src="../../js/ajax/dwt/events/DwtControlEvent.js"></script>
+<scriptx language="Javascript" src="../../js/ajax/dwt/events/DwtUiEvent.js"></script>
+<scriptx language="Javascript" src="../../js/ajax/dwt/events/DwtKeyEvent.js"></script>
+<scriptx language="Javascript" src="../../js/ajax/dwt/events/DwtMouseEvent.js"></script>
+<scriptx language="Javascript" src="../../js/ajax/dwt/events/DwtSelectionEvent.js"></script>
+<scriptx language="Javascript" src="../../js/ajax/dwt/events/DwtTreeEvent.js"></script>
+<script language="Javascript" src="../../js/ajax/dwt/widgets/DwtControl.js"></script>
+<script language="Javascript" src="../../js/ajax/dwt/widgets/DwtComposite.js"></script>
+<scriptx language="Javascript" src="../../js/ajax/dwt/widgets/DwtLabel.js"></script>
+<scriptx language="Javascript" src="../../js/ajax/dwt/widgets/DwtButton.js"></script>
+<scriptx language="Javascript" src="../../js/ajax/dwt/widgets/DwtBaseDialog.js"></script>
+<scriptx language="Javascript" src="../../js/ajax/dwt/widgets/DwtDialog.js"></script>
+<scriptx language="Javascript" src="../../js/ajax/dwt/widgets/DwtToolTip.js"></script>
+<scriptx language="Javascript" src="../../js/ajax/dwt/widgets/DwtHoverMgr.js"></script>
+<script language="Javascript" src="../../js/ajax/dwt/widgets/DwtShell.js"></script>
+
+<script language="Javascript">
+
+function init(runOnInit) {
+	if (runOnInit) {
+		DBG = new AjxDebug(AjxDebug.NONE, null, false);
+		window.shell = new DwtShell();
+		/*
+		var composite = new DwtComposite(shell);
+		composite.getHtmlElement().innerHTML = "Hello";
+		document.body.appendChild(shell.getHtmlElement());
+		*/
+	}
+}
+
+function die() {
+	if (typeof CollectGarbage != 'undefined') {
+		CollectGarbage();
+	}
+}
+
+</script>
+
+<body onload="init(true)" onunload="die()">
+
+
+</body>
+</html>
