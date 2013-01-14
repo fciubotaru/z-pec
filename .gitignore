@@ -1,3 +1,6 @@
 /.settings/
 .metadata
 .settings
+.metadata*
+.settings*
+*.class
