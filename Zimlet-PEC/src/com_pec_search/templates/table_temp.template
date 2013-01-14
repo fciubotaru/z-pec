@@ -1,0 +1,36 @@
+<template id="Main">
+	<table id="tbl_search_refiner" cellpadding="2" cellspacing="0" border="0" width="100%">
+		<tr>
+			<td colspan="2">
+				PEC Search for messages with "z-pec" 
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">&nbsp;</td>
+		</tr>
+		<tr>
+			<td>
+				<b>From:</b>
+			</td>
+			<td>
+				<b>Subject:</b>
+			</td>
+		 </tr>
+		 <tr>
+			<td>
+				Cristian Sfercoci
+			</td>
+			<td>
+				A simple mail delivered
+			</td>
+		</tr>
+		<tr>
+			<td>
+				Florin Ciubotariu
+			</td>
+			<td>
+				Tested and now is OK
+			</td>
+		</tr>
+	</table>
+</template>

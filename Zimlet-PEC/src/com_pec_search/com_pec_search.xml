@@ -1,0 +1,8 @@
+<zimlet name="com_pec_search" version="1.0_6.0.0.20121214.101902" description="Filter basic messages into a new table and highlight messages that were found">
+    <include>com_pec_search.js</include>
+	<include>templates/table_temp.template.js</include>
+    <handlerObject>com_pec_search_HandlerObject</handlerObject>
+    <zimletPanelItem label="Search Pec Message" icon="zimbraIcon">
+      <toolTipText>${msg.simpledialog_tooltip}</toolTipText>
+   </zimletPanelItem>
+</zimlet>
