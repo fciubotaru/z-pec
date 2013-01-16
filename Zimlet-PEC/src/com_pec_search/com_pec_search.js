@@ -15,6 +15,7 @@
 
 com_pec_search_HandlerObject = function() {
 };
+
 com_pec_search_HandlerObject.prototype = new ZmZimletBase;
 com_pec_search_HandlerObject.prototype.constructor = com_pec_search_HandlerObject;
 
@@ -45,18 +46,13 @@ com_pec_search_HandlerObject.prototype._displayDialog = function() {
 	var sDialogTitle = this.getMessage("simpledialog_dialog_title");
 	var sStatusMsg = this.getMessage("simpledialog_status_launch");
 
-	var search = appCtxt.getAppController();
-
 	// TODO replace current simple panel box with list DwtListView
 	this.pView = new DwtComposite(this.getShell()); // creates an empty div as a
+
 	// child of main shell div
 	this.pView.setSize("350", "250"); // set width and height
 	this.pView.getHtmlElement().style.overflow = "auto"; // adds scrollbar
 	this.pView.getHtmlElement().innerHTML = this._createDialogView(); // insert
-	// html
-	// to
-	// the
-	// dialogbox
 
 	// pass the title, view & buttons information to create dialog box
 	this.pbDialog = new ZmDialog({
@@ -72,14 +68,15 @@ com_pec_search_HandlerObject.prototype._displayDialog = function() {
 	this.pbDialog.popup(); // show the dialog
 
 	appCtxt.getAppController().setStatusMsg(sStatusMsg);
-	
-	//performing actual search
+
+	// performing actual search
 	this.doInternalSearch();
 };
 
 /**
  * Creates the dialog view.
  * 
+ * @author csfercoci @
  */
 com_pec_search_HandlerObject.prototype._createDialogView = function() {
 	var html = AjxTemplate.expand("com_pec_search.templates.table_temp#Main");
@@ -103,22 +100,25 @@ com_pec_search_HandlerObject.prototype._closeBtnListener = function() {
  */
 com_pec_search_HandlerObject.prototype.doInternalSearch = function() {
 
-	var getHtml = appCtxt.get(ZmSetting.VIEW_AS_HTML);
 	var callbck = new AjxCallback(this, this._handleInternalSrcResponse);
-	var _types = new AjxVector();
-	// if is's necessary we will add more
-	_types.add(ZmId.ITEM_MSG);
+	var errcallbck = new AjxCallback(this, this._handleInternalErrSrcResponse);
 
-	// perform actual search
+	var _types = new AjxVector();
+
+	// search only in messages
+	_types.add(ZmId.ITEM_MSG);
+	
+	appCtxt.getSearchController().resetSearchToolbar(); 
+	
 	appCtxt.getSearchController().search({
 		query : "z-pec",
-		userText : true,
+		userText : false,
 		limit : 6500,
 		offset : 0,
 		types : _types,
 		noRender : true,
-		getHtml : getHtml,
-		callback : callbck
+		callback : callbck,
+		errorCallback : errcallbck
 	});
 };
 
@@ -133,37 +133,39 @@ com_pec_search_HandlerObject.prototype.doInternalSearch = function() {
 com_pec_search_HandlerObject.prototype._handleInternalSrcResponse = function(
 		result) {
 
-	var array = result.getResponse().getResults(ZmId.ITEM_MSG).getVector()
+	appCtxt.getAppController().setStatusMsg("Result for z-pec text");
+
+	console.log("entered in search response");
+	var msgs = result.getResponse().getResults(ZmId.ITEM_MSG).getVector()
 			.getArray();
-	this._totalMsgArray = this._totalMsgArray.concat(array);
-	if (this._totalMsgArray.length == 0) {// no results
+
+	if (msgs.length == 0) {// no results
 		appCtxt.getAppController().setStatusMsg("No results");
+		this._closeBtnListener();
 		return;
 	}
 
-	// done with searching, now process..
-	this._currentRequestNumber = 0;// reset
-	this._processResult(this._totalMsgArray, false);
-	this._totalMsgArray = [];
-
-	for ( var i = 0; i < array.length; i++) {
-		var eml = array[i];
-		this.senderArry.push(eml._addrs.FROM._array[0].address);
+	for ( var i = 0; i < msgs.length; i++) {
+		var eml = msgs[i];
 		var tbl = document.getElementById('tbl_search_refiner'); // table
 		// reference
-		 var div = document.createElement('div'); // create DIV element
-	     var  txt = document.createTextNode(teml._addrs.FROM._array[0].address); // create
-																					// text
-																					// node
-	
-		row = tbl.insertRow(tbl.rows.length); // append table row		 
-	    div.appendChild(txt);                    // append text node to the DIV
-	    div.setAttribute('class', style);        // set DIV class attribute
-	    div.setAttribute('className', style);    // set DIV class attribute
-													// for IE (?!)
-	   // add content to the row
-	    row.insertCell(i).appendChild(div);
+		
+		row = tbl.insertRow(tbl.rows.length); // append table row
 
+		var c0 = row.insertCell(0).innerHTML=eml._addrs.FROM._array[0].address;
+		var c1 = row.insertCell(1).innerHTML=eml._addrs.FROM._array[0].address;
+		c1.appendChild(div);
 	}
 
+};
+
+/**
+ * Handler ajax error message
+ * 
+ * @since 15.01.2012
+ * @param result
+ */
+com_pec_search_HandlerObject.prototype._handleInternalErrSrcResponse = function(
+		result) {
+	appCtxt.getAppController().setStatusMsg("Error in search");
 };
