@@ -23,14 +23,14 @@ com_pec_search_HandlerObject.prototype.constructor = com_pec_search_HandlerObjec
  * Double clicked.
  */
 com_pec_search_HandlerObject.prototype.doubleClicked = function() {
-	this.singleClicked();
+	this._displayDialog();
 };
 
 /**
  * Single clicked.
  */
 com_pec_search_HandlerObject.prototype.singleClicked = function() {
-	this._displayDialog();
+//do nothing for the moment
 };
 
 /**
@@ -107,9 +107,9 @@ com_pec_search_HandlerObject.prototype.doInternalSearch = function() {
 
 	// search only in messages
 	_types.add(ZmId.ITEM_MSG);
-	
-	appCtxt.getSearchController().resetSearchToolbar(); 
-	
+
+	appCtxt.getSearchController().resetSearchToolbar();
+
 	appCtxt.getSearchController().search({
 		query : "z-pec",
 		userText : false,
@@ -149,12 +149,20 @@ com_pec_search_HandlerObject.prototype._handleInternalSrcResponse = function(
 		var eml = msgs[i];
 		var tbl = document.getElementById('tbl_search_refiner'); // table
 		// reference
-		
+
+	
 		row = tbl.insertRow(tbl.rows.length); // append table row
 
-		var c0 = row.insertCell(0).innerHTML=eml._addrs.FROM._array[0].address;
-		var c1 = row.insertCell(1).innerHTML=eml._addrs.FROM._array[0].address;
-		c1.appendChild(div);
+		// insert email content
+		if (eml._addrs.FROM!=undefined  && eml._addrs.FROM._array!=undefined && eml._addrs.FROM._array.length>0) {
+			row.insertCell(0).innerHTML = eml._addrs.FROM._array[0].address;
+		}
+		if (eml._addrs.TO && eml._addrs.TO._array && eml._addrs.TO._array!=undefined && eml._addrs.TO._array.length>0) {
+			row.insertCell(1).innerHTML = eml._addrs.TO._array[0].address;
+		}
+		if (eml.subject !=undefined){
+			row.insertCell(2).innerHTML = eml.subject;
+		}
 	}
 
 };
