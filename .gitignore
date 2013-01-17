@@ -3,4 +3,9 @@
 .settings
 .metadata*
 .settings*
+**/build/*
+**/build/**
+**/classes/*
+**/classes/**
 *.class
+ZimbraWebClient/WebRoot/js/ajax/3rdparty/tinymce
