@@ -1,0 +1,9 @@
+<zimlet name="com_pec_content_filter" version="1.0" description="Display only the original content of a PEC message.">
+    <!--<include>com_pec_content_filter.js</include>-->
+	<contentObject>
+         <matchOn>
+             <regex attrs="ig">pec|z-pec|PEC</regex><!--Create marker for pec extra-content.-->
+         </matchOn>
+         <toolTip>Posta Elettronica Certificata</toolTip>
+     </contentObject>
+</zimlet>
