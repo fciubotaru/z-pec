@@ -30,7 +30,7 @@ com_pec_search_HandlerObject.prototype.doubleClicked = function() {
  * Single clicked.
  */
 com_pec_search_HandlerObject.prototype.singleClicked = function() {
-//do nothing for the moment
+	// do nothing for the moment
 };
 
 /**
@@ -150,19 +150,25 @@ com_pec_search_HandlerObject.prototype._handleInternalSrcResponse = function(
 		var tbl = document.getElementById('tbl_search_refiner'); // table
 		// reference
 
-	
 		row = tbl.insertRow(tbl.rows.length); // append table row
 
 		// insert email content
-		if (eml._addrs.FROM!=undefined  && eml._addrs.FROM._array!=undefined && eml._addrs.FROM._array.length>0) {
-			row.insertCell(0).innerHTML = eml._addrs.FROM._array[0].address;
+		try {
+				
+			row.insertCell(0).innerHTML = eml.getAddress(AjxEmailAddress.FROM);
+		
+		
+			row.insertCell(1).innerHTML = eml.getAddress(AjxEmailAddress.TO);
+	
+		
+			row.insertCell(2).innerHTML = eml.subject;//this is not documented in class description
+			
+			
+		} catch (e) {
+			console.log(e.message);
 		}
-		if (eml._addrs.TO && eml._addrs.TO._array && eml._addrs.TO._array!=undefined && eml._addrs.TO._array.length>0) {
-			row.insertCell(1).innerHTML = eml._addrs.TO._array[0].address;
-		}
-		if (eml.subject !=undefined){
-			row.insertCell(2).innerHTML = eml.subject;
-		}
+		;
+
 	}
 
 };
