@@ -1,12 +1,20 @@
 <template id="Main">
 	<table id="tbl_search_refiner" cellpadding="2" cellspacing="0" border="0" width="100%">
 		<tr>
+<<<<<<< HEAD
+			<td colspan="4">
+=======
 			<td colspan="3">
+>>>>>>> origin/master
 				PEC Search for messages with "z-pec" 
 			</td>
 		</tr>
 		<tr>
+<<<<<<< HEAD
+			<td colspan="4">&nbsp;</td>
+=======
 			<td colspan="3">&nbsp;</td>
+>>>>>>> origin/master
 		</tr>
 		<tr>
 			<td>
@@ -17,6 +25,13 @@
 			</td>
 			<td>
 				<b>Subject:</b>
+<<<<<<< HEAD
+			</td>
+			<td>
+				<b>Folder:</b>
+				
+=======
+>>>>>>> origin/master
 			</td>
 		 </tr>
 	</table>

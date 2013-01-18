@@ -50,7 +50,7 @@ com_pec_search_HandlerObject.prototype._displayDialog = function() {
 	this.pView = new DwtComposite(this.getShell()); // creates an empty div as a
 
 	// child of main shell div
-	this.pView.setSize("350", "250"); // set width and height
+	this.pView.setSize("500", "350"); // set width and height
 	this.pView.getHtmlElement().style.overflow = "auto"; // adds scrollbar
 	this.pView.getHtmlElement().innerHTML = this._createDialogView(); // insert
 
@@ -154,16 +154,23 @@ com_pec_search_HandlerObject.prototype._handleInternalSrcResponse = function(
 
 		// insert email content
 		try {
-				
+
 			row.insertCell(0).innerHTML = eml.getAddress(AjxEmailAddress.FROM);
-		
-		
-			row.insertCell(1).innerHTML = eml.getAddress(AjxEmailAddress.TO);
-	
-		
-			row.insertCell(2).innerHTML = eml.subject;//this is not documented in class description
+
 			
-			
+			//if null then is the same  as sender???
+			if (eml.getAddress(AjxEmailAddress.TO) != null) {
+				row.insertCell(1).innerHTML = eml
+						.getAddress(AjxEmailAddress.TO);
+			} else {
+				row.insertCell(1).innerHTML = appCtxt.getActiveAccount()
+						.getEmail();
+			}
+
+			row.insertCell(2).innerHTML = eml.subject;
+			row.insertCell(3).innerHTML = appCtxt.getById(eml.folderId)
+					.getName();
+
 		} catch (e) {
 			console.log(e.message);
 		}
