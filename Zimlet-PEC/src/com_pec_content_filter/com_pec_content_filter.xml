@@ -1,9 +1,16 @@
 <zimlet name="com_pec_content_filter" version="1.0" description="Display only the original content of a PEC message.">
-    <!--<include>com_pec_content_filter.js</include>-->
+	<include>com_pec_content_filter.js</include>
 	<contentObject>
-         <matchOn>
-             <regex attrs="ig">pec|z-pec|PEC</regex><!--Create marker for pec extra-content.-->
-         </matchOn>
-         <toolTip>Posta Elettronica Certificata</toolTip>
-     </contentObject>
+		<matchOn>
+			<regex attrs="ig">PEC_CERT</regex><!--Create marker for pec extra-content. -->
+		</matchOn>
+		<toolTip>Posta Elettronica Certificata</toolTip>
+	</contentObject>
+	<handlerObject>ZmPecMsgsZimlet</handlerObject>
+	<userProperties>
+		<property type="string" name="text_mailPECHeaderStart" value="--Questo è un Messaggio di Posta Certificata--" />
+		<property type="string" name="text_mailPECHeaderEnd" value="@pec.aruba.it" />
+		<property type="string" name="html_mailPECHeaderStart" value="--Questo è un Messaggio di Posta Certificata--" />
+		<property type="string" name="html_mailPECHeaderEnd" value="@pec.aruba.it" />
+	</userProperties>
 </zimlet>
